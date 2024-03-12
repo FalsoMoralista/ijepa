@@ -42,6 +42,7 @@ from src.utils.logging import (
     AverageMeter)
 from src.utils.tensors import repeat_interleave_batch
 from src.datasets.imagenet1k import make_imagenet1k
+from src.datasets.PlantCLEF2022 import make_PlantClEF2022
 
 from src.helper import (
     load_checkpoint,
@@ -189,7 +190,7 @@ def main(args, resume_preempt=False):
         color_jitter=color_jitter)
 
     # -- init data-loaders/samplers
-    _, unsupervised_loader, unsupervised_sampler = make_imagenet1k(
+    _, unsupervised_loader, unsupervised_sampler = make_PlantClEF2022(
             transform=transform,
             batch_size=batch_size,
             collator=mask_collator,
