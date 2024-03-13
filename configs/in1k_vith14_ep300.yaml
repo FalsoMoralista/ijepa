@@ -5,15 +5,15 @@ data:
   - 0.3
   - 1.0
   crop_size: 224
-  image_folder: train
+  image_folder: LifeCLEFPlant2022/
   num_workers: 10
   pin_mem: true
-  root_path: $/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/
+  root_path: /home/rtcalumby/adam/luciano/
   use_color_distortion: false
   use_gaussian_blur: false
   use_horizontal_flip: false
 logging:
-  folder: $/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/logs
+  folder: /home/rtcalumby/adam/luciano/LifeCLEFPlant2022/logs
   write_tag: jepa
 mask:
   allow_overlap: false

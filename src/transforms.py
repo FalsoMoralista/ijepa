@@ -7,14 +7,17 @@
 
 from logging import getLogger
 
+import PIL
 from PIL import ImageFilter
+
 
 import torch
 import torchvision.transforms as transforms
 
+
+
 _GLOBAL_SEED = 0
 logger = getLogger()
-
 
 def make_transforms(
     crop_size=224,
@@ -23,6 +26,7 @@ def make_transforms(
     horizontal_flip=False,
     color_distortion=False,
     gaussian_blur=False,
+    validation=False,
     normalization=((0.485, 0.456, 0.406),
                    (0.229, 0.224, 0.225))
 ):
@@ -37,8 +41,15 @@ def make_transforms(
             rnd_color_jitter,
             rnd_gray])
         return color_distort
+    
+    transform_list = [] 
+    if validation:
+        transform_list += [transforms.Resize(224, interpolation=PIL.Image.BICUBIC)] # to maintain same ratio w.r.t. 224 images    
+        transform_list += [transforms.ToTensor()]
+        transform_list += [transforms.Normalize(normalization[0], normalization[1])]
+        transform = transforms.Compose(transform_list)
+        return transform # TODO: TEST
 
-    transform_list = []
     transform_list += [transforms.RandomResizedCrop(crop_size, scale=crop_scale)]
     if horizontal_flip:
         transform_list += [transforms.RandomHorizontalFlip()]

@@ -1,3 +1,302 @@
 srun: job 1714 queued and waiting for resources
 srun: Job has been cancelled
 srun: error: Unable to allocate resources: Job/step already completing or completed
+Traceback (most recent call last):
+  File "main.py", line 15, in <module>
+    from src.utils.distributed import init_distributed
+  File "/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/ijepa/src/utils/distributed.py", line 10, in <module>
+    import torch
+  File "/home/rtcalumby/miniconda3/lib/python3.8/site-packages/torch/__init__.py", line 229, in <module>
+    from torch._C import *  # noqa: F403
+ImportError: libcupti.so.11.7: cannot open shared object file: No such file or directory
+srun: error: hgx: task 0: Exited with exit code 1
+INFO:root:called-params configs/in1k_vith14_ep300.yaml
+INFO:root:loaded params...
+{   'data': {   'batch_size': 128,
+                'color_jitter_strength': 0.0,
+                'crop_scale': [0.3, 1.0],
+                'crop_size': 224,
+                'image_folder': 'train',
+                'num_workers': 10,
+                'pin_mem': True,
+                'root_path': '$/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/',
+                'use_color_distortion': False,
+                'use_gaussian_blur': False,
+                'use_horizontal_flip': False},
+    'logging': {   'folder': '$/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/logs',
+                   'write_tag': 'jepa'},
+    'mask': {   'allow_overlap': False,
+                'aspect_ratio': [0.75, 1.5],
+                'enc_mask_scale': [0.85, 1.0],
+                'min_keep': 10,
+                'num_enc_masks': 1,
+                'num_pred_masks': 4,
+                'patch_size': 14,
+                'pred_mask_scale': [0.15, 0.2]},
+    'meta': {   'copy_data': False,
+                'load_checkpoint': False,
+                'model_name': 'vit_huge',
+                'pred_depth': 12,
+                'pred_emb_dim': 384,
+                'read_checkpoint': None,
+                'use_bfloat16': True},
+    'optimization': {   'ema': [0.996, 1.0],
+                        'epochs': 300,
+                        'final_lr': 1e-06,
+                        'final_weight_decay': 0.4,
+                        'ipe_scale': 1.0,
+                        'lr': 0.001,
+                        'start_lr': 0.0002,
+                        'warmup': 40,
+                        'weight_decay': 0.04}}
+INFO:torch.distributed.distributed_c10d:Added key: store_based_barrier_key:1 to store for rank: 0
+INFO:torch.distributed.distributed_c10d:Rank 0: Completed store-based barrier for key:store_based_barrier_key:1 with 1 nodes.
+INFO:root:Running... (rank: 0/1)
+Process Process-1:
+Traceback (most recent call last):
+  File "/home/rtcalumby/miniconda3/envs/py382/lib/python3.8/multiprocessing/process.py", line 313, in _bootstrap
+    self.run()
+  File "/home/rtcalumby/miniconda3/envs/py382/lib/python3.8/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/ijepa/main.py", line 52, in process_main
+    app_main(args=params)
+  File "/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/ijepa/src/train.py", line 130, in main
+    with open(dump, 'w') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '$/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/logs/params-ijepa.yaml'
+INFO:root:called-params configs/in1k_vith14_ep300.yaml
+INFO:root:loaded params...
+{   'data': {   'batch_size': 128,
+                'color_jitter_strength': 0.0,
+                'crop_scale': [0.3, 1.0],
+                'crop_size': 224,
+                'image_folder': 'train',
+                'num_workers': 10,
+                'pin_mem': True,
+                'root_path': '$/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/',
+                'use_color_distortion': False,
+                'use_gaussian_blur': False,
+                'use_horizontal_flip': False},
+    'logging': {   'folder': '$/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/logs',
+                   'write_tag': 'jepa'},
+    'mask': {   'allow_overlap': False,
+                'aspect_ratio': [0.75, 1.5],
+                'enc_mask_scale': [0.85, 1.0],
+                'min_keep': 10,
+                'num_enc_masks': 1,
+                'num_pred_masks': 4,
+                'patch_size': 14,
+                'pred_mask_scale': [0.15, 0.2]},
+    'meta': {   'copy_data': False,
+                'load_checkpoint': False,
+                'model_name': 'vit_huge',
+                'pred_depth': 12,
+                'pred_emb_dim': 384,
+                'read_checkpoint': None,
+                'use_bfloat16': True},
+    'optimization': {   'ema': [0.996, 1.0],
+                        'epochs': 300,
+                        'final_lr': 1e-06,
+                        'final_weight_decay': 0.4,
+                        'ipe_scale': 1.0,
+                        'lr': 0.001,
+                        'start_lr': 0.0002,
+                        'warmup': 40,
+                        'weight_decay': 0.04}}
+INFO:torch.distributed.distributed_c10d:Added key: store_based_barrier_key:1 to store for rank: 0
+INFO:torch.distributed.distributed_c10d:Rank 0: Completed store-based barrier for key:store_based_barrier_key:1 with 1 nodes.
+INFO:root:Running... (rank: 0/1)
+Process Process-1:
+Traceback (most recent call last):
+  File "/home/rtcalumby/miniconda3/envs/py382/lib/python3.8/multiprocessing/process.py", line 313, in _bootstrap
+    self.run()
+  File "/home/rtcalumby/miniconda3/envs/py382/lib/python3.8/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/ijepa/main.py", line 52, in process_main
+    app_main(args=params)
+  File "/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/ijepa/src/train.py", line 130, in main
+    with open(dump, 'w') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '$/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/logs/params-ijepa.yaml'
+INFO:root:called-params configs/in1k_vith14_ep300.yaml
+INFO:root:loaded params...
+{   'data': {   'batch_size': 128,
+                'color_jitter_strength': 0.0,
+                'crop_scale': [0.3, 1.0],
+                'crop_size': 224,
+                'image_folder': 'train',
+                'num_workers': 10,
+                'pin_mem': True,
+                'root_path': '/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/',
+                'use_color_distortion': False,
+                'use_gaussian_blur': False,
+                'use_horizontal_flip': False},
+    'logging': {   'folder': '/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/logs',
+                   'write_tag': 'jepa'},
+    'mask': {   'allow_overlap': False,
+                'aspect_ratio': [0.75, 1.5],
+                'enc_mask_scale': [0.85, 1.0],
+                'min_keep': 10,
+                'num_enc_masks': 1,
+                'num_pred_masks': 4,
+                'patch_size': 14,
+                'pred_mask_scale': [0.15, 0.2]},
+    'meta': {   'copy_data': False,
+                'load_checkpoint': False,
+                'model_name': 'vit_huge',
+                'pred_depth': 12,
+                'pred_emb_dim': 384,
+                'read_checkpoint': None,
+                'use_bfloat16': True},
+    'optimization': {   'ema': [0.996, 1.0],
+                        'epochs': 300,
+                        'final_lr': 1e-06,
+                        'final_weight_decay': 0.4,
+                        'ipe_scale': 1.0,
+                        'lr': 0.001,
+                        'start_lr': 0.0002,
+                        'warmup': 40,
+                        'weight_decay': 0.04}}
+INFO:torch.distributed.distributed_c10d:Added key: store_based_barrier_key:1 to store for rank: 0
+INFO:torch.distributed.distributed_c10d:Rank 0: Completed store-based barrier for key:store_based_barrier_key:1 with 1 nodes.
+INFO:root:Running... (rank: 0/1)
+INFO:root:Initialized (rank/world-size) 0/1
+INFO:root:VisionTransformer(
+  (patch_embed): PatchEmbed(
+    (proj): Conv2d(3, 1280, kernel_size=(14, 14), stride=(14, 14))
+  )
+  (blocks): ModuleList(
+    (0-31): 32 x Block(
+      (norm1): LayerNorm((1280,), eps=1e-06, elementwise_affine=True)
+      (attn): Attention(
+        (qkv): Linear(in_features=1280, out_features=3840, bias=True)
+        (attn_drop): Dropout(p=0.0, inplace=False)
+        (proj): Linear(in_features=1280, out_features=1280, bias=True)
+        (proj_drop): Dropout(p=0.0, inplace=False)
+      )
+      (drop_path): Identity()
+      (norm2): LayerNorm((1280,), eps=1e-06, elementwise_affine=True)
+      (mlp): MLP(
+        (fc1): Linear(in_features=1280, out_features=5120, bias=True)
+        (act): GELU(approximate='none')
+        (fc2): Linear(in_features=5120, out_features=1280, bias=True)
+        (drop): Dropout(p=0.0, inplace=False)
+      )
+    )
+  )
+  (norm): LayerNorm((1280,), eps=1e-06, elementwise_affine=True)
+)
+INFO:root:making imagenet data transforms
+INFO:root:data-path /home/rtcalumby/adam/luciano/LifeCLEFPlant2022/train/train/
+Process Process-1:
+Traceback (most recent call last):
+  File "/home/rtcalumby/miniconda3/envs/py382/lib/python3.8/multiprocessing/process.py", line 313, in _bootstrap
+    self.run()
+  File "/home/rtcalumby/miniconda3/envs/py382/lib/python3.8/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/ijepa/main.py", line 52, in process_main
+    app_main(args=params)
+  File "/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/ijepa/src/train.py", line 193, in main
+    _, unsupervised_loader, unsupervised_sampler = make_PlantClEF2022(
+  File "/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/ijepa/src/datasets/PlantCLEF2022.py", line 32, in make_PlantClEF2022
+    dataset = PC2022(
+  File "/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/ijepa/src/datasets/PlantCLEF2022.py", line 90, in __init__
+    super(PC2022, self).__init__(root=data_path, transform=transform)
+  File "/home/rtcalumby/miniconda3/envs/py382/lib/python3.8/site-packages/torchvision/datasets/folder.py", line 309, in __init__
+    super().__init__(
+  File "/home/rtcalumby/miniconda3/envs/py382/lib/python3.8/site-packages/torchvision/datasets/folder.py", line 144, in __init__
+    classes, class_to_idx = self.find_classes(self.root)
+  File "/home/rtcalumby/miniconda3/envs/py382/lib/python3.8/site-packages/torchvision/datasets/folder.py", line 218, in find_classes
+    return find_classes(directory)
+  File "/home/rtcalumby/miniconda3/envs/py382/lib/python3.8/site-packages/torchvision/datasets/folder.py", line 40, in find_classes
+    classes = sorted(entry.name for entry in os.scandir(directory) if entry.is_dir())
+FileNotFoundError: [Errno 2] No such file or directory: '/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/train/train/'
+INFO:root:called-params configs/in1k_vith14_ep300.yaml
+INFO:root:loaded params...
+{   'data': {   'batch_size': 128,
+                'color_jitter_strength': 0.0,
+                'crop_scale': [0.3, 1.0],
+                'crop_size': 224,
+                'image_folder': 'LifeCLEFPlant2022/',
+                'num_workers': 10,
+                'pin_mem': True,
+                'root_path': '/home/rtcalumby/adam/luciano/',
+                'use_color_distortion': False,
+                'use_gaussian_blur': False,
+                'use_horizontal_flip': False},
+    'logging': {   'folder': '/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/logs',
+                   'write_tag': 'jepa'},
+    'mask': {   'allow_overlap': False,
+                'aspect_ratio': [0.75, 1.5],
+                'enc_mask_scale': [0.85, 1.0],
+                'min_keep': 10,
+                'num_enc_masks': 1,
+                'num_pred_masks': 4,
+                'patch_size': 14,
+                'pred_mask_scale': [0.15, 0.2]},
+    'meta': {   'copy_data': False,
+                'load_checkpoint': False,
+                'model_name': 'vit_huge',
+                'pred_depth': 12,
+                'pred_emb_dim': 384,
+                'read_checkpoint': None,
+                'use_bfloat16': True},
+    'optimization': {   'ema': [0.996, 1.0],
+                        'epochs': 300,
+                        'final_lr': 1e-06,
+                        'final_weight_decay': 0.4,
+                        'ipe_scale': 1.0,
+                        'lr': 0.001,
+                        'start_lr': 0.0002,
+                        'warmup': 40,
+                        'weight_decay': 0.04}}
+INFO:torch.distributed.distributed_c10d:Added key: store_based_barrier_key:1 to store for rank: 0
+INFO:torch.distributed.distributed_c10d:Rank 0: Completed store-based barrier for key:store_based_barrier_key:1 with 1 nodes.
+INFO:root:Running... (rank: 0/1)
+INFO:root:Initialized (rank/world-size) 0/1
+INFO:root:VisionTransformer(
+  (patch_embed): PatchEmbed(
+    (proj): Conv2d(3, 1280, kernel_size=(14, 14), stride=(14, 14))
+  )
+  (blocks): ModuleList(
+    (0-31): 32 x Block(
+      (norm1): LayerNorm((1280,), eps=1e-06, elementwise_affine=True)
+      (attn): Attention(
+        (qkv): Linear(in_features=1280, out_features=3840, bias=True)
+        (attn_drop): Dropout(p=0.0, inplace=False)
+        (proj): Linear(in_features=1280, out_features=1280, bias=True)
+        (proj_drop): Dropout(p=0.0, inplace=False)
+      )
+      (drop_path): Identity()
+      (norm2): LayerNorm((1280,), eps=1e-06, elementwise_affine=True)
+      (mlp): MLP(
+        (fc1): Linear(in_features=1280, out_features=5120, bias=True)
+        (act): GELU(approximate='none')
+        (fc2): Linear(in_features=5120, out_features=1280, bias=True)
+        (drop): Dropout(p=0.0, inplace=False)
+      )
+    )
+  )
+  (norm): LayerNorm((1280,), eps=1e-06, elementwise_affine=True)
+)
+INFO:root:making imagenet data transforms
+INFO:root:data-path /home/rtcalumby/adam/luciano/LifeCLEFPlant2022/train/
+INFO:root:Initialized PC2022
+INFO:root:PlantCLEF dataset created
+INFO:root:Using AdamW
+INFO:root:Epoch 1
+/home/rtcalumby/miniconda3/envs/py382/lib/python3.8/site-packages/torch/utils/data/dataloader.py:560: UserWarning: This DataLoader will create 10 worker processes in total. Our suggested max number of worker in current system is 8, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
+  warnings.warn(_create_warning_msg(
+INFO:root:[1,     0] loss: 0.471 masks: 70.0 42.0 [wd: 4.00e-02] [lr: 2.00e-04] [mem: 4.31e+04] (4103.0 ms)
+INFO:root:[1,     0] grad_stats: [5.56e-02 1.06e-02] (1.06e-02, 5.80e-02)
+INFO:torch.nn.parallel.distributed:Reducer buckets have been rebuilt in this iteration.
+INFO:torch.nn.parallel.distributed:Reducer buckets have been rebuilt in this iteration.
+INFO:root:[1,    10] loss: 0.301 masks: 70.5 43.0 [wd: 4.00e-02] [lr: 2.00e-04] [mem: 5.36e+04] (1219.6 ms)
+INFO:root:[1,    10] grad_stats: [4.02e-04 6.96e-05] (6.81e-05, 5.85e-04)
+INFO:root:[1,    20] loss: 0.227 masks: 67.6 43.1 [wd: 4.00e-02] [lr: 2.00e-04] [mem: 5.36e+04] (1062.1 ms)
+INFO:root:[1,    20] grad_stats: [4.22e-04 1.63e-05] (1.59e-05, 4.22e-04)
+INFO:root:[1,    30] loss: 0.175 masks: 65.5 43.9 [wd: 4.00e-02] [lr: 2.00e-04] [mem: 5.36e+04] (1003.6 ms)
+INFO:root:[1,    30] grad_stats: [6.42e-04 2.72e-05] (2.41e-05, 6.42e-04)
+INFO:root:[1,    40] loss: 0.141 masks: 66.3 43.7 [wd: 4.00e-02] [lr: 2.00e-04] [mem: 5.55e+04] (984.2 ms)
+INFO:root:[1,    40] grad_stats: [1.31e-02 2.85e-04] (2.43e-04, 1.31e-02)
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+slurmstepd: error: *** STEP 1720.0 ON hgx CANCELLED AT 2024-03-12T16:00:59 ***
+srun: error: hgx: task 0: Terminated
