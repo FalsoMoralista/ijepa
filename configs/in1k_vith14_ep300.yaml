@@ -6,7 +6,7 @@ data:
   - 1.0
   crop_size: 224
   image_folder: LifeCLEFPlant2022/
-  num_workers: 10
+  num_workers: 32
   pin_mem: true
   root_path: /home/rtcalumby/adam/luciano/
   use_color_distortion: false
@@ -42,7 +42,7 @@ optimization:
   ema:
   - 0.996
   - 1.0
-  epochs: 300
+  epochs: 350
   final_lr: 1.0e-06
   final_weight_decay: 0.4
   ipe_scale: 1.0

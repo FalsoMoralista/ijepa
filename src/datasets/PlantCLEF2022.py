@@ -26,7 +26,7 @@ def make_PlantCLEF2022(
     image_folder=None,
     training=True,
     copy_data=False,
-    drop_last=True,
+    drop_last=True, # TODO: REMEMBER TO SET TO FALSE IF VALIDATION DATASET
     feature_extraction=False,
     subset_file=None
 ):
@@ -108,9 +108,7 @@ class PC2022(torchvision.datasets.ImageFolder):
                 logger.debug(f'num-labeled target {t} {len(indices)}')
             logger.info(f'min. labeled indices {mint}')
 
-
-exit(0)
-
+'''
 # Copyright (c) Meta Platforms, Inc. and affiliates.
 # All rights reserved.
 
@@ -202,3 +200,4 @@ def build_transform(is_train, args):
     t.append(transforms.ToTensor())
     t.append(transforms.Normalize(mean, std))
     return transforms.Compose(t)
+'''
