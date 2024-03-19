@@ -13,7 +13,7 @@ data:
   use_gaussian_blur: false
   use_horizontal_flip: false
 logging:
-  folder: /home/rtcalumby/adam/luciano/LifeCLEFPlant2022/logs/feature_extraction
+  folder: /home/rtcalumby/adam/luciano/LifeCLEFPlant2022/logs/inet_feature_extraction
   write_tag: jepa
 mask:
   allow_overlap: false

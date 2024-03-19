@@ -1,5 +1,34 @@
-srun: job 1730 queued and waiting for resources
-srun: job 1730 has been allocated resources
-Dataset Lenght:  2885052
-[111.25966778804431, 113.35088071980798, 84.3483918480448]
-[51.97846077493987, 50.991718104383736, 49.766715148217436]
+srun: job 1732 queued and waiting for resources
+srun: job 1732 has been allocated resources
+Traceback (most recent call last):
+  File "src/main_feature_extraction.py", line 15, in <module>
+    from src.utils.distributed import init_distributed
+ModuleNotFoundError: No module named 'src'
+srun: error: hgx: task 0: Exited with exit code 1
+srun: job 1733 queued and waiting for resources
+srun: job 1733 has been allocated resources
+Traceback (most recent call last):
+  File "src/main_feature_extraction.py", line 15, in <module>
+    from src.utils.distributed import init_distributed
+ModuleNotFoundError: No module named 'src'
+srun: error: hgx: task 0: Exited with exit code 1
+srun: job 1734 queued and waiting for resources
+srun: job 1734 has been allocated resources
+Traceback (most recent call last):
+  File "src/main_feature_extraction.py", line 16, in <module>
+    from engine_feature_extraction import main as app_main # TODO VERIFY IF WORKS
+  File "/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/ijepa/src/engine_feature_extraction.py", line 32, in <module>
+    from src.masks.multiblock import MaskCollator as MBMaskCollator
+ModuleNotFoundError: No module named 'src'
+srun: error: hgx: task 0: Exited with exit code 1
+srun: job 1735 queued and waiting for resources
+srun: job 1735 has been allocated resources
+Traceback (most recent call last):
+  File "src/main_feature_extraction.py", line 16, in <module>
+    from engine_feature_extraction import main as app_main # TODO VERIFY IF WORKS
+  File "/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/ijepa/src/engine_feature_extraction.py", line 47, in <module>
+    from helper import (
+  File "/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/ijepa/src/helper.py", line 13, in <module>
+    import src.models.vision_transformer as vit
+ModuleNotFoundError: No module named 'src'
+srun: error: hgx: task 0: Exited with exit code 1

@@ -148,17 +148,10 @@ def main(args, resume_preempt=False):
     latest_path = os.path.join(folder, f'{tag}-latest.pth.tar')
     load_path = None
     if load_model:
-        load_path = os.path.join(folder, r_file) if r_file is not None else latest_path
-
+        load_path = '/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/' + 'IN1K-vit.h.14-300e.pth.tar' #os.path.join(folder, r_file) if r_file is not None else latest_path
     
     # -- make csv_logger
-    csv_logger = CSVLogger(log_file,     
-                           ('%d', 'epoch'),
-                           ('%d', 'itr'),
-                           ('%.5f', 'loss'),
-                           ('%.5f', 'mask-A'),
-                           ('%.5f', 'mask-B'),
-                           ('%d', 'time (ms)')) # TODO modify this
+    csv_logger = CSVLogger(log_file,('%d', 'time (ms)'))
 
     # -- init model
     encoder, predictor = init_model(
@@ -171,18 +164,18 @@ def main(args, resume_preempt=False):
     target_encoder = copy.deepcopy(encoder)
 
     print("Target Encoder: ") 
-    print(target_encoder) # TODO: Check if works.
+    print(target_encoder) # VIT model
 
-    #mask_collator = MBMaskCollator(
-    #    input_size=crop_size,
-    #    patch_size=patch_size,
-    #    pred_mask_scale=pred_mask_scale,
-    #    enc_mask_scale=enc_mask_scale,
-    #    aspect_ratio=aspect_ratio,
-    #    nenc=num_enc_masks,
-    #    npred=num_pred_masks,
-    #    allow_overlap=allow_overlap,
-    #    min_keep=min_keep)
+    mask_collator = MBMaskCollator(
+        input_size=crop_size,
+        patch_size=patch_size,
+        pred_mask_scale=pred_mask_scale,
+        enc_mask_scale=enc_mask_scale,
+        aspect_ratio=aspect_ratio,
+        nenc=num_enc_masks,
+        npred=num_pred_masks,
+        allow_overlap=allow_overlap,
+        min_keep=min_keep)
     
     # -- make data transforms
     transform = make_transforms(
@@ -208,33 +201,14 @@ def main(args, resume_preempt=False):
             root_path=root_path,
             image_folder=image_folder,
             copy_data=copy_data,
-            drop_last=True)
+            drop_last=False)
     ipe = len(unsupervised_loader)
 
-    # -- init optimizer and scheduler TODO: REMOVE
-    #optimizer, scaler, scheduler, wd_scheduler = init_opt(
-    #    encoder=encoder,
-    #    predictor=predictor,
-    #    wd=wd,
-    #    final_wd=final_wd,
-    #    start_lr=start_lr,
-    #    ref_lr=lr,
-    #    final_lr=final_lr,
-    #    iterations_per_epoch=ipe,
-    #    warmup=warmup,
-    #    num_epochs=num_epochs,
-    #    ipe_scale=ipe_scale,
-    #    use_bfloat16=use_bfloat16)
-    
     encoder = DistributedDataParallel(encoder, static_graph=True)
     predictor = DistributedDataParallel(predictor, static_graph=True)
     target_encoder = DistributedDataParallel(target_encoder)
     for p in target_encoder.parameters():
         p.requires_grad = False
-
-    # -- momentum schedule TODO: REMOVE
-    momentum_scheduler = (ema[0] + i*(ema[1]-ema[0])/(ipe*num_epochs*ipe_scale)
-                          for i in range(int(ipe*num_epochs*ipe_scale)+1))
 
     start_epoch = 0
     # -- load training checkpoint
@@ -245,65 +219,40 @@ def main(args, resume_preempt=False):
             encoder=encoder,
             predictor=predictor,
             target_encoder=target_encoder,
-            opt=optimizer,
-            scaler=scaler)
+            opt=None,
+            scaler=None)
     
-    loss_meter = AverageMeter()
     time_meter = AverageMeter()
 
     for itr, (udata, masks_enc, masks_pred) in enumerate(unsupervised_loader):
 
         def load_imgs():
             # -- unsupervised imgs
-            imgs = udata[0].to(device, non_blocking=True)           
-            return (imgs) 
-        imgs = load_imgs()
-        #maskA_meter.update(len(masks_enc[0][0])) # TODO: Remove
-        #maskB_meter.update(len(masks_pred[0][0])) # TODO: Remove
+            imgs = udata[0].to(device, non_blocking=True)
+            masks_1 = [u.to(device, non_blocking=True) for u in masks_enc]
+            masks_2 = [u.to(device, non_blocking=True) for u in masks_pred]
+            return (imgs, masks_1, masks_2)
+        imgs, masks_enc, masks_pred = load_imgs()
 
         def extract_features():
 
             def forward_context():
-                z = encoder(imgs, masks_enc) # TODO: check on masks_enc and what is it used for.
+                z = encoder(imgs, masks_enc)
                 return z
-
             # Step 1. Forward
             with torch.cuda.amp.autocast(dtype=torch.bfloat16, enabled=use_bfloat16):
                 z = forward_context() # Features extracted from the ViT context encoder
-            return (z) # TODO: adjust return
-        (loss, _new_lr, _new_wd, grad_stats), etime = gpu_timer(train_step) # TODO: replace by extract_features(), adjust return
-        loss_meter.update(loss)
+            return z 
+
+        z, etime = gpu_timer(extract_features)
+        print('Z:', z)
+        print('Shape', z.shape)
         time_meter.update(etime)
-
-        # TODO: adjust what it is going to be logged. 
         def log_stats():
-            csv_logger.log(epoch + 1, itr, loss, maskA_meter.val, maskB_meter.val, etime)
-            if (itr % log_freq == 0) or np.isnan(loss) or np.isinf(loss):
-                logger.info('[%d, %5d] loss: %.3f '
-                            'masks: %.1f %.1f '
-                            '[wd: %.2e] [lr: %.2e] '
-                            '[mem: %.2e] '
-                            '(%.1f ms)'
-                            % (epoch + 1, itr,
-                                loss_meter.avg,
-                                maskA_meter.avg,
-                                maskB_meter.avg,
-                                _new_wd,
-                                _new_lr,
-                                torch.cuda.max_memory_allocated() / 1024.**2,
-                                time_meter.avg))
-
-                if grad_stats is not None:
-                    logger.info('[%d, %5d] grad_stats: [%.2e %.2e] (%.2e, %.2e)'
-                                % (epoch + 1, itr,
-                                    grad_stats.first_layer,
-                                    grad_stats.last_layer,
-                                    grad_stats.min,
-                                    grad_stats.max))
+            csv_logger.log(etime)
+            csv_logger.log("Progress: ", itr, '/', ipe)
         log_stats()
-    # -- Save Checkpoint after every epoch
-    logger.info('avg. loss %.3f' % loss_meter.avg)
-
+        break
 
 if __name__ == "__main__":
     main()
