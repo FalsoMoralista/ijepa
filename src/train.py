@@ -187,6 +187,8 @@ def main(args, resume_preempt=False):
         gaussian_blur=use_gaussian_blur,
         horizontal_flip=use_horizontal_flip,
         color_distortion=use_color_distortion,
+        normalization=((0.436, 0.444, 0.330),
+                (0.203, 0.199, 0.195)), # PlantCLEF normalization
         color_jitter=color_jitter)
 
     # -- init data-loaders/samplers

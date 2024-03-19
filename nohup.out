@@ -501,3 +501,6 @@ Traceback (most recent call last):
     attn = attn.softmax(dim=-1)
 torch.cuda.OutOfMemoryError: CUDA out of memory. Tried to allocate 800.00 MiB (GPU 0; 79.15 GiB total capacity; 74.42 GiB already allocated; 71.38 MiB free; 77.35 GiB reserved in total by PyTorch) If reserved memory is >> allocated memory try setting max_split_size_mb to avoid fragmentation.  See documentation for Memory Management and PYTORCH_CUDA_ALLOC_CONF
 srun: job 1728 queued and waiting for resources
+srun: Job has been cancelled
+srun: error: Unable to allocate resources: Job/step already completing or completed
+srun: job 1731 queued and waiting for resources
