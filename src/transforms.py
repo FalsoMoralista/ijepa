@@ -44,11 +44,11 @@ def make_transforms(
     
     transform_list = [] 
     if validation:
-        transform_list += [transforms.Resize(224, interpolation=PIL.Image.BICUBIC)] # to maintain same ratio w.r.t. 224 images    
+        transform_list += [transforms.Resize((224,224), interpolation=PIL.Image.BICUBIC)] # to maintain same ratio w.r.t. 224 images    
         transform_list += [transforms.ToTensor()]
         transform_list += [transforms.Normalize(normalization[0], normalization[1])]
         transform = transforms.Compose(transform_list)
-        return transform # TODO: TEST
+        return transform
 
     transform_list += [transforms.RandomResizedCrop(crop_size, scale=crop_scale)]
     if horizontal_flip:

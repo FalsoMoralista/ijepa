@@ -151,7 +151,7 @@ def main(args, resume_preempt=False):
         load_path = '/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/' + 'IN1K-vit.h.14-300e.pth.tar' #os.path.join(folder, r_file) if r_file is not None else latest_path
     
     # -- make csv_logger
-    csv_logger = CSVLogger(log_file,('%d', 'time (ms)'))
+    csv_logger = CSVLogger(log_file,('%d', 'time (ms)'), ('%d', 'itr'), ('%d', 'total'))
 
     # -- init model
     encoder, predictor = init_model(
@@ -165,6 +165,8 @@ def main(args, resume_preempt=False):
 
     print("Target Encoder: ") 
     print(target_encoder) # VIT model
+    print('Predictor model:')
+    print(predictor)
 
     mask_collator = MBMaskCollator(
         input_size=crop_size,
@@ -185,9 +187,8 @@ def main(args, resume_preempt=False):
         horizontal_flip=use_horizontal_flip,
         color_distortion=use_color_distortion,
         validation=True,
-        color_jitter=color_jitter) # TODO: verify if transformations are being applied. 
+        color_jitter=color_jitter)
 
-    # TODO: IMPLEMENT FEATURE EXTRACTION DATASET HERE
     # -- init data-loaders/samplers
     _, unsupervised_loader, unsupervised_sampler = make_PlantCLEF2022(
             transform=transform,
@@ -201,6 +202,7 @@ def main(args, resume_preempt=False):
             root_path=root_path,
             image_folder=image_folder,
             copy_data=copy_data,
+            feature_extraction=True, # TODO: IMPLEMENT (return image paths alongside with images)
             drop_last=False)
     ipe = len(unsupervised_loader)
 
@@ -234,10 +236,20 @@ def main(args, resume_preempt=False):
             return (imgs, masks_1, masks_2)
         imgs, masks_enc, masks_pred = load_imgs()
 
+        print('Image(s) Shape:', imgs.shape)
+        print('Mask Encoder Shape:', masks_enc, 'Length:', len(masks_enc)) # indexes ???
+        print('Mask Predictor Shape:', masks_pred, 'Length:', len(masks_pred))
+
+        # TODO(s):
+        # (1) - Find out how to avg pool over the predictor's output embeddings -> [1, 1280] 
+        #    1.2 - We could also use this representation as it is and do a conv-AE with pooling since we have to reduce feature dimensionality anyways.
+        # (2) - Fix the dataset formatting i.e., return image paths besides labels
+        # (3) - Extract features and save to a dict.
         def extract_features():
 
             def forward_context():
                 z = encoder(imgs, masks_enc)
+                z = predictor(z, masks_enc, masks_pred) # TODO: perform avg pooling of the predictor output embeddings and use it as the standard representation
                 return z
             # Step 1. Forward
             with torch.cuda.amp.autocast(dtype=torch.bfloat16, enabled=use_bfloat16):
@@ -246,11 +258,12 @@ def main(args, resume_preempt=False):
 
         z, etime = gpu_timer(extract_features)
         print('Z:', z)
-        print('Shape', z.shape)
+        print('Z-Shape:', z.shape)
         time_meter.update(etime)
         def log_stats():
             csv_logger.log(etime)
-            csv_logger.log("Progress: ", itr, '/', ipe)
+            csv_logger.log(itr)
+            csv_logger.log(ipe)
         log_stats()
         break
 

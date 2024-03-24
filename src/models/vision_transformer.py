@@ -408,7 +408,21 @@ class VisionTransformer(nn.Module):
         B, N, D = x.shape
 
         # -- add positional embedding to x
-        pos_embed = self.interpolate_pos_encoding(x, self.pos_embed)
+        '''
+            Typically, the resolution of the positional embeddings might not match the resolution of the image patches. 
+            For example, if an image is divided into 16x16 patches, but the positional embeddings are generated for a 
+            32x32 grid, there's a resolution mismatch that needs to be resolved.
+
+            Interpolation is the process of estimating values for positions between known data points. 
+            In the context of ViTs, interpolation is used to adjust the positional embeddings to align with the resolution of the image patches.
+            Bilinear Interpolation: One common method for interpolation in ViTs is bilinear interpolation. 
+            Bilinear interpolation estimates the value of a point based on the values of surrounding points in a grid.
+            For each dimension of the positional embeddings (e.g., x and y coordinates), 
+            bilinear interpolation calculates the value for each position in the grid by considering the values of nearby positions in the original positional embeddings
+
+        '''
+
+        pos_embed = self.interpolate_pos_encoding(x, self.pos_embed) # TODO: check error here when batching 
         x = x + pos_embed
 
         # -- mask x

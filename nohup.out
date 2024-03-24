@@ -504,3 +504,5 @@ srun: job 1728 queued and waiting for resources
 srun: Job has been cancelled
 srun: error: Unable to allocate resources: Job/step already completing or completed
 srun: job 1731 queued and waiting for resources
+srun: Job has been cancelled
+srun: error: Unable to allocate resources: Job/step already completing or completed
