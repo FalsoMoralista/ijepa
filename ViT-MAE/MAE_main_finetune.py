@@ -1,3 +1,14 @@
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+# All rights reserved.
+
+# This source code is licensed under the license found in the
+# LICENSE file in the root directory of this source tree.
+# --------------------------------------------------------
+# References:
+# DeiT: https://github.com/facebookresearch/deit
+# BEiT: https://github.com/microsoft/unilm/tree/master/beit
+# --------------------------------------------------------
+
 import argparse
 import datetime
 import json
@@ -25,9 +36,8 @@ from util.misc import NativeScalerWithGradNormCount as NativeScaler
 
 import models_vit
 
-from src.datasets.PlantCLEF2022 import make_PlantClEF2022
-
 from engine_finetune import train_one_epoch, evaluate
+
 
 def get_args_parser():
     parser = argparse.ArgumentParser('MAE fine-tuning for image classification', add_help=False)
@@ -144,89 +154,6 @@ def get_args_parser():
 
     return parser
 
-# TODO replace the model param above with the one below
-'''
-    # ----------------------------------------------------------------------- #
-    #  PASSED IN PARAMS FROM CONFIG FILE
-    # ----------------------------------------------------------------------- #
-
-    # -- META
-    use_bfloat16 = args['meta']['use_bfloat16']
-    model_name = args['meta']['model_name']
-    load_model = args['meta']['load_checkpoint'] or resume_preempt
-    r_file = args['meta']['read_checkpoint']
-    copy_data = args['meta']['copy_data']
-    pred_depth = args['meta']['pred_depth']
-    pred_emb_dim = args['meta']['pred_emb_dim']
-    if not torch.cuda.is_available():
-        device = torch.device('cpu')
-    else:
-        device = torch.device('cuda:0')
-        torch.cuda.set_device(device)
-
-    # -- DATA
-    use_gaussian_blur = args['data']['use_gaussian_blur']
-    use_horizontal_flip = args['data']['use_horizontal_flip']
-    use_color_distortion = args['data']['use_color_distortion']
-    color_jitter = args['data']['color_jitter_strength']
-    # --
-    batch_size = args['data']['batch_size']
-    pin_mem = args['data']['pin_mem']
-    num_workers = args['data']['num_workers']
-    root_path = args['data']['root_path']
-    image_folder = args['data']['image_folder']
-    crop_size = args['data']['crop_size']
-    crop_scale = args['data']['crop_scale']
-    # --
-
-    # -- MASK
-    allow_overlap = args['mask']['allow_overlap']  # whether to allow overlap b/w context and target blocks
-    patch_size = args['mask']['patch_size']  # patch-size for model training
-    num_enc_masks = args['mask']['num_enc_masks']  # number of context blocks
-    min_keep = args['mask']['min_keep']  # min number of patches in context block
-    enc_mask_scale = args['mask']['enc_mask_scale']  # scale of context blocks
-    num_pred_masks = args['mask']['num_pred_masks']  # number of target blocks
-    pred_mask_scale = args['mask']['pred_mask_scale']  # scale of target blocks
-    aspect_ratio = args['mask']['aspect_ratio']  # aspect ratio of target blocks
-    # --
-
-    # -- OPTIMIZATION
-    ema = args['optimization']['ema']
-    ipe_scale = args['optimization']['ipe_scale']  # scheduler scale factor (def: 1.0)
-    wd = float(args['optimization']['weight_decay'])
-    final_wd = float(args['optimization']['final_weight_decay'])
-    num_epochs = args['optimization']['epochs']
-    warmup = args['optimization']['warmup']
-    start_lr = args['optimization']['start_lr']
-    lr = args['optimization']['lr']
-    final_lr = args['optimization']['final_lr']
-
-    # -- LOGGING
-    folder = args['logging']['folder']
-    tag = args['logging']['write_tag']
-
-    dump = os.path.join(folder, 'params-ijepa.yaml')
-    with open(dump, 'w') as f:
-        yaml.dump(args, f)
-    # ----------------------------------------------------------------------- #
-'''
-
-
-# --
-log_timings = True
-log_freq = 1
-checkpoint_freq = 5
-# --
-
-_GLOBAL_SEED = 0
-np.random.seed(_GLOBAL_SEED)
-torch.manual_seed(_GLOBAL_SEED)
-torch.backends.cudnn.benchmark = True
-
-# TODO: Verify / FiX ...
-#logging.basicConfig(stream=sys.stdout, level=logging.INFO)
-#logger = logging.getLogger() 
-
 
 def main(args):
     misc.init_distributed_mode(args)
@@ -243,75 +170,59 @@ def main(args):
 
     cudnn.benchmark = True
 
-    dataset_train, dataset_train_loader, dataset_train_dist_sampler =  make_PlantClEF2022(
-            transform=transform,
-            batch_size=batch_size,
-            collator=mask_collator,
-            pin_mem=pin_mem,
-            training=True,
-            num_workers=num_workers,
-            world_size=world_size,
-            rank=rank,
-            root_path=root_path,
-            image_folder=image_folder,
-            copy_data=copy_data,
-            drop_last=True)
+    dataset_train = build_dataset(is_train=True, args=args)
+    dataset_val = build_dataset(is_train=False, args=args)
 
-    dataset_val, dataset_val_loader, dataset_val_dist_sampler =  make_PlantClEF2022(
-            transform=transform,
-            batch_size=batch_size,
-            collator=mask_collator,
-            pin_mem=pin_mem,
-            training=False,
-            num_workers=num_workers,
-            world_size=world_size, # TODO verificar isso
-            rank=rank,
-            root_path=root_path,
-            image_folder=image_folder,
-            copy_data=copy_data,
-            drop_last=True)
+    if True:  # args.distributed:
+        num_tasks = misc.get_world_size()
+        global_rank = misc.get_rank()
+        sampler_train = torch.utils.data.DistributedSampler(
+            dataset_train, num_replicas=num_tasks, rank=global_rank, shuffle=True
+        )
+        print("Sampler_train = %s" % str(sampler_train))
+        if args.dist_eval:
+            if len(dataset_val) % num_tasks != 0:
+                print('Warning: Enabling distributed evaluation with an eval dataset not divisible by process number. '
+                      'This will slightly alter validation results as extra duplicate entries are added to achieve '
+                      'equal num of samples per-process.')
+            sampler_val = torch.utils.data.DistributedSampler(
+                dataset_val, num_replicas=num_tasks, rank=global_rank, shuffle=True)  # shuffle=True to reduce monitor bias
+        else:
+            sampler_val = torch.utils.data.SequentialSampler(dataset_val)
+    else:
+        sampler_train = torch.utils.data.RandomSampler(dataset_train)
+        sampler_val = torch.utils.data.SequentialSampler(dataset_val)
 
-    #if True:  # args.distributed:
-    #    num_tasks = misc.get_world_size()
-    #    global_rank = misc.get_rank()
-    #    sampler_train = torch.utils.data.DistributedSampler(
-    #        dataset_train, num_replicas=num_tasks, rank=global_rank, shuffle=True
-    #    )
-    #    print("Sampler_train = %s" % str(sampler_train))
-    #    if args.dist_eval:
-    #        if len(dataset_val) % num_tasks != 0:
-    #            print('Warning: Enabling distributed evaluation with an eval dataset not divisible by process number. '
-    #                  'This will slightly alter validation results as extra duplicate entries are added to achieve '
-    #                  'equal num of samples per-process.')
-    #        sampler_val = torch.utils.data.DistributedSampler(
-    #            dataset_val, num_replicas=num_tasks, rank=global_rank, shuffle=True)  # shuffle=True to reduce monitor bias
-    #    else:
-    #        sampler_val = torch.utils.data.SequentialSampler(dataset_val)
-    #else:
-    #    sampler_train = torch.utils.data.RandomSampler(dataset_train)
-    #    sampler_val = torch.utils.data.SequentialSampler(dataset_val)
-        
-    #if global_rank == 0 and args.log_dir is not None and not args.eval:
-    #    os.makedirs(args.log_dir, exist_ok=True)
-    #    log_writer = SummaryWriter(log_dir=args.log_dir)
-    #else:
-    #    log_writer = None
+    if global_rank == 0 and args.log_dir is not None and not args.eval:
+        os.makedirs(args.log_dir, exist_ok=True)
+        log_writer = SummaryWriter(log_dir=args.log_dir)
+    else:
+        log_writer = None
 
-    #data_loader_train = torch.utils.data.DataLoader(
-    #    dataset_train, sampler=sampler_train,
-    #    batch_size=args.batch_size,
-    #    num_workers=args.num_workers,
-    #    pin_memory=args.pin_mem,
-    #    drop_last=True,
-    #)
+    data_loader_train = torch.utils.data.DataLoader(
+        dataset_train, sampler=sampler_train,
+        batch_size=args.batch_size,
+        num_workers=args.num_workers,
+        pin_memory=args.pin_mem,
+        drop_last=True,
+    )
 
-    #data_loader_val = torch.utils.data.DataLoader(
-    #    dataset_val, sampler=sampler_val,
-    #    batch_size=args.batch_size,
-    #    num_workers=args.num_workers,
-    #    pin_memory=args.pin_mem,
-    #    drop_last=False
-    #)
+    data_loader_val = torch.utils.data.DataLoader(
+        dataset_val, sampler=sampler_val,
+        batch_size=args.batch_size,
+        num_workers=args.num_workers,
+        pin_memory=args.pin_mem,
+        drop_last=False
+    )
+
+    mixup_fn = None
+    mixup_active = args.mixup > 0 or args.cutmix > 0. or args.cutmix_minmax is not None
+    if mixup_active:
+        print("Mixup is activated!")
+        mixup_fn = Mixup(
+            mixup_alpha=args.mixup, cutmix_alpha=args.cutmix, cutmix_minmax=args.cutmix_minmax,
+            prob=args.mixup_prob, switch_prob=args.mixup_switch_prob, mode=args.mixup_mode,
+            label_smoothing=args.smoothing, num_classes=args.nb_classes)
     
     model = models_vit.__dict__[args.model](
         num_classes=args.nb_classes,
@@ -376,7 +287,13 @@ def main(args):
     optimizer = torch.optim.AdamW(param_groups, lr=args.lr)
     loss_scaler = NativeScaler()
 
-    criterion = torch.nn.CrossEntropyLoss()
+    if mixup_fn is not None:
+        # smoothing is handled with mixup label transform
+        criterion = SoftTargetCrossEntropy()
+    elif args.smoothing > 0.:
+        criterion = LabelSmoothingCrossEntropy(smoothing=args.smoothing)
+    else:
+        criterion = torch.nn.CrossEntropyLoss()
 
     print("criterion = %s" % str(criterion))
 

@@ -226,8 +226,9 @@ def main(args, resume_preempt=False):
     
     time_meter = AverageMeter()
 
+    a = 0 
     for itr, (udata, masks_enc, masks_pred) in enumerate(unsupervised_loader):
-
+        a +=1 
         def load_imgs():
             # -- unsupervised imgs
             imgs = udata[0].to(device, non_blocking=True)
@@ -243,10 +244,10 @@ def main(args, resume_preempt=False):
         print('Mask Target Length:', len(masks_pred))
 
         # TODO(s):
-        # (1) - Find out how to avg pool over the predictor's output embeddings -> [1, 1280] 
-        #    1.2 - We could also use this representation as it is and do a conv-AE with pooling since we have to reduce feature dimensionality anyways.
-        # (2) - Fix the dataset formatting i.e., return image paths besides labels
-        # (3) - Extract features and save to a dict.
+        # (1) - Apply adaptative avg pooling over the predictor's output embeddings.
+        # (2) - Input the adaptative avg pooling into a convolutional autoencoder for dimensionality reduction. 
+        # (3) - Train, Fix the dataset formatting i.e., return image paths besides labels
+        # (4) - Extract features and save to a dict.
         def extract_features():
 
             def forward_target():
@@ -283,7 +284,8 @@ def main(args, resume_preempt=False):
             csv_logger.log(itr)
             csv_logger.log(ipe)
         log_stats()
-        break
+        if a == 10:
+            break
 
 if __name__ == "__main__":
     main()
