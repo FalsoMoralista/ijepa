@@ -163,10 +163,10 @@ def main(args, resume_preempt=False):
         model_name=model_name)
     target_encoder = copy.deepcopy(encoder)
 
-    print("Target Encoder: ") 
-    print(target_encoder) # VIT model
-    print('Predictor model:')
-    print(predictor)
+    #print("Target Encoder: ") 
+    #print(target_encoder) # VIT model
+    #print('Predictor model:')
+    #print(predictor)
 
     mask_collator = MBMaskCollator(
         input_size=crop_size,
@@ -176,7 +176,7 @@ def main(args, resume_preempt=False):
         aspect_ratio=aspect_ratio,
         nenc=num_enc_masks,
         npred=num_pred_masks,
-        allow_overlap=allow_overlap,
+        allow_overlap=allow_overlap, # TODO: Why does the block length from the output of the predictor still varies if overlap between masks was enabled?
         min_keep=min_keep)
     
     # -- make data transforms
@@ -237,8 +237,10 @@ def main(args, resume_preempt=False):
         imgs, masks_enc, masks_pred = load_imgs()
 
         print('Image(s) Shape:', imgs.shape)
-        print('Mask Encoder Shape:', masks_enc, 'Length:', len(masks_enc)) # indexes ???
-        print('Mask Predictor Shape:', masks_pred, 'Length:', len(masks_pred))
+        print('Mask Context Encoder List:', masks_enc) # indexes ???
+        print('Mask Context Encoder Length', len(masks_enc[0][0]))
+        print('Mask Target Shape:', masks_pred, 'Length:', len(masks_pred))
+        print('Mask Target Length:', len(masks_pred))
 
         # TODO(s):
         # (1) - Find out how to avg pool over the predictor's output embeddings -> [1, 1280] 
@@ -247,16 +249,32 @@ def main(args, resume_preempt=False):
         # (3) - Extract features and save to a dict.
         def extract_features():
 
+            def forward_target():
+                with torch.no_grad():
+                    h = target_encoder(imgs)
+                    h = F.layer_norm(h, (h.size(-1),))  # normalize over feature-dim
+                    B = len(h)
+                    # -- create targets (masked regions of h)
+                    h = apply_masks(h, masks_pred)
+                    h = repeat_interleave_batch(h, B, repeat=len(masks_enc))
+                    return h
             def forward_context():
                 z = encoder(imgs, masks_enc)
                 z = predictor(z, masks_enc, masks_pred) # TODO: perform avg pooling of the predictor output embeddings and use it as the standard representation
-                return z
+                return (z)
+            
             # Step 1. Forward
             with torch.cuda.amp.autocast(dtype=torch.bfloat16, enabled=use_bfloat16):
+                h = forward_target()
                 z = forward_context() # Features extracted from the ViT context encoder
-            return z 
+            return (h,z) 
 
-        z, etime = gpu_timer(extract_features)
+        values, etime = gpu_timer(extract_features)
+        h = values[0]
+        z = values[1]
+        print('H:', h)
+        print('H-Shape:', h.shape)
+
         print('Z:', z)
         print('Z-Shape:', z.shape)
         time_meter.update(etime)
