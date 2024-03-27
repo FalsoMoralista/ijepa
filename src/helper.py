@@ -138,6 +138,12 @@ def init_opt(
         }
     ]
 
+    # -- TODO [] : Verify whether param_groups is equivalent to the code below:
+    # From utils.lr_decay
+    #lrd.param_groups_lrd(model_without_ddp, 0.05,
+    #    no_weight_decay_list=model_without_ddp.no_weight_decay(),
+    #    layer_decay=0.75)
+
     logger.info('Using AdamW')
     optimizer = torch.optim.AdamW(param_groups)
     scheduler = WarmupCosineSchedule(

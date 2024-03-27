@@ -50,6 +50,12 @@ from src.helper import (
     init_opt)
 from src.transforms import make_transforms
 
+# -- MAE
+from timm.data.mixup import Mixup
+from timm.loss import LabelSmoothingCrossEntropy, SoftTargetCrossEntropy
+
+
+
 # --
 log_timings = True
 log_freq = 10
@@ -98,6 +104,7 @@ def main(args, resume_preempt=False):
     image_folder = args['data']['image_folder']
     crop_size = args['data']['crop_size']
     crop_scale = args['data']['crop_scale']
+
     # --
 
     # -- MASK
@@ -221,6 +228,7 @@ def main(args, resume_preempt=False):
         num_epochs=num_epochs,
         ipe_scale=ipe_scale,
         use_bfloat16=use_bfloat16)
+    
     encoder = DistributedDataParallel(encoder, static_graph=True)
     predictor = DistributedDataParallel(predictor, static_graph=True)
     target_encoder = DistributedDataParallel(target_encoder)
@@ -230,14 +238,6 @@ def main(args, resume_preempt=False):
     if args.distributed:
         model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.gpu])
         model_without_ddp = model.module
-
-    # build optimizer with layer-wise lr decay (lrd)
-    param_groups = lrd.param_groups_lrd(model_without_ddp, args.weight_decay,
-        no_weight_decay_list=model_without_ddp.no_weight_decay(),
-        layer_decay=args.layer_decay
-    )
-    optimizer = torch.optim.AdamW(param_groups, lr=args.lr)
-    loss_scaler = NativeScaler()
 
     '''
     # TODO (Fine-tuning parameters) according to ViT Paper:
@@ -261,7 +261,7 @@ def main(args, resume_preempt=False):
         -----------------------------------------------
     '''
 
-    '''mixup_fn = None 
+    mixup_fn = None 
     mixup_active = args.mixup > 0 or args.cutmix > 0. or args.cutmix_minmax is not None
     if mixup_active:
         print("Mixup is activated!")
@@ -275,9 +275,7 @@ def main(args, resume_preempt=False):
         drop_path_rate=args.drop_path,
         global_pool=args.global_pool,
     )
-    '''
-
-
+    
 
 
     '''
