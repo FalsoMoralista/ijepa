@@ -278,6 +278,23 @@ def main(args, resume_preempt=False):
     '''
 
 
+
+
+    '''
+        20:10 - 
+        TODO:
+        (1) - Map overlapping code with vit mae []
+        (2) - Avg pool the output embeddings and feed them into a mlp with the same config as in MAE.
+        (3) - Look up for which encoder was used to extract features in the ablation studies. 
+
+    '''
+    '''
+
+        ViT-MAE roadmap:
+        Main:
+            Distributed Config 
+    '''
+
     print(f"Start training for {args.epochs} epochs")
     start_time = time.time()
     max_accuracy = 0.0
