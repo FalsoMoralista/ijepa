@@ -19,6 +19,24 @@ import torchvision.transforms as transforms
 _GLOBAL_SEED = 0
 logger = getLogger()
 
+
+'''
+    TODO: Verify this:
+    MAE:
+     "Our MAE works well using cropping-only augmentation, 
+     either fixed-size or random-size (both having random horizontal flipping). 
+     Adding color jittering degrades the results and so we do not use it in other experiments."
+     - Finetuning or PRE-TRAIN?
+    
+    I-JEPA (Finetuning):
+     "The base learning rate is set to 10−4 and the batch size to 528. 
+     We train using mixup [76] set to 0.8, cutmix [73] set to 1.0, a drop path probability of 0.25 and a weight decay set to 0.04. 
+     We also use a layer decay of 0.75. Finally, we use the same rand-augment data-augmentations as MAE"
+
+     TODO: 
+     Pre-train with and without (i.e., crop only) augmentation therefore, check on file util/datasets.py.
+'''
+
 def make_transforms(
     crop_size=224,
     crop_scale=(0.3, 1.0),
@@ -62,7 +80,6 @@ def make_transforms(
 
     transform = transforms.Compose(transform_list)
     return transform
-
 
 class GaussianBlur(object):
     def __init__(self, p=0.5, radius_min=0.1, radius_max=2.):

@@ -58,8 +58,8 @@ from timm.loss import LabelSmoothingCrossEntropy, SoftTargetCrossEntropy
 
 # --
 log_timings = True
-log_freq = 10
-checkpoint_freq = 50
+log_freq = 5
+checkpoint_freq = 5
 # --
 
 _GLOBAL_SEED = 0
@@ -96,6 +96,14 @@ def main(args, resume_preempt=False):
     use_horizontal_flip = args['data']['use_horizontal_flip']
     use_color_distortion = args['data']['use_color_distortion']
     color_jitter = args['data']['color_jitter_strength']
+
+
+    drop_path = ['data']['drop_path']
+    mixup = ['data']['mixup']
+    cutmix = ['data']['cutmix']
+    reprob = ['data']['reprob']
+    eval_epoch = args['optimization']['eval_epoch'] # TODO CHECK where it is used []
+
     # --
     batch_size = args['data']['batch_size']
     pin_mem = args['data']['pin_mem']
@@ -128,6 +136,8 @@ def main(args, resume_preempt=False):
     start_lr = args['optimization']['start_lr']
     lr = args['optimization']['lr']
     final_lr = args['optimization']['final_lr']
+
+    
 
     # -- LOGGING
     folder = args['logging']['folder']
@@ -188,7 +198,9 @@ def main(args, resume_preempt=False):
         allow_overlap=allow_overlap,
         min_keep=min_keep)
 
-    transform = make_transforms(
+    # TODO: 
+    # (1) - replace by/add code from utils.datasets (rand augment) []
+    transform = make_transforms( 
         crop_size=crop_size,
         crop_scale=crop_scale,
         gaussian_blur=use_gaussian_blur,
@@ -244,20 +256,20 @@ def main(args, resume_preempt=False):
          _______________________________________________
         |        config          |          value      |
         |------------------------|----------------------      
-        | optimizer              |      AdamW          |
-        | base learning rate     |      1e-3           |
-        | weight decay           |      0.05           |
-        | optimizer momentum     | β1 , β2 =0.9, 0.999 |     
-        | layer-wise lr decay    |      0.75           |
-        | batch size             |      1024           |
-        | learning rate schedule |  cosine decay       |
-        | warmup epochs          |      5              |
-        | training epochs        | 100 (B), 50 (L/H)   |
-        | augmentation           | RandAug (9, 0.5)    |
-        | label smoothing        |      0.1            |
-        | mixup                  |      0.8            |
-        | cutmix                 |      1.0            |
-        | drop path [30]         |  0.1 (B/L) 0.2 (H)  |
+        | optimizer              |      AdamW          | [x]
+        | base learning rate     |      1e-3           | [x]
+        | weight decay           |      0.05           | [x]  
+        | optimizer momentum     | β1 , β2 =0.9, 0.999 | [x]    
+        | layer-wise lr decay    |      0.75           | [x]
+        | batch size             |      1024           | [x]
+        | learning rate schedule |  cosine decay       | [x]
+        | warmup epochs          |      5              | [x]
+        | training epochs        | 100 (B), 50 (L/H)   | [x]
+        | augmentation           | RandAug (9, 0.5)    | [x]
+        | label smoothing        |      0.1            | [x]
+        | mixup                  |      0.8            | [x]
+        | cutmix                 |      1.0            | [x]
+        | drop path [30]         |  0.1 (B/L) 0.2 (H)  | [x]
         -----------------------------------------------
     '''
 
@@ -272,11 +284,10 @@ def main(args, resume_preempt=False):
     
     model = models_vit.__dict__[args.model](
         num_classes=args.nb_classes,
-        drop_path_rate=args.drop_path,
+        drop_path_rate=args.drop_path, # parse dropout (20%)
         global_pool=args.global_pool,
     )
     
-
 
     '''
         20:10 - 
@@ -285,6 +296,7 @@ def main(args, resume_preempt=False):
         (2) - Avg pool the output embeddings and feed them into a mlp with the same config as in MAE.
         (3) - Look up for which encoder was used to extract features in the ablation studies. 
 
+        OBS:  lr = base lr×batchsize / 256. learning rate formula.
     '''
     '''
 
@@ -292,7 +304,7 @@ def main(args, resume_preempt=False):
         Main:
             Distributed Config 
     '''
-
+    ##############################################################################################################
     print(f"Start training for {args.epochs} epochs")
     start_time = time.time()
     max_accuracy = 0.0
@@ -335,6 +347,8 @@ def main(args, resume_preempt=False):
     total_time = time.time() - start_time
     total_time_str = str(datetime.timedelta(seconds=int(total_time)))
     print('Training time {}'.format(total_time_str))
+
+    #########################################################################################################################
 
     # -- momentum schedule
     momentum_scheduler = (ema[0] + i*(ema[1]-ema[0])/(ipe*num_epochs*ipe_scale)

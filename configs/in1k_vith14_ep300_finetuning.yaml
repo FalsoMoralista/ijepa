@@ -5,6 +5,14 @@ data:
   - 0.3
   - 1.0
   crop_size: 224
+
+  drop_path: 0.2
+  mixup: 0.8
+  nb_classes: 80000
+  cutmix: 1.0
+  reprob: 0.25
+  
+
   image_folder: LifeCLEFPlant2022/
   num_workers: 32
   pin_mem: true
@@ -40,13 +48,14 @@ meta:
   use_bfloat16: true
 optimization:
   ema:
-  - 0.996
-  - 1.0
-  epochs: 350
+  - 0.9
+  - 0.999
+  epochs: 100
   final_lr: 1.0e-06
-  final_weight_decay: 0.4
+  final_weight_decay: 0.4 
   ipe_scale: 1.0
   lr: 0.001
   start_lr: 0.0002
-  warmup: 40
+  warmup: 10
   weight_decay: 0.04
+  eval_epoch: 1
