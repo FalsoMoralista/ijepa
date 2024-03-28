@@ -98,11 +98,11 @@ def main(args, resume_preempt=False):
     color_jitter = args['data']['color_jitter_strength']
 
 
-    drop_path = ['data']['drop_path']
-    mixup = ['data']['mixup']
-    cutmix = ['data']['cutmix']
-    reprob = ['data']['reprob']
-    nb_classes = ['data']['nb_classes']
+    drop_path = args['data']['drop_path']
+    mixup = args['data']['mixup']
+    cutmix = args['data']['cutmix']
+    reprob = args['data']['reprob']
+    nb_classes = args['data']['nb_classes']
 
     eval_epoch = args['optimization']['eval_epoch'] # TODO CHECK where it is used []
 
@@ -293,11 +293,21 @@ def main(args, resume_preempt=False):
 
         OBS:  lr = base lr×batchsize / 256. learning rate formula.
     '''
+    # -- # -- # -- #
+    encoder = DistributedDataParallel(encoder, static_graph=True)
+    predictor = DistributedDataParallel(predictor, static_graph=True)
+    target_encoder = DistributedDataParallel(target_encoder)
+
+
     # -- momentum schedule
     momentum_scheduler = (ema[0] + i*(ema[1]-ema[0])/(ipe*num_epochs*ipe_scale)
                           for i in range(int(ipe*num_epochs*ipe_scale)+1))
 
     start_epoch = 0
+
+    # TODO:
+    # (1) - Make checkpoint a requirement[]
+    # (2) - Iterate optmizers when resuming training[]
     # -- load training checkpoint
     if load_model:
         encoder, predictor, target_encoder, optimizer, scaler, start_epoch = load_checkpoint(
@@ -308,30 +318,17 @@ def main(args, resume_preempt=False):
             target_encoder=target_encoder,
             opt=optimizer,
             scaler=scaler)
-        for _ in range(start_epoch*ipe):
-            scheduler.step()
-            wd_scheduler.step()
-            next(momentum_scheduler)
-            mask_collator.step()
-
+        #for _ in range(start_epoch*ipe):
+        #    scheduler.step()
+        #    wd_scheduler.step()
+        #    next(momentum_scheduler)
+        #    mask_collator.step()
 
     #model = models_vit.__dict__[args.model](
     #    num_classes=nb_classes,
     #    drop_path_rate=drop_path, # parse dropout (20%)
     #    global_pool=args.global_pool, 
     #)
-
-
-    # -- # -- # -- #
-    encoder = DistributedDataParallel(encoder, static_graph=True)
-    predictor = DistributedDataParallel(predictor, static_graph=True)
-    target_encoder = DistributedDataParallel(target_encoder)
-
-
-    if args.distributed:
-        model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.gpu])
-        model_without_ddp = model.module
-
 
     def save_checkpoint(epoch):
         save_dict = {
@@ -351,11 +348,11 @@ def main(args, resume_preempt=False):
             if (epoch + 1) % checkpoint_freq == 0:
                 torch.save(save_dict, save_path.format(epoch=f'{epoch + 1}'))
 
-
+    time_meter = AverageMeter()
     a = 0 
     # TODO:
-    # (1) - Make this work []
-    # (2) - Figure a way to unbatch output from the target encoder after predictions []
+    # (1) - avg pooling of the target encoder output embeddings[]
+    # (2) - Adapt training loop from MAE[]
     for itr, (udata, masks_enc, masks_pred) in enumerate(unsupervised_loader):
         a +=1 
         def load_imgs():
@@ -378,14 +375,14 @@ def main(args, resume_preempt=False):
                 with torch.no_grad():
                     h = target_encoder(imgs)
                     h = F.layer_norm(h, (h.size(-1),))  # normalize over feature-dim
-                    B = len(h)
+                    #B = len(h)
                     # -- create targets (masked regions of h)
-                    h = apply_masks(h, masks_pred)
-                    h = repeat_interleave_batch(h, B, repeat=len(masks_enc))
+                   # h = apply_masks(h, masks_pred)
+                   # h = repeat_interleave_batch(h, B, repeat=len(masks_enc))
                     return h
             def forward_context():
                 z = encoder(imgs, masks_enc)
-                z = predictor(z, masks_enc, masks_pred) # TODO: perform avg pooling of the predictor output embeddings and use it as the standard representation
+                z = predictor(z, masks_enc, masks_pred)
                 return (z)
             
             # Step 1. Forward
@@ -407,13 +404,13 @@ def main(args, resume_preempt=False):
             csv_logger.log(itr)
             csv_logger.log(ipe)
         log_stats()
-        if a == 2:
+        if a == 4:
             break
 
 if __name__ == "__main__":
     main()
 
-exit(0)
+    exit(0)
 
     # -- TRAINING LOOP
     for epoch in range(start_epoch, num_epochs):

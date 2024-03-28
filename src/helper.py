@@ -15,7 +15,7 @@ from src.utils.schedulers import (
     WarmupCosineSchedule,
     CosineWDSchedule)
 from src.utils.tensors import trunc_normal_
-import toch.nn  as nn
+import torch.nn  as nn
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 logger = logging.getLogger()

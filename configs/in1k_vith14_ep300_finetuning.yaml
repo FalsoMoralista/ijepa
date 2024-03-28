@@ -5,14 +5,11 @@ data:
   - 0.3
   - 1.0
   crop_size: 224
-
   drop_path: 0.2
   mixup: 0.8
   nb_classes: 80000
   cutmix: 1.0
   reprob: 0.25
-  
-
   image_folder: LifeCLEFPlant2022/
   num_workers: 32
   pin_mem: true
