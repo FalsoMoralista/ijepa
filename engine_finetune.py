@@ -102,6 +102,8 @@ def main(args, resume_preempt=False):
     mixup = ['data']['mixup']
     cutmix = ['data']['cutmix']
     reprob = ['data']['reprob']
+    nb_classes = ['data']['nb_classes']
+
     eval_epoch = args['optimization']['eval_epoch'] # TODO CHECK where it is used []
 
     # --
@@ -163,7 +165,18 @@ def main(args, resume_preempt=False):
     log_file = os.path.join(folder, f'{tag}_r{rank}.csv')
     save_path = os.path.join(folder, f'{tag}' + '-ep{epoch}.pth.tar')
     latest_path = os.path.join(folder, f'{tag}-latest.pth.tar')
+    
     load_path = None
+    # TODO REPLACE AFTER TEST:
+    # MODEL LOADING[]
+    # CSV LOGGER[]
+    if load_model:
+        load_path = '/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/' + 'IN1K-vit.h.14-300e.pth.tar' #os.path.join(folder, r_file) if r_file is not None else latest_path
+    # -- make csv_logger
+    csv_logger = CSVLogger(log_file,('%d', 'time (ms)'), ('%d', 'itr'), ('%d', 'total'))
+
+    '''
+        TODO: uncomment after test.
     if load_model:
         load_path = os.path.join(folder, r_file) if r_file is not None else latest_path
 
@@ -175,7 +188,7 @@ def main(args, resume_preempt=False):
                            ('%.5f', 'mask-A'),
                            ('%.5f', 'mask-B'),
                            ('%d', 'time (ms)'))
-
+    '''
     # -- init model
     encoder, predictor = init_model(
         device=device,
@@ -199,7 +212,8 @@ def main(args, resume_preempt=False):
         min_keep=min_keep)
 
     # TODO: 
-    # (1) - replace by/add code from utils.datasets (rand augment) []
+    # Adjust []
+    # Add RandAugment(9, 0.5) []
     transform = make_transforms( 
         crop_size=crop_size,
         crop_scale=crop_scale,
@@ -210,6 +224,7 @@ def main(args, resume_preempt=False):
                 (0.203, 0.199, 0.195)), # PlantCLEF normalization
         color_jitter=color_jitter)
 
+    # TODO: Create supervised loaders []
     # -- init data-loaders/samplers
     _, unsupervised_loader, unsupervised_sampler = make_PlantCLEF2022(
             transform=transform,
@@ -241,15 +256,11 @@ def main(args, resume_preempt=False):
         ipe_scale=ipe_scale,
         use_bfloat16=use_bfloat16)
     
-    encoder = DistributedDataParallel(encoder, static_graph=True)
-    predictor = DistributedDataParallel(predictor, static_graph=True)
-    target_encoder = DistributedDataParallel(target_encoder)
-    for p in target_encoder.parameters():
-        p.requires_grad = False
-
-    if args.distributed:
-        model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.gpu])
-        model_without_ddp = model.module
+    mixup_fn = None 
+    mixup_active = mixup > 0 or cutmix > 0. # or args.cutmix_minmax is not None
+    if mixup_active:
+        print("Mixup is activated!")
+        mixup_fn = Mixup(mixup_alpha=mixup, cutmix_alpha=cutmix, label_smoothing=0.1, num_classes=nb_classes) # TODO: use inside the training loop []
 
     '''
     # TODO (Fine-tuning parameters) according to ViT Paper:
@@ -271,85 +282,17 @@ def main(args, resume_preempt=False):
         | cutmix                 |      1.0            | [x]
         | drop path [30]         |  0.1 (B/L) 0.2 (H)  | [x]
         -----------------------------------------------
-    '''
-
-    mixup_fn = None 
-    mixup_active = args.mixup > 0 or args.cutmix > 0. or args.cutmix_minmax is not None
-    if mixup_active:
-        print("Mixup is activated!")
-        mixup_fn = Mixup(
-            mixup_alpha=args.mixup, cutmix_alpha=args.cutmix, cutmix_minmax=args.cutmix_minmax,
-            prob=args.mixup_prob, switch_prob=args.mixup_switch_prob, mode=args.mixup_mode,
-            label_smoothing=args.smoothing, num_classes=args.nb_classes)
-    
-    model = models_vit.__dict__[args.model](
-        num_classes=args.nb_classes,
-        drop_path_rate=args.drop_path, # parse dropout (20%)
-        global_pool=args.global_pool,
-    )
-    
+    '''    
 
     '''
-        20:10 - 
-        TODO:
-        (1) - Map overlapping code with vit mae []
-        (2) - Avg pool the output embeddings and feed them into a mlp with the same config as in MAE.
-        (3) - Look up for which encoder was used to extract features in the ablation studies. 
+         
+        TODO(s):
+        (1) - Map overlapping code with vit mae [x]
+        (2) - Avg pool the output embeddings and feed them into a mlp with the same config as in MAE []
+        (3) - Look up for which encoder was used to extract features in the ablation studies []
 
         OBS:  lr = base lr×batchsize / 256. learning rate formula.
     '''
-    '''
-
-        ViT-MAE roadmap:
-        Main:
-            Distributed Config 
-    '''
-    ##############################################################################################################
-    print(f"Start training for {args.epochs} epochs")
-    start_time = time.time()
-    max_accuracy = 0.0
-    for epoch in range(args.start_epoch, args.epochs):
-        if args.distributed:
-            data_loader_train.sampler.set_epoch(epoch)
-        train_stats = train_one_epoch(
-            model, criterion, data_loader_train,
-            optimizer, device, epoch, loss_scaler,
-            args.clip_grad, mixup_fn,
-            log_writer=log_writer,
-            args=args
-        )
-        if args.output_dir:
-            misc.save_model(
-                args=args, model=model, model_without_ddp=model_without_ddp, optimizer=optimizer,
-                loss_scaler=loss_scaler, epoch=epoch)
-
-        test_stats = evaluate(data_loader_val, model, device)
-        print(f"Accuracy of the network on the {len(dataset_val)} test images: {test_stats['acc1']:.1f}%")
-        max_accuracy = max(max_accuracy, test_stats["acc1"])
-        print(f'Max accuracy: {max_accuracy:.2f}%')
-
-        if log_writer is not None:
-            log_writer.add_scalar('perf/test_acc1', test_stats['acc1'], epoch)
-            log_writer.add_scalar('perf/test_acc5', test_stats['acc5'], epoch)
-            log_writer.add_scalar('perf/test_loss', test_stats['loss'], epoch)
-
-        log_stats = {**{f'train_{k}': v for k, v in train_stats.items()},
-                        **{f'test_{k}': v for k, v in test_stats.items()},
-                        'epoch': epoch,
-                        'n_parameters': n_parameters}
-
-        if args.output_dir and misc.is_main_process():
-            if log_writer is not None:
-                log_writer.flush()
-            with open(os.path.join(args.output_dir, "log.txt"), mode="a", encoding="utf-8") as f:
-                f.write(json.dumps(log_stats) + "\n")
-
-    total_time = time.time() - start_time
-    total_time_str = str(datetime.timedelta(seconds=int(total_time)))
-    print('Training time {}'.format(total_time_str))
-
-    #########################################################################################################################
-
     # -- momentum schedule
     momentum_scheduler = (ema[0] + i*(ema[1]-ema[0])/(ipe*num_epochs*ipe_scale)
                           for i in range(int(ipe*num_epochs*ipe_scale)+1))
@@ -371,6 +314,25 @@ def main(args, resume_preempt=False):
             next(momentum_scheduler)
             mask_collator.step()
 
+
+    #model = models_vit.__dict__[args.model](
+    #    num_classes=nb_classes,
+    #    drop_path_rate=drop_path, # parse dropout (20%)
+    #    global_pool=args.global_pool, 
+    #)
+
+
+    # -- # -- # -- #
+    encoder = DistributedDataParallel(encoder, static_graph=True)
+    predictor = DistributedDataParallel(predictor, static_graph=True)
+    target_encoder = DistributedDataParallel(target_encoder)
+
+
+    if args.distributed:
+        model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.gpu])
+        model_without_ddp = model.module
+
+
     def save_checkpoint(epoch):
         save_dict = {
             'encoder': encoder.state_dict(),
@@ -388,6 +350,70 @@ def main(args, resume_preempt=False):
             torch.save(save_dict, latest_path)
             if (epoch + 1) % checkpoint_freq == 0:
                 torch.save(save_dict, save_path.format(epoch=f'{epoch + 1}'))
+
+
+    a = 0 
+    # TODO:
+    # (1) - Make this work []
+    # (2) - Figure a way to unbatch output from the target encoder after predictions []
+    for itr, (udata, masks_enc, masks_pred) in enumerate(unsupervised_loader):
+        a +=1 
+        def load_imgs():
+            # -- unsupervised imgs
+            imgs = udata[0].to(device, non_blocking=True)
+            masks_1 = [u.to(device, non_blocking=True) for u in masks_enc]
+            masks_2 = [u.to(device, non_blocking=True) for u in masks_pred]
+            return (imgs, masks_1, masks_2)
+        imgs, masks_enc, masks_pred = load_imgs()
+
+        print('Image(s) Shape:', imgs.shape)
+        print('Mask Context Encoder List:', masks_enc) # indexes ???
+        print('Mask Context Encoder Length', len(masks_enc[0][0]))
+        print('Mask Target Shape:', masks_pred, 'Length:', len(masks_pred))
+        print('Mask Target Length:', len(masks_pred))
+
+        def extract_features():
+
+            def forward_target():
+                with torch.no_grad():
+                    h = target_encoder(imgs)
+                    h = F.layer_norm(h, (h.size(-1),))  # normalize over feature-dim
+                    B = len(h)
+                    # -- create targets (masked regions of h)
+                    h = apply_masks(h, masks_pred)
+                    h = repeat_interleave_batch(h, B, repeat=len(masks_enc))
+                    return h
+            def forward_context():
+                z = encoder(imgs, masks_enc)
+                z = predictor(z, masks_enc, masks_pred) # TODO: perform avg pooling of the predictor output embeddings and use it as the standard representation
+                return (z)
+            
+            # Step 1. Forward
+            with torch.cuda.amp.autocast(dtype=torch.bfloat16, enabled=use_bfloat16):
+                h = forward_target()
+                z = forward_context() # Features extracted from the ViT context encoder
+            return (h,z) 
+
+        values, etime = gpu_timer(extract_features)
+        h = values[0]
+        z = values[1]
+    
+        print('H-Shape:', h.shape)
+        print('Z-Shape:', z.shape)
+
+        time_meter.update(etime)
+        def log_stats():
+            csv_logger.log(etime)
+            csv_logger.log(itr)
+            csv_logger.log(ipe)
+        log_stats()
+        if a == 2:
+            break
+
+if __name__ == "__main__":
+    main()
+
+exit(0)
 
     # -- TRAINING LOOP
     for epoch in range(start_epoch, num_epochs):
@@ -499,358 +525,3 @@ def main(args, resume_preempt=False):
         # -- Save Checkpoint after every epoch
         logger.info('avg. loss %.3f' % loss_meter.avg)
         save_checkpoint(epoch+1)
-
-
-if __name__ == "__main__":
-    main()
-
-
-
-
-
-exit(0)
-
-# Copyright (c) Meta Platforms, Inc. and affiliates.
-# All rights reserved.
-
-# This source code is licensed under the license found in the
-# LICENSE file in the root directory of this source tree.
-# --------------------------------------------------------
-# References:
-# DeiT: https://github.com/facebookresearch/deit
-# BEiT: https://github.com/microsoft/unilm/tree/master/beit
-# --------------------------------------------------------
-
-import math
-import shutil
-import sys
-from typing import Iterable, Optional
-import os
-import os.path as osp
-import pandas as pd
-import numpy as np
-
-import torch
-
-from timm.data import Mixup
-from timm.utils import accuracy
-
-import util.misc as misc
-import util.lr_sched as lr_sched
-from PIL import ImageFile
-
-ImageFile.LOAD_TRUNCATED_IMAGES = True
-
-
-def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
-                    data_loader: Iterable, optimizer: torch.optim.Optimizer,
-                    device: torch.device, epoch: int, loss_scaler, max_norm: float = 0,
-                    mixup_fn: Optional[Mixup] = None, log_writer=None,
-                    args=None):
-    model.train(True)
-    metric_logger = misc.MetricLogger(delimiter="  ")
-    metric_logger.add_meter('lr', misc.SmoothedValue(window_size=1, fmt='{value:.6f}'))
-    header = 'Epoch: [{}]'.format(epoch)
-    print_freq = 20
-
-    accum_iter = args.accum_iter
-
-    optimizer.zero_grad()
-
-    if log_writer is not None:
-        print('log_dir: {}'.format(log_writer.log_dir))
-
-    for data_iter_step, (samples, targets) in enumerate(metric_logger.log_every(data_loader, print_freq, header)):
-
-        # we use a per iteration (instead of per epoch) lr scheduler
-        if data_iter_step % accum_iter == 0:
-            lr_sched.adjust_learning_rate(optimizer, data_iter_step / len(data_loader) + epoch, args)
-
-        samples = samples.to(device, non_blocking=True)
-        targets = targets.to(device, non_blocking=True)
-
-        if mixup_fn is not None:
-            samples, targets = mixup_fn(samples, targets)
-
-        with torch.cuda.amp.autocast():
-            outputs = model(samples)
-            loss = criterion(outputs, targets)
-
-        loss_value = loss.item()
-
-        if not math.isfinite(loss_value):
-            print("Loss is {}, stopping training".format(loss_value))
-            sys.exit(1)
-
-        loss /= accum_iter
-        loss_scaler(loss, optimizer, clip_grad=max_norm,
-                    parameters=model.parameters(), create_graph=False,
-                    update_grad=(data_iter_step + 1) % accum_iter == 0)
-        if (data_iter_step + 1) % accum_iter == 0:
-            optimizer.zero_grad()
-
-        torch.cuda.synchronize()
-
-        metric_logger.update(loss=loss_value)
-        min_lr = 10.
-        max_lr = 0.
-        for group in optimizer.param_groups:
-            min_lr = min(min_lr, group["lr"])
-            max_lr = max(max_lr, group["lr"])
-
-        metric_logger.update(lr=max_lr)
-
-        loss_value_reduce = misc.all_reduce_mean(loss_value)
-        if log_writer is not None and (data_iter_step + 1) % accum_iter == 0:
-            """ We use epoch_1000x as the x-axis in tensorboard.
-            This calibrates different curves when batch size changes.
-            """
-            epoch_1000x = int((data_iter_step / len(data_loader) + epoch) * 1000)
-            log_writer.add_scalar('loss', loss_value_reduce, epoch_1000x)
-            log_writer.add_scalar('lr', max_lr, epoch_1000x)
-
-    # gather the stats from all processes
-    metric_logger.synchronize_between_processes()
-    print("Averaged stats:", metric_logger)
-    return {k: meter.global_avg for k, meter in metric_logger.meters.items()}
-
-@torch.no_grad()
-def evaluate(data_loader, model, device, class_idx_map=None, visualize_epoch=0, max_num=30):
-    criterion = torch.nn.CrossEntropyLoss()
-
-    metric_logger = misc.MetricLogger(delimiter="  ")
-    header = 'Test:'
-
-    # switch to evaluation mode
-    model.eval()
-    save_dir = f"results/pc2022_trusted"
-    '''
-    # to save results
-    save_dir = f"results/clef_plant_results_epoch{visualize_epoch}"
-    try:
-        os.makedirs(save_dir)
-    except FileExistsError:
-        shutil.rmtree(save_dir)
-        os.makedirs(save_dir)
-    ''' # TODO: UNCOMMENT.
-
-
-    #if os.path.exists(save_dir):
-    #    shutil.rmtree(save_dir)
-    #    os.makedirs(save_dir)
-    #else:
-    #    os.makedirs(save_dir)
-    # end to save result
-
-    categories = [] # TODO: remove
-    names = [] # TODO: remove
-    
-    #print('Class Map:', class_idx_map)
-    for i, batch in enumerate(metric_logger.log_every(data_loader, 10, header)):
-        images = batch[0]
-        file_names = data_loader.dataset.samples[i * images.size(0):i * images.size(0) + images.size(0)]
-        target = batch[-1]
-        images = images.to(device, non_blocking=True)
-        target = target.to(device, non_blocking=True)
-
-        # compute output
-        with torch.cuda.amp.autocast():
-            output = model(images)
-            loss = criterion(output, target)
-
-            ###################################################################
-            # to save the results
-            if visualize_epoch:
-                scores, predictions = output.softmax(dim=1).topk(k=max_num, dim=1)
-                for batch_i in range(images.size(0)):
-                    file_name_ = os.path.splitext(os.path.basename(file_names[batch_i][0]))[0]
-                    names.append(file_name_+'.jpg')
-                    label_batch = []
-                    for num in range(max_num):
-                        label = predictions[batch_i, num].cpu().item()
-                        #print('Predictions:', predictions)
-                        #print('Label:', label)
-                        label = [k for k, v in class_idx_map.items() if v == label][0]
-                        #print('Label Key', label)
-                        label_batch.append(label)
-                        #categories.append(label) # TODO: remove
-                    
-                    # label = predictions[batch_i].cpu().numpy().flatten()
-                    # label_batch = [k for num in range(len(label)) for k, v in class_idx_map.items() if v == label[num]]
-                    score_batch = scores[batch_i].cpu().numpy()
-                    rank_batch = list(range(1, max_num + 1))
-                    label_batch = np.array(label_batch)
-
-                    submission_df = pd.DataFrame({
-                        'label': np.array(label_batch).flatten(),
-                        'score': np.array(score_batch).flatten(),
-                        'rank': np.array(rank_batch).flatten()
-                    })
-                    submission_df.to_csv(f"{save_dir}/{file_name_}.csv", index=False) # TODO: uncomment
-            # the end
-            ###################################################################
-
-        #print('Output:', output)
-        #print('Target:', target)
-        if output.size(1) >= 6:
-            acc1, acc5 = accuracy(output, target, topk=(1, 5))
-        else:
-            acc1, acc5 = accuracy(output, target, topk=(1, 2))
-
-        batch_size = images.shape[0]
-        metric_logger.update(loss=loss.item())
-        metric_logger.meters['acc1'].update(acc1.item(), n=batch_size)
-        metric_logger.meters['acc5'].update(acc5.item(), n=batch_size)
-    # gather the stats from all processes
-    
-    #submission_df = pd.DataFrame({
-    #    'Category': np.array(categories).flatten(),
-    #    'Id': np.array(names).flatten()
-    #})
-    #submission_df.to_csv(f"{save_dir}/{'imagenet_baseline'}.csv", index=False)
-
-    metric_logger.synchronize_between_processes()
-    print('* Acc@1 {top1.global_avg:.3f} Acc@5 {top5.global_avg:.3f} loss {losses.global_avg:.3f}'
-          .format(top1=metric_logger.acc1, top5=metric_logger.acc5, losses=metric_logger.loss))
-
-    return {k: meter.global_avg for k, meter in metric_logger.meters.items()}
-
-
-@torch.no_grad()
-def evaluate_or(data_loader, model, device):
-    criterion = torch.nn.CrossEntropyLoss()
-
-    metric_logger = misc.MetricLogger(delimiter="  ")
-    header = 'Test:'
-
-    # switch to evaluation mode
-    model.eval()
-
-    for batch in metric_logger.log_every(data_loader, 10, header):
-        images = batch[0]
-        target = batch[-1]
-        images = images.to(device, non_blocking=True)
-        target = target.to(device, non_blocking=True)
-
-        # compute output
-        with torch.cuda.amp.autocast():
-            output = model(images)
-            loss = criterion(output, target)
-
-        acc1, acc5 = accuracy(output, target, topk=(1, 5))
-
-        batch_size = images.shape[0]
-        metric_logger.update(loss=loss.item())
-        metric_logger.meters['acc1'].update(acc1.item(), n=batch_size)
-        metric_logger.meters['acc5'].update(acc5.item(), n=batch_size)
-    # gather the stats from all processes
-    metric_logger.synchronize_between_processes()
-    print('* Acc@1 {top1.global_avg:.3f} Acc@5 {top5.global_avg:.3f} loss {losses.global_avg:.3f}'
-          .format(top1=metric_logger.acc1, top5=metric_logger.acc5, losses=metric_logger.loss))
-
-    return {k: meter.global_avg for k, meter in metric_logger.meters.items()}
-
-
-@torch.no_grad()
-def evaluate2(data_loader, model, device, class_idx_map=None, visualize_epoch=0, max_num=30):
-    criterion = torch.nn.CrossEntropyLoss()
-
-    metric_logger = misc.MetricLogger(delimiter="  ")
-    header = 'Test:'
-
-    # switch to evaluation mode
-    model.eval()
-    save_dir = f"results/imagenet_baseline"
-    '''
-    # to save results
-    save_dir = f"results/clef_plant_results_epoch{visualize_epoch}"
-    try:
-        os.makedirs(save_dir)
-    except FileExistsError:
-        shutil.rmtree(save_dir)
-        os.makedirs(save_dir)
-    ''' # TODO: UNCOMMENT.
-
-
-    #if os.path.exists(save_dir):
-    #    shutil.rmtree(save_dir)
-    #    os.makedirs(save_dir)
-    #else:
-    #    os.makedirs(save_dir)
-    # end to save result
-
-    categories = [] # TODO: remove
-    names = [] # TODO: remove
-    
-    print('Class Map:', class_idx_map)
-    for i, batch in enumerate(metric_logger.log_every(data_loader, 10, header)):
-        images = batch[0]
-        file_names = data_loader.dataset.samples[i * images.size(0):i * images.size(0) + images.size(0)]
-        target = batch[-1]
-        images = images.to(device, non_blocking=True)
-        target = target.to(device, non_blocking=True)
-
-        # compute output
-        with torch.cuda.amp.autocast():
-            output = model(images)
-            loss = criterion(output, target)
-
-            ###################################################################
-            # to save the results
-            if visualize_epoch:
-                scores, predictions = output.softmax(dim=1).topk(k=max_num, dim=1)
-                for batch_i in range(images.size(0)):
-                    file_name_ = os.path.splitext(os.path.basename(file_names[batch_i][0]))[0]
-                    names.append(file_name_+'.jpg')
-                    label_batch = []
-                    for num in range(max_num):
-                        label = predictions[batch_i, num].cpu().item()
-                        #print('Predictions:', predictions)
-                        #print('Label:', label)
-                        label = [k for k, v in class_idx_map.items() if v == label][0]
-                        #print('Label Key', label)
-                        label_batch.append(label)
-                        categories.append(label) # TODO: remove
-                    
-                    # label = predictions[batch_i].cpu().numpy().flatten()
-                    # label_batch = [k for num in range(len(label)) for k, v in class_idx_map.items() if v == label[num]]
-                    score_batch = scores[batch_i].cpu().numpy()
-                    rank_batch = list(range(1, max_num + 1))
-                    label_batch = np.array(label_batch)
-
-                    submission_df = pd.DataFrame({
-                        'label': np.array(label_batch).flatten(),
-                        'score': np.array(score_batch).flatten(),
-                        'rank': np.array(rank_batch).flatten()
-                    })
-                    #submission_df.to_csv(f"{save_dir}/{file_name_}.csv", index=False) # TODO: uncomment
-            # the end
-            ###################################################################
-
-        #print('Output:', output)
-        #print('Target:', target)
-        if output.size(1) >= 6:
-            acc1, acc5 = accuracy(output, target, topk=(1, 5))
-        else:
-            acc1, acc5 = accuracy(output, target, topk=(1, 2))
-
-        batch_size = images.shape[0]
-        metric_logger.update(loss=loss.item())
-        metric_logger.meters['acc1'].update(acc1.item(), n=batch_size)
-        metric_logger.meters['acc5'].update(acc5.item(), n=batch_size)
-    # gather the stats from all processes
-    
-    submission_df = pd.DataFrame({
-        'Category': np.array(categories).flatten(),
-        'Id': np.array(names).flatten()
-    })
-    submission_df.to_csv(f"{save_dir}/{'imagenet_baseline'}.csv", index=False)
-
-    metric_logger.synchronize_between_processes()
-    print('* Acc@1 {top1.global_avg:.3f} Acc@5 {top5.global_avg:.3f} loss {losses.global_avg:.3f}'
-          .format(top1=metric_logger.acc1, top5=metric_logger.acc5, losses=metric_logger.loss))
-
-    return {k: meter.global_avg for k, meter in metric_logger.meters.items()}
-
-
-

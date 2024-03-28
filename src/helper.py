@@ -15,6 +15,7 @@ from src.utils.schedulers import (
     WarmupCosineSchedule,
     CosineWDSchedule)
 from src.utils.tensors import trunc_normal_
+import toch.nn  as nn
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 logger = logging.getLogger()
@@ -65,6 +66,39 @@ def load_checkpoint(
     return encoder, predictor, target_encoder, opt, scaler, epoch
 
 
+def add_classification_head(pretrained_model, drop_path, nb_classes):
+    class FineTuningModel(nn.Module):
+        def __init__(self):
+            super(FineTuningModel, self).__init__()        
+            self.pretrained_model = pretrained_model
+            
+            self.drop_path = drop_path
+            self.nb_classes = nb_classes
+
+            self.pretrained_model.model.layer_dropout = self.drop_path # TODO: VERIFY THIS []
+
+            # TODO:
+            # (1) - VERIFY IF THIS WORK [] (encoders features vary in dimension size)
+            self.average_pool = nn.AvgPool1d((self.pretrained_model.embed_dim), stride=1)
+
+            # TODO: 
+            # (1) - Verify the difference between Layer Normalization (LN) and batch normalization []
+            # (2) - Verify if layer norm still necessary, considering that it is already performed in the ouput of the target encoder's features []
+            # (3) - PRINT NUM_TOKENS[]  
+            self.mlp_head = nn.Sequential(
+                nn.LayerNorm(self.pretrained_model.num_tokens),
+                nn.Linear(self.pretrained_model.num_tokens, num_classes=self.nb_classes)
+            )
+        
+        # TODO:
+        # (1) - Move this into the training loop as it has being performed already (adjust) [].
+        def forward(self, x):
+            x = self.pretrained_model.model(x)
+            x = self.average_pool(x) #conduct average pool like in paper
+            x = x.squeeze(-1)
+            x = self.mlp_head(x) #pass through mlp head
+            return x
+        
 def init_model(
     device,
     patch_size=16,
