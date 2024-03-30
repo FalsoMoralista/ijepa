@@ -45,6 +45,7 @@ from src.datasets.imagenet1k import make_imagenet1k
 from src.datasets.PlantCLEF2022 import make_PlantCLEF2022
 
 from src.helper import (
+    add_classification_head,
     load_checkpoint,
     init_model,
     init_opt)
@@ -291,12 +292,12 @@ def main(args, resume_preempt=False):
         (2) - Avg pool the output embeddings and feed them into a mlp with the same config as in MAE []
         (3) - Look up for which encoder was used to extract features in the ablation studies []
 
-        OBS:  lr = base lr×batchsize / 256. learning rate formula.
+        OBS:  lr = base lr×batchsize / 256. (learning rate formula).
     '''
     # -- # -- # -- #
     encoder = DistributedDataParallel(encoder, static_graph=True)
     predictor = DistributedDataParallel(predictor, static_graph=True)
-    target_encoder = DistributedDataParallel(target_encoder)
+    target_encoder = DistributedDataParallel(target_encoder) # TODO: verify what does static_graph does[]
 
 
     # -- momentum schedule
@@ -350,6 +351,9 @@ def main(args, resume_preempt=False):
 
     time_meter = AverageMeter()
     a = 0 
+
+    target_encoder = add_classification_head(target_encoder, nb_classes=nb_classes, drop_path=0.2, device=device)
+    target_encoder = DistributedDataParallel(target_encoder)
     # TODO:
     # (1) - avg pooling of the target encoder output embeddings[]
     # (2) - Adapt training loop from MAE[]
@@ -363,23 +367,25 @@ def main(args, resume_preempt=False):
             return (imgs, masks_1, masks_2)
         imgs, masks_enc, masks_pred = load_imgs()
 
-        print('Image(s) Shape:', imgs.shape)
-        print('Mask Context Encoder List:', masks_enc) # indexes ???
-        print('Mask Context Encoder Length', len(masks_enc[0][0]))
-        print('Mask Target Shape:', masks_pred, 'Length:', len(masks_pred))
-        print('Mask Target Length:', len(masks_pred))
+        #print('Image(s) Shape:', imgs.shape)
+        #print('Mask Context Encoder List:', masks_enc) # indexes ???
+        #print('Mask Context Encoder Length', len(masks_enc[0][0]))
+        #print('Mask Target Shape:', masks_pred, 'Length:', len(masks_pred))
+        #print('Mask Target Length:', len(masks_pred))
 
         def extract_features():
 
             def forward_target():
-                with torch.no_grad():
-                    h = target_encoder(imgs)
-                    h = F.layer_norm(h, (h.size(-1),))  # normalize over feature-dim
+                h = target_encoder.forward(imgs)
+                #with torch.no_grad():
+                    #h = target_encoder(imgs)
+                    #h = F.layer_norm(h, (h.size(-1),))  # normalize over feature-dim
                     #B = len(h)
                     # -- create targets (masked regions of h)
-                   # h = apply_masks(h, masks_pred)
-                   # h = repeat_interleave_batch(h, B, repeat=len(masks_enc))
-                    return h
+                    # h = apply_masks(h, masks_pred)
+                    # h = repeat_interleave_batch(h, B, repeat=len(masks_enc))
+                return h
+            
             def forward_context():
                 z = encoder(imgs, masks_enc)
                 z = predictor(z, masks_enc, masks_pred)
