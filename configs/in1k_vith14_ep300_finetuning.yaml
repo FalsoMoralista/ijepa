@@ -11,7 +11,7 @@ data:
   cutmix: 1.0
   reprob: 0.25
   image_folder: LifeCLEFPlant2022/
-  num_workers: 32
+  num_workers: 8
   pin_mem: true
   root_path: /home/rtcalumby/adam/luciano/
   use_color_distortion: false

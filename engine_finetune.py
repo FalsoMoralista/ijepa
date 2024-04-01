@@ -377,13 +377,6 @@ def main(args, resume_preempt=False):
 
             def forward_target():
                 h = target_encoder.forward(imgs)
-                #with torch.no_grad():
-                    #h = target_encoder(imgs)
-                    #h = F.layer_norm(h, (h.size(-1),))  # normalize over feature-dim
-                    #B = len(h)
-                    # -- create targets (masked regions of h)
-                    # h = apply_masks(h, masks_pred)
-                    # h = repeat_interleave_batch(h, B, repeat=len(masks_enc))
                 return h
             
             def forward_context():

@@ -9,7 +9,7 @@ INFO:root:loaded params...
                 'image_folder': 'LifeCLEFPlant2022/',
                 'mixup': 0.8,
                 'nb_classes': 80000,
-                'num_workers': 32,
+                'num_workers': 8,
                 'pin_mem': True,
                 'reprob': 0.25,
                 'root_path': '/home/rtcalumby/adam/luciano/',
@@ -84,13 +84,51 @@ INFO:root:loaded pretrained encoder from epoch 299 with msg: <All keys matched s
 INFO:root:loaded pretrained encoder from epoch 299 with msg: <All keys matched successfully>
 INFO:root:loaded optimizers from epoch 299
 INFO:root:read-path: /home/rtcalumby/adam/luciano/LifeCLEFPlant2022/IN1K-vit.h.14-300e.pth.tar
-/home/rtcalumby/miniconda3/envs/py382/lib/python3.8/site-packages/torch/utils/data/dataloader.py:560: UserWarning: This DataLoader will create 32 worker processes in total. Our suggested max number of worker in current system is 8, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
-  warnings.warn(_create_warning_msg(
-H-Shape: torch.Size([16, 256])
+Embbed dim: 1280
+Num patches: 256
+Pooled tensor tensor([[-2.9202e-02,  4.0512e-02, -1.1243e-02,  ...,  6.1838e-01,
+         -3.6133e-02, -2.5953e-02],
+        [ 1.0323e-02, -6.7638e-02,  1.7533e+00,  ..., -8.4252e-04,
+          3.9856e-02,  5.1517e-01],
+        [-1.3983e-01, -8.9708e-02, -1.3144e+00,  ...,  4.5685e-01,
+          1.2816e-01, -1.3377e+00],
+        ...,
+        [-1.1444e-01, -1.3771e-01,  7.7824e-01,  ..., -2.0828e-01,
+          2.9152e-02,  5.0264e-01],
+        [-3.6840e-02, -6.8928e-02,  2.2806e+00,  ...,  4.2906e-01,
+         -5.6858e-02, -5.6828e-01],
+        [ 3.1627e-02, -1.6345e-01,  1.1255e+00,  ...,  1.0871e-01,
+         -3.0473e-02, -1.1582e+00]], device='cuda:0',
+       grad_fn=<SqueezeBackward1>)
+H-Shape: torch.Size([16, 80000])
 Z-Shape: torch.Size([64, 48, 1280])
-H-Shape: torch.Size([16, 256])
+Pooled tensor tensor([[-0.0740, -0.1016,  0.2439,  ..., -0.1842,  0.0643, -0.1768],
+        [-0.1989, -0.1198, -0.7243,  ..., -0.6993, -0.0753,  1.4084],
+        [-0.1225, -0.0516, -0.3372,  ..., -0.1792, -0.0365,  0.6468],
+        ...,
+        [-0.0873,  0.0034,  0.4029,  ..., -0.6749,  0.0570, -0.7182],
+        [-0.1216, -0.1679,  0.0350,  ..., -0.0711,  0.0693,  0.0545],
+        [ 0.0223, -0.0958,  1.3770,  ...,  0.2648, -0.1042, -0.1375]],
+       device='cuda:0', grad_fn=<SqueezeBackward1>)
+H-Shape: torch.Size([16, 80000])
 Z-Shape: torch.Size([64, 42, 1280])
-H-Shape: torch.Size([16, 256])
-Z-Shape: torch.Size([64, 42, 1280])
-H-Shape: torch.Size([16, 256])
+Pooled tensor tensor([[-0.0373, -0.0382,  1.2694,  ...,  0.4835,  0.0205, -1.1024],
+        [-0.0236, -0.1180,  1.8925,  ..., -0.2555, -0.0240,  0.6694],
+        [ 0.0252, -0.1365,  0.5042,  ..., -0.2405, -0.0505,  0.3077],
+        ...,
+        [ 0.0125, -0.0233, -0.8580,  ...,  0.1375,  0.0419,  0.9271],
+        [ 0.0253, -0.0768,  1.3968,  ..., -0.2535,  0.0264, -0.1110],
+        [-0.0175, -0.0785,  1.9207,  ...,  0.4094, -0.0560,  0.0441]],
+       device='cuda:0', grad_fn=<SqueezeBackward1>)
+H-Shape: torch.Size([16, 80000])
 Z-Shape: torch.Size([64, 35, 1280])
+Pooled tensor tensor([[-0.0173, -0.0862, -0.4742,  ..., -0.1501, -0.0695,  0.0831],
+        [ 0.0034, -0.1047,  1.9359,  ...,  0.0738,  0.0706,  0.6013],
+        [ 0.0132, -0.0052,  1.4366,  ...,  0.4473, -0.0604, -0.0614],
+        ...,
+        [-0.0086, -0.0945,  1.0114,  ...,  0.5009, -0.1027, -0.4062],
+        [-0.0330,  0.0114,  0.2752,  ..., -0.6108, -0.0115,  0.3208],
+        [-0.1197, -0.0510,  0.6263,  ...,  0.8654, -0.0144, -0.9957]],
+       device='cuda:0', grad_fn=<SqueezeBackward1>)
+H-Shape: torch.Size([16, 80000])
+Z-Shape: torch.Size([64, 42, 1280])
