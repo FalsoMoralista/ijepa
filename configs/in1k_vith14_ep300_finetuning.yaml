@@ -56,3 +56,4 @@ optimization:
   warmup: 10
   weight_decay: 0.04
   eval_epoch: 1
+  label_smoothing: 0.1

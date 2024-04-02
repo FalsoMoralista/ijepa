@@ -139,7 +139,7 @@ def main(args, resume_preempt=False):
     start_lr = args['optimization']['start_lr']
     lr = args['optimization']['lr']
     final_lr = args['optimization']['final_lr']
-
+    smoothing = args['optimization']['label_smoothing']
     
 
     # -- LOGGING
@@ -263,6 +263,14 @@ def main(args, resume_preempt=False):
         print("Mixup is activated!")
         mixup_fn = Mixup(mixup_alpha=mixup, cutmix_alpha=cutmix, label_smoothing=0.1, num_classes=nb_classes) # TODO: use inside the training loop []
 
+    if mixup_fn is not None:
+        # smoothing is handled with mixup label transform
+        criterion = SoftTargetCrossEntropy()
+    elif smoothing > 0.:
+        criterion = LabelSmoothingCrossEntropy(smoothing=smoothing)
+    else:
+        criterion = torch.nn.CrossEntropyLoss()
+
     '''
     # TODO (Fine-tuning parameters) according to ViT Paper:
          _______________________________________________
@@ -297,8 +305,7 @@ def main(args, resume_preempt=False):
     # -- # -- # -- #
     encoder = DistributedDataParallel(encoder, static_graph=True)
     predictor = DistributedDataParallel(predictor, static_graph=True)
-    target_encoder = DistributedDataParallel(target_encoder) # TODO: verify what does static_graph does[]
-
+    target_encoder = DistributedDataParallel(target_encoder, static_graph=True) # TODO: verify what does static_graph does[]
 
     # -- momentum schedule
     momentum_scheduler = (ema[0] + i*(ema[1]-ema[0])/(ipe*num_epochs*ipe_scale)
@@ -386,8 +393,12 @@ def main(args, resume_preempt=False):
             
             # Step 1. Forward
             with torch.cuda.amp.autocast(dtype=torch.bfloat16, enabled=use_bfloat16):
-                h = forward_target()
-                z = forward_context() # Features extracted from the ViT context encoder
+                h = target_encoder.forward(imgs)
+                # TODO:
+
+                # train_one_epoch()
+                # evaluate()
+                #z = forward_context() # Features extracted from the ViT context encoder
             return (h,z) 
 
         values, etime = gpu_timer(extract_features)
