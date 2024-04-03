@@ -28,15 +28,18 @@ def make_PlantCLEF2022(
     copy_data=False,
     drop_last=True, # TODO: REMEMBER TO SET TO FALSE IF VALIDATION DATASET
     feature_extraction=False,
+    supervision=False,
     subset_file=None
 ):
+    
+    index_targets = False 
     dataset = PC2022(
         root=root_path,
         image_folder=image_folder,
         transform=transform,
         train=training,
         copy_data=copy_data,
-        index_targets=False)
+        index_targets=index_targets)
     
     logger.info('PlantCLEF dataset created')
 

@@ -226,8 +226,15 @@ def main(args, resume_preempt=False):
         color_jitter=color_jitter)
 
     # TODO: Create supervised loaders []
+    # (1) - Build train and val datasets as below.
+    # (2) - Build Train and Val data loaders upon the datasets.
+    # (3) - 
+    #dataset_train = build_dataset(is_train=True, args=args)
+    #dataset_val = build_dataset(is_train=False, args=args)
+
+
     # -- init data-loaders/samplers
-    _, unsupervised_loader, unsupervised_sampler = make_PlantCLEF2022(
+    _, supervised_loader_train, supervised_sampler_train = make_PlantCLEF2022(
             transform=transform,
             batch_size=batch_size,
             collator=mask_collator,
@@ -239,8 +246,28 @@ def main(args, resume_preempt=False):
             root_path=root_path,
             image_folder=image_folder,
             copy_data=copy_data,
+            supervision=True,
             drop_last=True)
-    ipe = len(unsupervised_loader)
+    ipe = len(supervised_loader_train)
+    print('Training dataset, length:', ipe*batch_size)
+
+    _, supervised_loader_val, supervised_sampler_val = make_PlantCLEF2022(
+            transform=transform,
+            batch_size=batch_size,
+            collator=mask_collator,
+            pin_mem=pin_mem,
+            training=False,
+            num_workers=num_workers,
+            world_size=world_size,
+            rank=rank,
+            root_path=root_path,
+            image_folder=image_folder,
+            copy_data=copy_data,
+            supervision=True,
+            drop_last=False)
+    
+    ipe_val = len(supervised_loader_val)
+    print('Val dataset, length:', ipe_val*batch_size)
 
     # -- init optimizer and scheduler
     optimizer, scaler, scheduler, wd_scheduler = init_opt(
@@ -362,51 +389,53 @@ def main(args, resume_preempt=False):
     target_encoder = add_classification_head(target_encoder, nb_classes=nb_classes, drop_path=0.2, device=device)
     target_encoder = DistributedDataParallel(target_encoder)
     # TODO:
-    # (1) - avg pooling of the target encoder output embeddings[]
-    # (2) - Adapt training loop from MAE[]
-    for itr, (udata, masks_enc, masks_pred) in enumerate(unsupervised_loader):
+    # (1) - Create supervised sampler[x]
+    # (2) - Send both label and images to device[x]
+    # (3) - Apply mixup[x] 
+    # (4) - 
+    # (-) - Learning Rate Scheduling. 
+    # (-) - 
+    # (-) - Gradient Clipping. 
+
+    '''
+        In distributed mode, calling the set_epoch() method 
+        at the beginning of each epoch before creating the DataLoader iterator 
+        is necessary to make shuffling work properly across multiple epochs. 
+        Otherwise, the same ordering will be always used.
+    '''
+    max_accuracy = 0.0
+    for itr, (udata, masks_enc, masks_pred) in enumerate(supervised_loader_train):
         a +=1 
         def load_imgs():
             # -- unsupervised imgs
             imgs = udata[0].to(device, non_blocking=True)
-            masks_1 = [u.to(device, non_blocking=True) for u in masks_enc]
-            masks_2 = [u.to(device, non_blocking=True) for u in masks_pred]
-            return (imgs, masks_1, masks_2)
-        imgs, masks_enc, masks_pred = load_imgs()
+            targets = udata[1].to(device, non_blocking=True)
+            if mixup_fn is not None:
+                samples, targets = mixup_fn(imgs, targets)
+            return (samples, targets)
+        imgs, targets = load_imgs()
 
-        #print('Image(s) Shape:', imgs.shape)
-        #print('Mask Context Encoder List:', masks_enc) # indexes ???
-        #print('Mask Context Encoder Length', len(masks_enc[0][0]))
-        #print('Mask Target Shape:', masks_pred, 'Length:', len(masks_pred))
-        #print('Mask Target Length:', len(masks_pred))
 
         def extract_features():
+                        
+            def loss_fn(h, targets):
+                loss = criterion(h, targets)
+                loss = AllReduce.apply(loss)
+                return loss
 
-            def forward_target():
-                h = target_encoder.forward(imgs)
-                return h
-            
-            def forward_context():
-                z = encoder(imgs, masks_enc)
-                z = predictor(z, masks_enc, masks_pred)
-                return (z)
-            
+
             # Step 1. Forward
             with torch.cuda.amp.autocast(dtype=torch.bfloat16, enabled=use_bfloat16):
                 h = target_encoder.forward(imgs)
-                # TODO:
-
-                # train_one_epoch()
-                # evaluate()
-                #z = forward_context() # Features extracted from the ViT context encoder
-            return (h,z) 
+                loss = loss_fn(h, targets)
+            return (h,loss) 
 
         values, etime = gpu_timer(extract_features)
         h = values[0]
-        z = values[1]
+        loss = values[1]
     
         print('H-Shape:', h.shape)
-        print('Z-Shape:', z.shape)
+        print('Loss:', loss)
 
         time_meter.update(etime)
         def log_stats():
