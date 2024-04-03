@@ -51,10 +51,10 @@ from src.helper import (
     init_opt)
 from src.transforms import make_transforms
 
-# -- MAE
+# --BROUGHT fRoM MAE
 from timm.data.mixup import Mixup
 from timm.loss import LabelSmoothingCrossEntropy, SoftTargetCrossEntropy
-
+from timm.utils import accuracy
 
 # --
 log_timings = True
@@ -178,12 +178,13 @@ def main(args, resume_preempt=False):
     csv_logger = CSVLogger(log_file,
                            ('%d', 'epoch'),
                            ('%d', 'itr'),
-                           ('%.5f', 'train loss'),
-                           ('%.5f', 'test loss'),
+                           ('%.5f', 'Train loss'),
+                           ('%.5f', 'Test loss'),
                            ('%.3f', 'Train - Acc@1'),
                            ('%.3f', 'Train - Acc@5'),
                            ('%.3f', 'Test - Acc@1'),
                            ('%.3f', 'Test - Acc@5'),
+                           ('%d', 'Test time (ms)'),
                            ('%d', 'time (ms)'))
     
     # -- init model
@@ -379,90 +380,108 @@ def main(args, resume_preempt=False):
     target_encoder = add_classification_head(target_encoder, nb_classes=nb_classes, drop_path=0.2, device=device)
     target_encoder = DistributedDataParallel(target_encoder)
 
-    # TODO:
-    # (1) - Create supervised sampler[x]
-    # (2) - Send both label and images to device[x]
-    # (3) - Apply mixup[x] 
-    # (4) - 
-    # (-) - Learning Rate Scheduling. 
-    # (-) - 
-    # (-) - Gradient Clipping. 
-
-    '''
-        In distributed mode, calling the set_epoch() method 
-        at the beginning of each epoch before creating the DataLoader iterator 
-        is necessary to make shuffling work properly across multiple epochs. 
-        Otherwise, the same ordering will be always used.
-    '''
+    # -- TODO:
+    # (1) - Finish testing the training procedures[]
+    # (2) - Adjust logging[]
+    # (3) - Check if the dataset transformations are being applied correctly[]
+    # (4) -    
+    # (5) - 
+    # --
 
     # -- TRAINING LOOP
     for epoch in range(start_epoch, num_epochs):
         logger.info('Epoch %d' % (epoch + 1))
 
         # -- update distributed-data-loader epoch
-        supervised_loader_train.set_epoch(epoch)
-
+        supervised_loader_train.set_epoch(epoch) # In distributed mode, calling the set_epoch() method 
+                                                # at the beginning of each epoch before creating the DataLoader iterator
+                                                # is necessary to make shuffling work properly across multiple epochs.
+                                                # Otherwise, the same ordering will be always used.
+        
         loss_meter = AverageMeter()
-        maskA_meter = AverageMeter()
-        maskB_meter = AverageMeter()
+        trainAcc5 = AverageMeter() 
+        trainAcc1 = AverageMeter()
         time_meter = AverageMeter()
 
+        for itr, (udata, masks_enc, masks_pred) in enumerate(supervised_loader_train):
+            a +=1 
+            def load_imgs():
+                # -- unsupervised imgs
+                imgs = udata[0].to(device, non_blocking=True)
+                targets = udata[1].to(device, non_blocking=True)
+                if mixup_fn is not None:
+                    samples, targets = mixup_fn(imgs, targets)
+                return (samples, targets)
+            imgs, targets = load_imgs()
 
-#        csv_logger = CSVLogger(log_file,
-#                            ('%d', 'epoch'),
-#                            ('%d', 'itr'),
-#                            ('%.5f', 'train loss'),
-#                            ('%.5f', 'test loss'),
-#                            ('%.3f', 'Train - Acc@1'),
-#                            ('%.3f', 'Train - Acc@5'),
-#                            ('%.3f', 'Test - Acc@1'),
-#                            ('%.3f', 'Test - Acc@5'),
-#                            ('%d', 'time (ms)'))
+            def train_step():                        
+                def loss_fn(h, targets):
+                    loss = criterion(h, targets)
+                    loss = AllReduce.apply(loss)
+                    return loss
+                            
+                # Step 1. Forward
+                with torch.cuda.amp.autocast(dtype=torch.bfloat16, enabled=use_bfloat16):
+                    h = target_encoder.forward(imgs)
+                    loss = loss_fn(h, targets)
 
+                # Training Metrics
+                acc1, acc5 = accuracy(h, targets, topk=(1, 5))
 
+                #  Step 2. Backward & step
+                if use_bfloat16:
+                    scaler.scale(loss).backward()
+                    scaler.step(optimizer)
+                    scaler.update()
+                else:
+                    loss.backward()
+                    optimizer.step()
+                grad_stats = grad_logger(target_encoder.named_parameters())
+                optimizer.zero_grad()
+                return (float(loss), _new_lr, _new_wd, grad_stats, acc1, acc5)
+            (loss, _new_lr, _new_wd, grad_stats, acc1, acc5), etime = gpu_timer(train_step)
+            trainAcc1.update(acc1)
+            trainAcc5.update(acc5)
+            loss_meter.update(loss)
+            time_meter.update(etime)            
 
-        # -- Save Checkpoint after every epoch
-        logger.info('avg. loss %.3f' % loss_meter.avg)
-        save_checkpoint(epoch+1)        
+        def evaluate():
+            testAcc1 = AverageMeter()
+            testAcc5 = AverageMeter()
+            test_loss = AverageMeter()
 
-    max_accuracy = 0.0
-    for itr, (udata, masks_enc, masks_pred) in enumerate(supervised_loader_train):
-        a +=1 
-        def load_imgs():
-            # -- unsupervised imgs
-            imgs = udata[0].to(device, non_blocking=True)
-            targets = udata[1].to(device, non_blocking=True)
-            if mixup_fn is not None:
-                samples, targets = mixup_fn(imgs, targets)
-            return (samples, targets)
-        imgs, targets = load_imgs()
+            for cnt, (val_data, masks_enc, masks_pred) in enumerate(supervised_loader_val):
+                images = val_data[0].to(device, non_blocking=True)
+                labels = val_data[1].to(device, non_blocking=True)
 
-        def train_step():
-                        
-            def loss_fn(h, targets):
-                loss = criterion(h, targets)
-                loss = AllReduce.apply(loss)
-                return loss
-                        
-            # Step 1. Forward
-            with torch.cuda.amp.autocast(dtype=torch.bfloat16, enabled=use_bfloat16):
-                h = target_encoder.forward(imgs)
-                loss = loss_fn(h, targets)
+                with torch.no_grad():
+                    output = target_encoder.forward(images)
+                    loss = criterion(output, labels)
 
-            #  Step 2. Backward & step
-            if use_bfloat16:
-                scaler.scale(loss).backward()
-                scaler.step(optimizer)
-                scaler.update()
-            else:
-                loss.backward()
-                optimizer.step()
-            grad_stats = grad_logger(target_encoder.named_parameters())
-            optimizer.zero_grad()
-            return (float(loss), _new_lr, _new_wd, grad_stats)                
-        (loss, _new_lr, _new_wd, grad_stats), etime = gpu_timer(train_step)
-        loss_meter.update(loss)
-        time_meter.update(etime)
+                acc1, acc5 = accuracy(output, labels, topk=(1, 5))
+
+                #batch_size = images.shape[0]
+                testAcc1.update(acc1)
+                testAcc5.update(acc5)
+                test_loss.update(loss)
+
+            print('* Acc@1 {top1.global_avg:.3f} Acc@5 {top5.global_avg:.3f} loss {losses.global_avg:.3f}'
+                    .format(top1=testAcc1.avg, top5=testAcc5.avg, losses=test_loss.avg))
+            return (testAcc1.avg, testAcc5.avg, test_loss.avg)
+        
+        (testAcc1, testAcc5, test_loss), vtime = gpu_timer(evaluate)
+        
+#            csv_logger = CSVLogger(log_file,
+#                           ('%d', 'epoch'),
+#                           ('%d', 'itr'),
+#                           ('%.5f', 'Train loss'),
+#                           ('%.5f', 'Test loss'),
+#                           ('%.3f', 'Train - Acc@1'),
+#                           ('%.3f', 'Train - Acc@5'),
+#                           ('%.3f', 'Test - Acc@1'),
+#                           ('%.3f', 'Test - Acc@5'),
+#                           ('%d', 'Test time (ms)'),
+#                           ('%d', 'time (ms)'))
 
         # -- Logging
         def log_stats():
@@ -490,6 +509,10 @@ def main(args, resume_preempt=False):
                                     grad_stats.min,
                                     grad_stats.max))
         log_stats()
+
+        # -- Save Checkpoint after every epoch
+        logger.info('avg. loss %.3f' % loss_meter.avg)
+        #save_checkpoint(epoch+1)
 
         assert not np.isnan(loss), 'loss is nan'
         print('Loss:', loss)        

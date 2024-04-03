@@ -90,9 +90,3 @@ INFO:root:loaded pretrained encoder from epoch 299 with msg: <All keys matched s
 INFO:root:loaded pretrained encoder from epoch 299 with msg: <All keys matched successfully>
 INFO:root:loaded optimizers from epoch 299
 INFO:root:read-path: /home/rtcalumby/adam/luciano/LifeCLEFPlant2022/IN1K-vit.h.14-300e.pth.tar
-Embbed dim: 1280
-Num patches: 256
-Loss: tensor(11.4747, device='cuda:0', grad_fn=<AllReduceBackward>)
-Loss: tensor(11.4797, device='cuda:0', grad_fn=<AllReduceBackward>)
-Loss: tensor(11.3415, device='cuda:0', grad_fn=<AllReduceBackward>)
-Loss: tensor(11.4727, device='cuda:0', grad_fn=<AllReduceBackward>)
