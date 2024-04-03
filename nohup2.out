@@ -92,29 +92,7 @@ INFO:root:loaded optimizers from epoch 299
 INFO:root:read-path: /home/rtcalumby/adam/luciano/LifeCLEFPlant2022/IN1K-vit.h.14-300e.pth.tar
 Embbed dim: 1280
 Num patches: 256
-terminate called without an active exception
-Exception ignored in: <function _MultiProcessingDataLoaderIter.__del__ at 0x7fb51a584700>
-Traceback (most recent call last):
-  File "/home/rtcalumby/miniconda3/envs/py382/lib/python3.8/site-packages/torch/utils/data/dataloader.py", line 1478, in __del__
-    self._shutdown_workers()
-  File "/home/rtcalumby/miniconda3/envs/py382/lib/python3.8/site-packages/torch/utils/data/dataloader.py", line 1442, in _shutdown_workers
-    w.join(timeout=_utils.MP_STATUS_CHECK_INTERVAL)
-  File "/home/rtcalumby/miniconda3/envs/py382/lib/python3.8/multiprocessing/process.py", line 149, in join
-    res = self._popen.wait(timeout)
-  File "/home/rtcalumby/miniconda3/envs/py382/lib/python3.8/multiprocessing/popen_fork.py", line 44, in wait
-    if not wait([self.sentinel], timeout):
-  File "/home/rtcalumby/miniconda3/envs/py382/lib/python3.8/multiprocessing/connection.py", line 930, in wait
-    ready = selector.select(timeout)
-  File "/home/rtcalumby/miniconda3/envs/py382/lib/python3.8/selectors.py", line 415, in select
-    fd_event_list = self._selector.poll(timeout)
-  File "/home/rtcalumby/miniconda3/envs/py382/lib/python3.8/site-packages/torch/utils/data/_utils/signal_handling.py", line 66, in handler
-    _error_if_any_worker_fails()
-RuntimeError: DataLoader worker (pid 2865622) is killed by signal: Aborted. 
-H-Shape: torch.Size([16, 80000])
 Loss: tensor(11.4747, device='cuda:0', grad_fn=<AllReduceBackward>)
-H-Shape: torch.Size([16, 80000])
 Loss: tensor(11.4797, device='cuda:0', grad_fn=<AllReduceBackward>)
-H-Shape: torch.Size([16, 80000])
 Loss: tensor(11.3415, device='cuda:0', grad_fn=<AllReduceBackward>)
-H-Shape: torch.Size([16, 80000])
 Loss: tensor(11.4727, device='cuda:0', grad_fn=<AllReduceBackward>)

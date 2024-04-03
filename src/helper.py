@@ -75,10 +75,7 @@ class FinetuningModel(nn.Module):
         self.drop_path = drop_path
         self.nb_classes = nb_classes
 
-        self.pretrained_model.module.layer_dropout = self.drop_path # TODO: VERIFY THIS [] 
-
-        print('Embbed dim:', (self.pretrained_model.module.embed_dim))
-        print('Num patches:', (self.pretrained_model.module.patch_embed.num_patches))
+        self.pretrained_model.module.layer_dropout = self.drop_path 
 
         # TODO:
         # (1) - VERIFY IF THIS WORK []

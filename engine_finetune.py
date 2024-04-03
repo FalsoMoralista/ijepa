@@ -56,7 +56,6 @@ from timm.data.mixup import Mixup
 from timm.loss import LabelSmoothingCrossEntropy, SoftTargetCrossEntropy
 
 
-
 # --
 log_timings = True
 log_freq = 5
@@ -168,28 +167,25 @@ def main(args, resume_preempt=False):
     latest_path = os.path.join(folder, f'{tag}-latest.pth.tar')
     
     load_path = None
-    # TODO REPLACE AFTER TEST:
-    # MODEL LOADING[]
-    # CSV LOGGER[]
+    
     if load_model:
         load_path = '/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/' + 'IN1K-vit.h.14-300e.pth.tar' #os.path.join(folder, r_file) if r_file is not None else latest_path
-    # -- make csv_logger
-    csv_logger = CSVLogger(log_file,('%d', 'time (ms)'), ('%d', 'itr'), ('%d', 'total'))
-
-    '''
-        TODO: uncomment after test.
-    if load_model:
-        load_path = os.path.join(folder, r_file) if r_file is not None else latest_path
+    
+    #if load_model:
+    #    load_path = os.path.join(folder, r_file) if r_file is not None else latest_path
 
     # -- make csv_logger
     csv_logger = CSVLogger(log_file,
                            ('%d', 'epoch'),
                            ('%d', 'itr'),
-                           ('%.5f', 'loss'),
-                           ('%.5f', 'mask-A'),
-                           ('%.5f', 'mask-B'),
+                           ('%.5f', 'train loss'),
+                           ('%.5f', 'test loss'),
+                           ('%.3f', 'Train - Acc@1'),
+                           ('%.3f', 'Train - Acc@5'),
+                           ('%.3f', 'Test - Acc@1'),
+                           ('%.3f', 'Test - Acc@5'),
                            ('%d', 'time (ms)'))
-    '''
+    
     # -- init model
     encoder, predictor = init_model(
         device=device,
@@ -332,7 +328,7 @@ def main(args, resume_preempt=False):
     # -- # -- # -- #
     encoder = DistributedDataParallel(encoder, static_graph=True)
     predictor = DistributedDataParallel(predictor, static_graph=True)
-    target_encoder = DistributedDataParallel(target_encoder, static_graph=True) # TODO: verify what does static_graph does[]
+    target_encoder = DistributedDataParallel(target_encoder, static_graph=True) # TODO: verify what does static_graph do[]
 
     # -- momentum schedule
     momentum_scheduler = (ema[0] + i*(ema[1]-ema[0])/(ipe*num_epochs*ipe_scale)
@@ -359,11 +355,6 @@ def main(args, resume_preempt=False):
         #    next(momentum_scheduler)
         #    mask_collator.step()
 
-    #model = models_vit.__dict__[args.model](
-    #    num_classes=nb_classes,
-    #    drop_path_rate=drop_path, # parse dropout (20%)
-    #    global_pool=args.global_pool, 
-    #)
 
     def save_checkpoint(epoch):
         save_dict = {
@@ -383,11 +374,11 @@ def main(args, resume_preempt=False):
             if (epoch + 1) % checkpoint_freq == 0:
                 torch.save(save_dict, save_path.format(epoch=f'{epoch + 1}'))
 
-    time_meter = AverageMeter()
     a = 0 
 
     target_encoder = add_classification_head(target_encoder, nb_classes=nb_classes, drop_path=0.2, device=device)
     target_encoder = DistributedDataParallel(target_encoder)
+
     # TODO:
     # (1) - Create supervised sampler[x]
     # (2) - Send both label and images to device[x]
@@ -403,6 +394,37 @@ def main(args, resume_preempt=False):
         is necessary to make shuffling work properly across multiple epochs. 
         Otherwise, the same ordering will be always used.
     '''
+
+    # -- TRAINING LOOP
+    for epoch in range(start_epoch, num_epochs):
+        logger.info('Epoch %d' % (epoch + 1))
+
+        # -- update distributed-data-loader epoch
+        supervised_loader_train.set_epoch(epoch)
+
+        loss_meter = AverageMeter()
+        maskA_meter = AverageMeter()
+        maskB_meter = AverageMeter()
+        time_meter = AverageMeter()
+
+
+#        csv_logger = CSVLogger(log_file,
+#                            ('%d', 'epoch'),
+#                            ('%d', 'itr'),
+#                            ('%.5f', 'train loss'),
+#                            ('%.5f', 'test loss'),
+#                            ('%.3f', 'Train - Acc@1'),
+#                            ('%.3f', 'Train - Acc@5'),
+#                            ('%.3f', 'Test - Acc@1'),
+#                            ('%.3f', 'Test - Acc@5'),
+#                            ('%d', 'time (ms)'))
+
+
+
+        # -- Save Checkpoint after every epoch
+        logger.info('avg. loss %.3f' % loss_meter.avg)
+        save_checkpoint(epoch+1)        
+
     max_accuracy = 0.0
     for itr, (udata, masks_enc, masks_pred) in enumerate(supervised_loader_train):
         a +=1 
@@ -415,40 +437,67 @@ def main(args, resume_preempt=False):
             return (samples, targets)
         imgs, targets = load_imgs()
 
-
-        def extract_features():
+        def train_step():
                         
             def loss_fn(h, targets):
                 loss = criterion(h, targets)
                 loss = AllReduce.apply(loss)
                 return loss
-
-
+                        
             # Step 1. Forward
             with torch.cuda.amp.autocast(dtype=torch.bfloat16, enabled=use_bfloat16):
                 h = target_encoder.forward(imgs)
                 loss = loss_fn(h, targets)
-            return (h,loss) 
 
-        values, etime = gpu_timer(extract_features)
-        h = values[0]
-        loss = values[1]
-    
-        print('H-Shape:', h.shape)
-        print('Loss:', loss)
-
+            #  Step 2. Backward & step
+            if use_bfloat16:
+                scaler.scale(loss).backward()
+                scaler.step(optimizer)
+                scaler.update()
+            else:
+                loss.backward()
+                optimizer.step()
+            grad_stats = grad_logger(target_encoder.named_parameters())
+            optimizer.zero_grad()
+            return (float(loss), _new_lr, _new_wd, grad_stats)                
+        (loss, _new_lr, _new_wd, grad_stats), etime = gpu_timer(train_step)
+        loss_meter.update(loss)
         time_meter.update(etime)
+
+        # -- Logging
         def log_stats():
-            csv_logger.log(etime)
-            csv_logger.log(itr)
-            csv_logger.log(ipe)
+            csv_logger.log(epoch + 1, itr, loss, maskA_meter.val, maskB_meter.val, etime)
+            if (itr % log_freq == 0) or np.isnan(loss) or np.isinf(loss):
+                logger.info('[%d, %5d] loss: %.3f '
+                            'masks: %.1f %.1f '
+                            '[wd: %.2e] [lr: %.2e] '
+                            '[mem: %.2e] '
+                            '(%.1f ms)'
+                            % (epoch + 1, itr,
+                                loss_meter.avg,
+                                maskA_meter.avg,
+                                maskB_meter.avg,
+                                _new_wd,
+                                _new_lr,
+                                torch.cuda.max_memory_allocated() / 1024.**2,
+                                time_meter.avg))
+
+                if grad_stats is not None:
+                    logger.info('[%d, %5d] grad_stats: [%.2e %.2e] (%.2e, %.2e)'
+                                % (epoch + 1, itr,
+                                    grad_stats.first_layer,
+                                    grad_stats.last_layer,
+                                    grad_stats.min,
+                                    grad_stats.max))
         log_stats()
+
+        assert not np.isnan(loss), 'loss is nan'
+        print('Loss:', loss)        
         if a == 4:
             break
 
 if __name__ == "__main__":
     main()
-
     exit(0)
 
     # -- TRAINING LOOP
