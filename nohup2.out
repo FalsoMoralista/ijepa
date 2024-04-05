@@ -34,7 +34,7 @@ INFO:root:loaded params...
                 'read_checkpoint': None,
                 'use_bfloat16': True},
     'optimization': {   'ema': [0.9, 0.999],
-                        'epochs': 100,
+                        'epochs': 5,
                         'eval_epoch': 1,
                         'final_lr': 1e-06,
                         'final_weight_decay': 0.4,
@@ -90,3 +90,22 @@ INFO:root:loaded pretrained encoder from epoch 299 with msg: <All keys matched s
 INFO:root:loaded pretrained encoder from epoch 299 with msg: <All keys matched successfully>
 INFO:root:loaded optimizers from epoch 299
 INFO:root:read-path: /home/rtcalumby/adam/luciano/LifeCLEFPlant2022/IN1K-vit.h.14-300e.pth.tar
+INFO:root:Using AdamW
+INFO:root:Epoch 1
+Process Process-1:
+Traceback (most recent call last):
+  File "/home/rtcalumby/miniconda3/envs/py382/lib/python3.8/multiprocessing/process.py", line 313, in _bootstrap
+    self.run()
+  File "/home/rtcalumby/miniconda3/envs/py382/lib/python3.8/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/ijepa/main_finetuning.py", line 52, in process_main
+    app_main(args=params)
+  File "/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/ijepa/engine_finetune.py", line 452, in main
+    (loss, _new_lr, _new_wd, grad_stats), etime = gpu_timer(train_step)
+  File "/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/ijepa/src/utils/logging.py", line 21, in gpu_timer
+    result = closure()
+  File "/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/ijepa/engine_finetune.py", line 443, in train_step
+    scaler.step(optimizer)
+  File "/home/rtcalumby/miniconda3/envs/py382/lib/python3.8/site-packages/torch/cuda/amp/grad_scaler.py", line 372, in step
+    assert len(optimizer_state["found_inf_per_device"]) > 0, "No inf checks were recorded for this optimizer."
+AssertionError: No inf checks were recorded for this optimizer.
