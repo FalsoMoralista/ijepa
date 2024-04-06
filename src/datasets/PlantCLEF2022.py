@@ -28,7 +28,6 @@ def make_PlantCLEF2022(
     copy_data=False,
     drop_last=True, # TODO: REMEMBER TO SET TO FALSE IF VALIDATION DATASET
     feature_extraction=False,
-    supervision=False,
     subset_file=None
 ):
     

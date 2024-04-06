@@ -58,7 +58,7 @@ from timm.utils import accuracy
 
 # --
 log_timings = True
-log_freq = 10
+log_freq = 100
 checkpoint_freq = 5
 # --
 
@@ -180,8 +180,6 @@ def main(args, resume_preempt=False):
                            ('%d', 'itr'),
                            ('%.5f', 'Train loss'),
                            ('%.5f', 'Test loss'),
-                           ('%.3f', 'Train - Acc@1'),
-                           ('%.3f', 'Train - Acc@5'),
                            ('%.3f', 'Test - Acc@1'),
                            ('%.3f', 'Test - Acc@5'),
                            ('%d', 'Test time (ms)'),
@@ -209,22 +207,33 @@ def main(args, resume_preempt=False):
         allow_overlap=allow_overlap,
         min_keep=min_keep)
 
-    # TODO: 
-    # Adjust []
-    # Add RandAugment(9, 0.5) []
-    transform = make_transforms( 
+    training_transform = make_transforms( 
         crop_size=crop_size,
         crop_scale=crop_scale,
         gaussian_blur=use_gaussian_blur,
         horizontal_flip=use_horizontal_flip,
         color_distortion=use_color_distortion,
+        supervised=True,
+        validation=False,
+        normalization=((0.436, 0.444, 0.330),
+                (0.203, 0.199, 0.195)), # PlantCLEF normalization
+        color_jitter=color_jitter)
+    
+    val_transform = make_transforms( 
+        crop_size=crop_size,
+        crop_scale=crop_scale,
+        gaussian_blur=use_gaussian_blur,
+        horizontal_flip=use_horizontal_flip,
+        color_distortion=use_color_distortion,
+        supervised=True,
+        validation=True,
         normalization=((0.436, 0.444, 0.330),
                 (0.203, 0.199, 0.195)), # PlantCLEF normalization
         color_jitter=color_jitter)
 
     # -- init data-loaders/samplers
     _, supervised_loader_train, supervised_sampler_train = make_PlantCLEF2022(
-            transform=transform,
+            transform=training_transform,
             batch_size=batch_size,
             collator=mask_collator,
             pin_mem=pin_mem,
@@ -235,13 +244,12 @@ def main(args, resume_preempt=False):
             root_path=root_path,
             image_folder=image_folder,
             copy_data=copy_data,
-            supervision=True,
             drop_last=True)
     ipe = len(supervised_loader_train)
     print('Training dataset, length:', ipe*batch_size)
 
     _, supervised_loader_val, supervised_sampler_val = make_PlantCLEF2022(
-            transform=transform,
+            transform=val_transform,
             batch_size=batch_size,
             collator=mask_collator,
             pin_mem=pin_mem,
@@ -252,7 +260,6 @@ def main(args, resume_preempt=False):
             root_path=root_path,
             image_folder=image_folder,
             copy_data=copy_data,
-            supervision=True,
             drop_last=False)
     
     ipe_val = len(supervised_loader_val)
@@ -323,10 +330,6 @@ def main(args, resume_preempt=False):
     predictor = DistributedDataParallel(predictor, static_graph=True)
     target_encoder = DistributedDataParallel(target_encoder, static_graph=True) # TODO: verify what does static_graph do[]
 
-    # -- momentum schedule
-    momentum_scheduler = (ema[0] + i*(ema[1]-ema[0])/(ipe*num_epochs*ipe_scale)
-                          for i in range(int(ipe*num_epochs*ipe_scale)+1))
-
     # TODO:
     # (1) - Make checkpoint a requirement[]
     # (2) - Iterate optmizers when resuming training[]
@@ -346,9 +349,9 @@ def main(args, resume_preempt=False):
         #    next(momentum_scheduler)
         #    mask_collator.step()
 
-    # -- init optimizer and scheduler
+    # -- Override loaded configs from above.
     optimizer, scaler, scheduler, wd_scheduler = init_opt(
-        encoder=encoder,
+        encoder=target_encoder,
         predictor=predictor,
         wd=wd,
         final_wd=final_wd,
@@ -360,7 +363,7 @@ def main(args, resume_preempt=False):
         num_epochs=num_epochs,
         ipe_scale=ipe_scale,
         use_bfloat16=use_bfloat16)
-
+    
     def save_checkpoint(epoch):
         save_dict = {
             'encoder': encoder.state_dict(),
@@ -379,24 +382,23 @@ def main(args, resume_preempt=False):
             if (epoch + 1) % checkpoint_freq == 0:
                 torch.save(save_dict, save_path.format(epoch=f'{epoch + 1}'))
 
+    for p in target_encoder.parameters():
+        p.requires_grad = True
     target_encoder = add_classification_head(target_encoder, nb_classes=nb_classes, drop_path=0.2, device=device)
     target_encoder = DistributedDataParallel(target_encoder)
-    
-    # -- Remove from device once its already loaded
+
+
+    # -- Remove from device once they are required for loading pretrained parameters only
     del encoder
     del predictor
 
     # -- TODO:
-    # (1) - Finish testing the training procedures[]
-    # (2) - Adjust logging[]
-    # (3) - Check if the dataset transformations are being applied correctly[]
-    # (4) - Check if the lr has been changed upon loading model weights[]    
-    # (5) - 
     # --
 
     start_epoch = 0
     # -- TRAINING LOOP
     for epoch in range(start_epoch, num_epochs):
+        
         logger.info('Epoch %d' % (epoch + 1))
         # In distributed mode, calling the set_epoch() method 
         # at the beginning of each epoch before creating the DataLoader iterator
@@ -405,13 +407,10 @@ def main(args, resume_preempt=False):
         supervised_sampler_train.set_epoch(epoch) # -- update distributed-data-loader epoch
         
         loss_meter = AverageMeter()
-        trainAcc5 = AverageMeter() 
-        trainAcc1 = AverageMeter()
         time_meter = AverageMeter()
 
         for itr, (udata, masks_enc, masks_pred) in enumerate(supervised_loader_train):
             def load_imgs():
-                # -- unsupervised imgs
                 imgs = udata[0].to(device, non_blocking=True)
                 targets = udata[1].to(device, non_blocking=True)
                 if mixup_fn is not None:
@@ -419,7 +418,10 @@ def main(args, resume_preempt=False):
                 return (samples, targets)
             imgs, targets = load_imgs()
 
-            def train_step():                        
+            def train_step():               
+                _new_lr = scheduler.step()
+                _new_wd = wd_scheduler.step()
+                         
                 def loss_fn(h, targets):
                     loss = criterion(h, targets)
                     loss = AllReduce.apply(loss)
@@ -444,24 +446,20 @@ def main(args, resume_preempt=False):
                 return (float(loss), _new_lr, _new_wd, grad_stats)
             (loss, _new_lr, _new_wd, grad_stats), etime = gpu_timer(train_step)
 
-            #trainAcc1.update(acc1)
-            #trainAcc5.update(acc5)
             loss_meter.update(loss)
             time_meter.update(etime)      
 
             # -- Logging
             def log_stats():
-                csv_logger.log(epoch + 1, itr, loss_meter.val, test_loss.val, testAcc1.avg, testAcc5.avg, etime, vtime)
+                csv_logger.log(epoch + 1, itr, loss_meter.val, etime)
                 if (itr % log_freq == 0) or np.isnan(loss) or np.isinf(loss):
-                    logger.info('[%d, %5d] train_loss: %.3f '
-                                ' - test_acc1 - [%.3f], test_acc5 - [%.3f], test_loss: [%.3f] '
+                    logger.info('[%d, %5d/%5d] train_loss: %.3f '
                                 '[wd: %.2e] [lr: %.2e] '
                                 '[mem: %.2e] '
                                 '(%.1f ms)'
 
-                                % (epoch + 1, itr,
+                                % (epoch + 1, itr, ipe,
                                     loss_meter.avg,
-                                    testAcc1.avg, testAcc5.avg, test_loss.val,
                                     _new_wd,
                                     _new_lr,
                                     torch.cuda.max_memory_allocated() / 1024.**2,
@@ -476,6 +474,11 @@ def main(args, resume_preempt=False):
                                         grad_stats.max))
             log_stats()
 
+        # TODO:
+        # Does evaluation requires synchronization? []
+        # add autocast before with torch no grad []
+        # Increase batch (gpus) []
+        # Accumulate grad iterations? []
         def evaluate():
             testAcc1 = AverageMeter()
             testAcc5 = AverageMeter()
@@ -485,9 +488,11 @@ def main(args, resume_preempt=False):
                 images = val_data[0].to(device, non_blocking=True)
                 labels = val_data[1].to(device, non_blocking=True)
 
-                with torch.no_grad():
-                    output = target_encoder.forward(images)
-                    loss = criterion(output, labels)
+                
+                with torch.no_grad(): 
+                    with torch.cuda.amp.autocast():
+                        output = target_encoder.forward(images)
+                        loss = criterion(output, labels)
 
                 acc1, acc5 = accuracy(output, labels, topk=(1, 5))
 
@@ -497,22 +502,25 @@ def main(args, resume_preempt=False):
 
             print('* Acc@1 {top1.avg:.3f} Acc@5 {top5.avg:.3f} loss {losses.avg:.3f}'
                     .format(top1=testAcc1, top5=testAcc5, losses=test_loss))
-            return (testAcc1.avg, testAcc5.avg, test_loss.avg)
+            return (testAcc1, testAcc5, test_loss)
 
         (testAcc1, testAcc5, test_loss), vtime = gpu_timer(evaluate)
         
-#            csv_logger = CSVLogger(log_file,
-#                           ('%d', 'epoch'),
-#                           ('%d', 'itr'),
-#                           ('%.5f', 'Train loss'),
-#                           ('%.5f', 'Test loss'),
-#                           ('%.3f', 'Train - Acc@1'),
-#                           ('%.3f', 'Train - Acc@5'),
-#                           ('%.3f', 'Test - Acc@1'),
-#                           ('%.3f', 'Test - Acc@5'),
-#                           ('%d', 'Test time (ms)'),
-#                           ('%d', 'time (ms)'))
+        # -- Logging
+        def log_test():
+            csv_logger.log(epoch + 1, test_loss.val, testAcc1.avg, testAcc5.avg, vtime)
+            if (itr % log_freq == 0) or np.isnan(test_loss) or np.isinf(test_loss):
+                logger.info('[%d] test_loss: %.3f '
+                            ' - test_acc1 - [%.3f], test_acc5 - [%.3f]'
+                            '[mem: %.2e] '
+                            '(%.1f ms)'
 
+                            % (epoch + 1,
+                                test_loss.avg,
+                                testAcc1.avg, testAcc5.avg,
+                                torch.cuda.max_memory_allocated() / 1024.**2,
+                                vtime.avg))
+        log_test()
 
         # -- Save Checkpoint after every epoch
         logger.info('avg. train_loss %.3f' % loss_meter.avg)

@@ -166,7 +166,7 @@ def init_opt(
             'params': (p for n, p in encoder.named_parameters()
                        if ('bias' in n) or (len(p.shape) == 1)),
             'WD_exclude': True,
-            'weight_decay': 0
+            'weight_decay': 0 
         }, {
             'params': (p for n, p in predictor.named_parameters()
                        if ('bias' in n) or (len(p.shape) == 1)),

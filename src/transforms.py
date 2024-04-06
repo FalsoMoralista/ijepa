@@ -13,7 +13,7 @@ from PIL import ImageFilter
 
 import torch
 import torchvision.transforms as transforms
-
+from timm.data import create_transform
 
 
 _GLOBAL_SEED = 0
@@ -45,6 +45,7 @@ def make_transforms(
     color_distortion=False,
     gaussian_blur=False,
     validation=False,
+    supervised=False,
     normalization=((0.485, 0.456, 0.406),
                    (0.229, 0.224, 0.225))
 ):
@@ -60,12 +61,30 @@ def make_transforms(
             rnd_gray])
         return color_distort
     
+
     transform_list = [] 
     if validation:
-        transform_list += [transforms.Resize((224,224), interpolation=PIL.Image.BICUBIC)] # to maintain same ratio w.r.t. 224 images    
+        transform_list += [transforms.Resize((224,224), interpolation=PIL.Image.BICUBIC)] # to maintain same ratio w.r.t. 224 images  
+        transform_list += [transforms.CenterCrop((224,224))]  
         transform_list += [transforms.ToTensor()]
         transform_list += [transforms.Normalize(normalization[0], normalization[1])]
         transform = transforms.Compose(transform_list)
+        return transform
+    
+    if supervised:
+        # -- Borrowed from MAE
+        transform = create_transform(
+            input_size=crop_size,
+            is_training=True,
+            color_jitter=color_jitter,
+            auto_augment='rand-m9-mstd0.5-inc1',
+            interpolation='bicubic',
+            re_prob=0.25,
+            re_mode='pixel',
+            re_count=1,
+            mean=normalization[0],
+            std=normalization[1],
+        )
         return transform
 
     transform_list += [transforms.RandomResizedCrop(crop_size, scale=crop_scale)]
