@@ -51,8 +51,8 @@ optimization:
   final_lr: 1.0e-04 # Default: 1e-6
   final_weight_decay: 0.4 
   ipe_scale: 1.0
-  lr: 0.8 # Default 0.0015 -> lr = base lr × batchsize / 256. (learning rate formula).
-  start_lr: 0.025 # Default: 0.0002 
+  lr: 0.6 # Default 0.0015 -> lr = base lr × batchsize / 256. (learning rate formula).
+  start_lr: 0.01 # Default: 0.0002 
   warmup: 5
   weight_decay: 0.05
   eval_epoch: 1 # TODO: remove

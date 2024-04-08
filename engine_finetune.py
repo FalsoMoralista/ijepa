@@ -301,9 +301,9 @@ def main(args, resume_preempt=False):
         |------------------------|----------------------      
         | optimizer              |      AdamW          | [x]
         | base learning rate     |      1e-3           | [x]
-        | weight decay           |      0.05           | [x]  
+        | weight decay           |      0.05           | [?]  
         | optimizer momentum     | β1 , β2 =0.9, 0.999 | [x]    
-        | layer-wise lr decay    |      0.75           | [x]
+        | layer-wise lr decay    |      0.75           | [ ]
         | batch size             |      1024           | [x]
         | learning rate schedule |  cosine decay       | [x]
         | warmup epochs          |      5              | [x]
@@ -342,6 +342,7 @@ def main(args, resume_preempt=False):
         #    next(momentum_scheduler)
         #    mask_collator.step()
     
+    # TODO: Implement
     def save_checkpoint(epoch):
         save_dict = {
             'encoder': encoder.state_dict(),
@@ -406,6 +407,7 @@ def main(args, resume_preempt=False):
         loss_meter = AverageMeter()
         time_meter = AverageMeter()
 
+        target_encoder.train(True)
         for itr, (udata, masks_enc, masks_pred) in enumerate(supervised_loader_train):
             def load_imgs():
                 imgs = udata[0].to(device, non_blocking=True)
@@ -479,6 +481,8 @@ def main(args, resume_preempt=False):
             testAcc1 = AverageMeter()
             testAcc5 = AverageMeter()
             test_loss = AverageMeter()
+            
+            target_encoder.eval()
 
             for cnt, (val_data, masks_enc, masks_pred) in enumerate(supervised_loader_val):
                 images = val_data[0].to(device, non_blocking=True)

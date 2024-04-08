@@ -36,12 +36,12 @@ INFO:root:loaded params...
     'optimization': {   'ema': [0.9, 0.999],
                         'epochs': 50,
                         'eval_epoch': 1,
-                        'final_lr': 1e-06,
+                        'final_lr': 0.0001,
                         'final_weight_decay': 0.4,
                         'ipe_scale': 1.0,
                         'label_smoothing': 0.1,
-                        'lr': 0.8,
-                        'start_lr': 0.025,
+                        'lr': 0.6,
+                        'start_lr': 0.01,
                         'warmup': 5,
                         'weight_decay': 0.05}}
 INFO:torch.distributed.distributed_c10d:Added key: store_based_barrier_key:1 to store for rank: 0
@@ -92,102 +92,6 @@ INFO:root:loaded pretrained encoder from epoch 299 with msg: <All keys matched s
 INFO:root:loaded optimizers from epoch 299
 INFO:root:read-path: /home/rtcalumby/adam/luciano/LifeCLEFPlant2022/IN1K-vit.h.14-300e.pth.tar
 INFO:root:Using AdamW
-{   'data': {   'batch_size': 96,
-                'color_jitter_strength': 0.0,
-                'crop_scale': [0.3, 1.0],
-                'crop_size': 224,
-                'cutmix': 1.0,
-                'drop_path': 0.25,
-                'image_folder': 'LifeCLEFPlant2022/',
-                'mixup': 0.8,
-                'nb_classes': 80000,
-                'num_workers': 32,
-                'pin_mem': True,
-                'reprob': 0.25,
-                'root_path': '/home/rtcalumby/adam/luciano/',
-                'use_color_distortion': False,
-                'use_gaussian_blur': False,
-                'use_horizontal_flip': False},
-    'logging': {   'folder': '/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/logs/inet_feature_extraction',
-                   'write_tag': 'jepa'},
-    'mask': {   'allow_overlap': False,
-                'aspect_ratio': [0.75, 1.5],
-                'enc_mask_scale': [0.85, 1.0],
-                'min_keep': 10,
-                'num_enc_masks': 1,
-                'num_pred_masks': 4,
-                'patch_size': 14,
-                'pred_mask_scale': [0.15, 0.2]},
-    'meta': {   'copy_data': False,
-                'load_checkpoint': True,
-                'model_name': 'vit_huge',
-                'pred_depth': 12,
-                'pred_emb_dim': 384,
-                'read_checkpoint': None,
-                'use_bfloat16': True},
-    'optimization': {   'ema': [0.9, 0.999],
-                        'epochs': 50,
-                        'eval_epoch': 1,
-                        'final_lr': 1e-06,
-                        'final_weight_decay': 0.4,
-                        'ipe_scale': 1.0,
-                        'label_smoothing': 0.1,
-                        'lr': 0.8,
-                        'start_lr': 0.025,
-                        'warmup': 5,
-                        'weight_decay': 0.05}}
-Training dataset, length: 584640
-Val dataset, length: 136608
-Mixup is activated!
-['encoder', 'predictor', 'opt', 'scaler', 'target_encoder', 'epoch', 'loss', 'batch_size', 'world_size', 'lr']
-{   'data': {   'batch_size': 96,
-                'color_jitter_strength': 0.0,
-                'crop_scale': [0.3, 1.0],
-                'crop_size': 224,
-                'cutmix': 1.0,
-                'drop_path': 0.25,
-                'image_folder': 'LifeCLEFPlant2022/',
-                'mixup': 0.8,
-                'nb_classes': 80000,
-                'num_workers': 32,
-                'pin_mem': True,
-                'reprob': 0.25,
-                'root_path': '/home/rtcalumby/adam/luciano/',
-                'use_color_distortion': False,
-                'use_gaussian_blur': False,
-                'use_horizontal_flip': False},
-    'logging': {   'folder': '/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/logs/inet_feature_extraction',
-                   'write_tag': 'jepa'},
-    'mask': {   'allow_overlap': False,
-                'aspect_ratio': [0.75, 1.5],
-                'enc_mask_scale': [0.85, 1.0],
-                'min_keep': 10,
-                'num_enc_masks': 1,
-                'num_pred_masks': 4,
-                'patch_size': 14,
-                'pred_mask_scale': [0.15, 0.2]},
-    'meta': {   'copy_data': False,
-                'load_checkpoint': True,
-                'model_name': 'vit_huge',
-                'pred_depth': 12,
-                'pred_emb_dim': 384,
-                'read_checkpoint': None,
-                'use_bfloat16': True},
-    'optimization': {   'ema': [0.9, 0.999],
-                        'epochs': 50,
-                        'eval_epoch': 1,
-                        'final_lr': 1e-06,
-                        'final_weight_decay': 0.4,
-                        'ipe_scale': 1.0,
-                        'label_smoothing': 0.1,
-                        'lr': 0.8,
-                        'start_lr': 0.025,
-                        'warmup': 5,
-                        'weight_decay': 0.05}}
-Training dataset, length: 584640
-Val dataset, length: 136608
-Mixup is activated!
-['encoder', 'predictor', 'opt', 'scaler', 'target_encoder', 'epoch', 'loss', 'batch_size', 'world_size', 'lr']
 INFO:root:DistributedDataParallel(
   (module): FinetuningModel(
     (pretrained_model): VisionTransformer(
@@ -258,12 +162,108 @@ INFO:root:DistributedDataParallel(
     'optimization': {   'ema': [0.9, 0.999],
                         'epochs': 50,
                         'eval_epoch': 1,
-                        'final_lr': 1e-06,
+                        'final_lr': 0.0001,
                         'final_weight_decay': 0.4,
                         'ipe_scale': 1.0,
                         'label_smoothing': 0.1,
-                        'lr': 0.8,
-                        'start_lr': 0.025,
+                        'lr': 0.6,
+                        'start_lr': 0.01,
+                        'warmup': 5,
+                        'weight_decay': 0.05}}
+Training dataset, length: 584640
+Val dataset, length: 136608
+Mixup is activated!
+['encoder', 'predictor', 'opt', 'scaler', 'target_encoder', 'epoch', 'loss', 'batch_size', 'world_size', 'lr']
+{   'data': {   'batch_size': 96,
+                'color_jitter_strength': 0.0,
+                'crop_scale': [0.3, 1.0],
+                'crop_size': 224,
+                'cutmix': 1.0,
+                'drop_path': 0.25,
+                'image_folder': 'LifeCLEFPlant2022/',
+                'mixup': 0.8,
+                'nb_classes': 80000,
+                'num_workers': 32,
+                'pin_mem': True,
+                'reprob': 0.25,
+                'root_path': '/home/rtcalumby/adam/luciano/',
+                'use_color_distortion': False,
+                'use_gaussian_blur': False,
+                'use_horizontal_flip': False},
+    'logging': {   'folder': '/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/logs/inet_feature_extraction',
+                   'write_tag': 'jepa'},
+    'mask': {   'allow_overlap': False,
+                'aspect_ratio': [0.75, 1.5],
+                'enc_mask_scale': [0.85, 1.0],
+                'min_keep': 10,
+                'num_enc_masks': 1,
+                'num_pred_masks': 4,
+                'patch_size': 14,
+                'pred_mask_scale': [0.15, 0.2]},
+    'meta': {   'copy_data': False,
+                'load_checkpoint': True,
+                'model_name': 'vit_huge',
+                'pred_depth': 12,
+                'pred_emb_dim': 384,
+                'read_checkpoint': None,
+                'use_bfloat16': True},
+    'optimization': {   'ema': [0.9, 0.999],
+                        'epochs': 50,
+                        'eval_epoch': 1,
+                        'final_lr': 0.0001,
+                        'final_weight_decay': 0.4,
+                        'ipe_scale': 1.0,
+                        'label_smoothing': 0.1,
+                        'lr': 0.6,
+                        'start_lr': 0.01,
+                        'warmup': 5,
+                        'weight_decay': 0.05}}
+Training dataset, length: 584640
+Val dataset, length: 136608
+Mixup is activated!
+['encoder', 'predictor', 'opt', 'scaler', 'target_encoder', 'epoch', 'loss', 'batch_size', 'world_size', 'lr']
+{   'data': {   'batch_size': 96,
+                'color_jitter_strength': 0.0,
+                'crop_scale': [0.3, 1.0],
+                'crop_size': 224,
+                'cutmix': 1.0,
+                'drop_path': 0.25,
+                'image_folder': 'LifeCLEFPlant2022/',
+                'mixup': 0.8,
+                'nb_classes': 80000,
+                'num_workers': 32,
+                'pin_mem': True,
+                'reprob': 0.25,
+                'root_path': '/home/rtcalumby/adam/luciano/',
+                'use_color_distortion': False,
+                'use_gaussian_blur': False,
+                'use_horizontal_flip': False},
+    'logging': {   'folder': '/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/logs/inet_feature_extraction',
+                   'write_tag': 'jepa'},
+    'mask': {   'allow_overlap': False,
+                'aspect_ratio': [0.75, 1.5],
+                'enc_mask_scale': [0.85, 1.0],
+                'min_keep': 10,
+                'num_enc_masks': 1,
+                'num_pred_masks': 4,
+                'patch_size': 14,
+                'pred_mask_scale': [0.15, 0.2]},
+    'meta': {   'copy_data': False,
+                'load_checkpoint': True,
+                'model_name': 'vit_huge',
+                'pred_depth': 12,
+                'pred_emb_dim': 384,
+                'read_checkpoint': None,
+                'use_bfloat16': True},
+    'optimization': {   'ema': [0.9, 0.999],
+                        'epochs': 50,
+                        'eval_epoch': 1,
+                        'final_lr': 0.0001,
+                        'final_weight_decay': 0.4,
+                        'ipe_scale': 1.0,
+                        'label_smoothing': 0.1,
+                        'lr': 0.6,
+                        'start_lr': 0.01,
                         'warmup': 5,
                         'weight_decay': 0.05}}
 Training dataset, length: 584640
@@ -271,924 +271,10 @@ Val dataset, length: 136608
 Mixup is activated!
 ['encoder', 'predictor', 'opt', 'scaler', 'target_encoder', 'epoch', 'loss', 'batch_size', 'world_size', 'lr']
 INFO:root:Epoch 1
-INFO:root:[1,     0/ 6090] train_loss: 11.409 [wd: 5.00e-02] [lr: 2.50e-02] [mem: 6.10e+04] (5413.9 ms)
+INFO:root:[1,     0/ 6090] train_loss: 11.409 [wd: 5.00e-02] [lr: 1.00e-02] [mem: 6.10e+04] (9607.6 ms)
 INFO:root:[1,     0] grad_stats: [7.65e-02 6.17e-01] (2.66e-02, 1.64e+00)
 INFO:torch.nn.parallel.distributed:Reducer buckets have been rebuilt in this iteration.
-INFO:root:[1,   100/ 6090] train_loss: 13.172 [wd: 5.00e-02] [lr: 2.76e-02] [mem: 6.67e+04] (956.8 ms)
-INFO:root:[1,   100] grad_stats: [4.10e-05 6.71e-05] (8.15e-06, 3.78e-02)
-INFO:root:[1,   200/ 6090] train_loss: 12.256 [wd: 5.00e-02] [lr: 3.01e-02] [mem: 6.67e+04] (932.4 ms)
-INFO:root:[1,   200] grad_stats: [6.46e-05 1.82e-04] (3.97e-06, 8.13e-02)
-INFO:root:[1,   300/ 6090] train_loss: 12.020 [wd: 5.00e-02] [lr: 3.27e-02] [mem: 6.67e+04] (924.7 ms)
-INFO:root:[1,   300] grad_stats: [2.22e-05 7.65e-05] (3.78e-06, 8.27e-02)
-INFO:root:[1,   400/ 6090] train_loss: 11.860 [wd: 5.00e-02] [lr: 3.52e-02] [mem: 6.67e+04] (920.9 ms)
-INFO:root:[1,   400] grad_stats: [1.44e-05 4.52e-05] (3.54e-06, 5.32e-02)
-INFO:root:[1,   500/ 6090] train_loss: 11.757 [wd: 5.00e-02] [lr: 3.78e-02] [mem: 6.67e+04] (918.7 ms)
-INFO:root:[1,   500] grad_stats: [1.25e-05 5.48e-05] (1.63e-06, 5.16e-02)
-INFO:root:[1,   600/ 6090] train_loss: 11.690 [wd: 5.00e-02] [lr: 4.03e-02] [mem: 6.67e+04] (917.5 ms)
-INFO:root:[1,   600] grad_stats: [1.59e-05 6.26e-05] (1.56e-06, 4.63e-02)
-INFO:root:[1,   700/ 6090] train_loss: 11.636 [wd: 5.00e-02] [lr: 4.28e-02] [mem: 6.67e+04] (916.8 ms)
-INFO:root:[1,   700] grad_stats: [1.38e-05 3.82e-05] (1.12e-06, 4.24e-02)
-INFO:root:[1,   800/ 6090] train_loss: 11.597 [wd: 5.00e-02] [lr: 4.54e-02] [mem: 6.67e+04] (916.3 ms)
-INFO:root:[1,   800] grad_stats: [1.24e-05 4.22e-05] (6.48e-07, 4.19e-02)
-INFO:root:[1,   900/ 6090] train_loss: 11.567 [wd: 5.00e-02] [lr: 4.79e-02] [mem: 6.67e+04] (915.8 ms)
-INFO:root:[1,   900] grad_stats: [9.07e-06 2.37e-05] (3.01e-07, 3.66e-02)
-INFO:root:[1,  1000/ 6090] train_loss: 11.544 [wd: 5.00e-02] [lr: 5.05e-02] [mem: 6.67e+04] (915.6 ms)
-INFO:root:[1,  1000] grad_stats: [4.70e-05 1.17e-04] (3.77e-07, 4.35e-02)
-INFO:root:[1,  1100/ 6090] train_loss: 11.527 [wd: 5.00e-02] [lr: 5.30e-02] [mem: 6.67e+04] (915.4 ms)
-INFO:root:[1,  1100] grad_stats: [7.31e-06 3.06e-05] (8.49e-08, 4.47e-02)
-INFO:root:[1,  1200/ 6090] train_loss: 21.457 [wd: 5.00e-02] [lr: 5.56e-02] [mem: 6.67e+04] (914.5 ms)
-INFO:root:[1,  1200] grad_stats: [inf 2.77e-04] (2.77e-04, inf)
-INFO:root:[1,  1222/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.61e-02] [mem: 6.67e+04] (913.8 ms)
-INFO:root:[1,  1222] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1223/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.62e-02] [mem: 6.67e+04] (913.7 ms)
-INFO:root:[1,  1223] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1224/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.62e-02] [mem: 6.67e+04] (913.7 ms)
-INFO:root:[1,  1224] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1225/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.62e-02] [mem: 6.67e+04] (913.6 ms)
-INFO:root:[1,  1225] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1226/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.62e-02] [mem: 6.67e+04] (913.6 ms)
-INFO:root:[1,  1226] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1227/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.63e-02] [mem: 6.67e+04] (913.6 ms)
-INFO:root:[1,  1227] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1228/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.63e-02] [mem: 6.67e+04] (913.5 ms)
-INFO:root:[1,  1228] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1229/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.63e-02] [mem: 6.67e+04] (913.5 ms)
-INFO:root:[1,  1229] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1230/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.63e-02] [mem: 6.67e+04] (913.4 ms)
-INFO:root:[1,  1230] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1231/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.64e-02] [mem: 6.67e+04] (913.4 ms)
-INFO:root:[1,  1231] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1232/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.64e-02] [mem: 6.67e+04] (913.3 ms)
-INFO:root:[1,  1232] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1233/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.64e-02] [mem: 6.67e+04] (913.3 ms)
-INFO:root:[1,  1233] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1234/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.64e-02] [mem: 6.67e+04] (913.2 ms)
-INFO:root:[1,  1234] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1235/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.65e-02] [mem: 6.67e+04] (913.2 ms)
-INFO:root:[1,  1235] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1236/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.65e-02] [mem: 6.67e+04] (913.2 ms)
-INFO:root:[1,  1236] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1237/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.65e-02] [mem: 6.67e+04] (913.1 ms)
-INFO:root:[1,  1237] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1238/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.65e-02] [mem: 6.67e+04] (913.1 ms)
-INFO:root:[1,  1238] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1239/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.66e-02] [mem: 6.67e+04] (913.0 ms)
-INFO:root:[1,  1239] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1240/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.66e-02] [mem: 6.67e+04] (913.0 ms)
-INFO:root:[1,  1240] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1241/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.66e-02] [mem: 6.67e+04] (912.9 ms)
-INFO:root:[1,  1241] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1242/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.66e-02] [mem: 6.67e+04] (912.9 ms)
-INFO:root:[1,  1242] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1243/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.67e-02] [mem: 6.67e+04] (912.9 ms)
-INFO:root:[1,  1243] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1244/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.67e-02] [mem: 6.67e+04] (912.8 ms)
-INFO:root:[1,  1244] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1245/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.67e-02] [mem: 6.67e+04] (912.8 ms)
-INFO:root:[1,  1245] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1246/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.67e-02] [mem: 6.67e+04] (912.7 ms)
-INFO:root:[1,  1246] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1247/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.68e-02] [mem: 6.67e+04] (912.7 ms)
-INFO:root:[1,  1247] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1248/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.68e-02] [mem: 6.67e+04] (912.6 ms)
-INFO:root:[1,  1248] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1249/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.68e-02] [mem: 6.67e+04] (912.6 ms)
-INFO:root:[1,  1249] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1250/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.68e-02] [mem: 6.67e+04] (912.6 ms)
-INFO:root:[1,  1250] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1251/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.69e-02] [mem: 6.67e+04] (912.5 ms)
-INFO:root:[1,  1251] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1252/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.69e-02] [mem: 6.67e+04] (912.5 ms)
-INFO:root:[1,  1252] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1253/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.69e-02] [mem: 6.67e+04] (912.4 ms)
-INFO:root:[1,  1253] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1254/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.69e-02] [mem: 6.67e+04] (912.4 ms)
-INFO:root:[1,  1254] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1255/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.70e-02] [mem: 6.67e+04] (912.3 ms)
-INFO:root:[1,  1255] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1256/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.70e-02] [mem: 6.67e+04] (912.3 ms)
-INFO:root:[1,  1256] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1257/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.70e-02] [mem: 6.67e+04] (912.3 ms)
-INFO:root:[1,  1257] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1258/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.70e-02] [mem: 6.67e+04] (912.2 ms)
-INFO:root:[1,  1258] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1259/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.71e-02] [mem: 6.67e+04] (912.2 ms)
-INFO:root:[1,  1259] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1260/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.71e-02] [mem: 6.67e+04] (912.1 ms)
-INFO:root:[1,  1260] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1261/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.71e-02] [mem: 6.67e+04] (912.1 ms)
-INFO:root:[1,  1261] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1262/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.71e-02] [mem: 6.67e+04] (912.0 ms)
-INFO:root:[1,  1262] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1263/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.72e-02] [mem: 6.67e+04] (912.0 ms)
-INFO:root:[1,  1263] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1264/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.72e-02] [mem: 6.67e+04] (912.0 ms)
-INFO:root:[1,  1264] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1265/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.72e-02] [mem: 6.67e+04] (911.9 ms)
-INFO:root:[1,  1265] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1266/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.72e-02] [mem: 6.67e+04] (911.9 ms)
-INFO:root:[1,  1266] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1267/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.73e-02] [mem: 6.67e+04] (911.8 ms)
-INFO:root:[1,  1267] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1268/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.73e-02] [mem: 6.67e+04] (911.8 ms)
-INFO:root:[1,  1268] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1269/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.73e-02] [mem: 6.67e+04] (911.7 ms)
-INFO:root:[1,  1269] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1270/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.73e-02] [mem: 6.67e+04] (911.7 ms)
-INFO:root:[1,  1270] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1271/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.74e-02] [mem: 6.67e+04] (911.7 ms)
-INFO:root:[1,  1271] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1272/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.74e-02] [mem: 6.67e+04] (911.6 ms)
-INFO:root:[1,  1272] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1273/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.74e-02] [mem: 6.67e+04] (911.6 ms)
-INFO:root:[1,  1273] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1274/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.75e-02] [mem: 6.67e+04] (911.5 ms)
-INFO:root:[1,  1274] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1275/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.75e-02] [mem: 6.67e+04] (911.5 ms)
-INFO:root:[1,  1275] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1276/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.75e-02] [mem: 6.67e+04] (911.5 ms)
-INFO:root:[1,  1276] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1277/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.75e-02] [mem: 6.67e+04] (911.4 ms)
-INFO:root:[1,  1277] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1278/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.76e-02] [mem: 6.67e+04] (911.4 ms)
-INFO:root:[1,  1278] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1279/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.76e-02] [mem: 6.67e+04] (911.3 ms)
-INFO:root:[1,  1279] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1280/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.76e-02] [mem: 6.67e+04] (911.3 ms)
-INFO:root:[1,  1280] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1281/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.76e-02] [mem: 6.67e+04] (911.2 ms)
-INFO:root:[1,  1281] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1282/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.77e-02] [mem: 6.67e+04] (911.2 ms)
-INFO:root:[1,  1282] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1283/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.77e-02] [mem: 6.67e+04] (911.2 ms)
-INFO:root:[1,  1283] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1284/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.77e-02] [mem: 6.67e+04] (911.1 ms)
-INFO:root:[1,  1284] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1285/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.77e-02] [mem: 6.67e+04] (911.1 ms)
-INFO:root:[1,  1285] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1286/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.78e-02] [mem: 6.67e+04] (911.0 ms)
-INFO:root:[1,  1286] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1287/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.78e-02] [mem: 6.67e+04] (911.0 ms)
-INFO:root:[1,  1287] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1288/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.78e-02] [mem: 6.67e+04] (911.0 ms)
-INFO:root:[1,  1288] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1289/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.78e-02] [mem: 6.67e+04] (910.9 ms)
-INFO:root:[1,  1289] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1290/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.79e-02] [mem: 6.67e+04] (910.9 ms)
-INFO:root:[1,  1290] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1291/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.79e-02] [mem: 6.67e+04] (910.8 ms)
-INFO:root:[1,  1291] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1292/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.79e-02] [mem: 6.67e+04] (910.8 ms)
-INFO:root:[1,  1292] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1293/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.79e-02] [mem: 6.67e+04] (910.8 ms)
-INFO:root:[1,  1293] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1294/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.80e-02] [mem: 6.67e+04] (910.7 ms)
-INFO:root:[1,  1294] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1295/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.80e-02] [mem: 6.67e+04] (910.7 ms)
-INFO:root:[1,  1295] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1296/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.80e-02] [mem: 6.67e+04] (910.6 ms)
-INFO:root:[1,  1296] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1297/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.80e-02] [mem: 6.67e+04] (910.6 ms)
-INFO:root:[1,  1297] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1298/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.81e-02] [mem: 6.67e+04] (910.6 ms)
-INFO:root:[1,  1298] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1299/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.81e-02] [mem: 6.67e+04] (910.5 ms)
-INFO:root:[1,  1299] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1300/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.81e-02] [mem: 6.67e+04] (910.5 ms)
-INFO:root:[1,  1300] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1301/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.81e-02] [mem: 6.67e+04] (910.4 ms)
-INFO:root:[1,  1301] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1302/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.82e-02] [mem: 6.67e+04] (910.4 ms)
-INFO:root:[1,  1302] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1303/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.82e-02] [mem: 6.67e+04] (910.4 ms)
-INFO:root:[1,  1303] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1304/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.82e-02] [mem: 6.67e+04] (910.3 ms)
-INFO:root:[1,  1304] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1305/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.82e-02] [mem: 6.67e+04] (910.3 ms)
-INFO:root:[1,  1305] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1306/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.83e-02] [mem: 6.67e+04] (910.2 ms)
-INFO:root:[1,  1306] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1307/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.83e-02] [mem: 6.67e+04] (910.2 ms)
-INFO:root:[1,  1307] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1308/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.83e-02] [mem: 6.67e+04] (910.2 ms)
-INFO:root:[1,  1308] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1309/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.83e-02] [mem: 6.67e+04] (910.1 ms)
-INFO:root:[1,  1309] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1310/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.84e-02] [mem: 6.67e+04] (910.1 ms)
-INFO:root:[1,  1310] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1311/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.84e-02] [mem: 6.67e+04] (910.0 ms)
-INFO:root:[1,  1311] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1312/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.84e-02] [mem: 6.67e+04] (910.0 ms)
-INFO:root:[1,  1312] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1313/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.84e-02] [mem: 6.67e+04] (910.0 ms)
-INFO:root:[1,  1313] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1314/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.85e-02] [mem: 6.67e+04] (909.9 ms)
-INFO:root:[1,  1314] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1315/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.85e-02] [mem: 6.67e+04] (909.9 ms)
-INFO:root:[1,  1315] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1316/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.85e-02] [mem: 6.67e+04] (909.9 ms)
-INFO:root:[1,  1316] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1317/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.85e-02] [mem: 6.67e+04] (909.8 ms)
-INFO:root:[1,  1317] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1318/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.86e-02] [mem: 6.67e+04] (909.8 ms)
-INFO:root:[1,  1318] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1319/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.86e-02] [mem: 6.67e+04] (909.7 ms)
-INFO:root:[1,  1319] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1320/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.86e-02] [mem: 6.67e+04] (909.7 ms)
-INFO:root:[1,  1320] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1321/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.86e-02] [mem: 6.67e+04] (909.7 ms)
-INFO:root:[1,  1321] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1322/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.87e-02] [mem: 6.67e+04] (909.6 ms)
-INFO:root:[1,  1322] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1323/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.87e-02] [mem: 6.67e+04] (909.6 ms)
-INFO:root:[1,  1323] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1324/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.87e-02] [mem: 6.67e+04] (909.5 ms)
-INFO:root:[1,  1324] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1325/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.87e-02] [mem: 6.67e+04] (909.5 ms)
-INFO:root:[1,  1325] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1326/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.88e-02] [mem: 6.67e+04] (909.5 ms)
-INFO:root:[1,  1326] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1327/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.88e-02] [mem: 6.67e+04] (909.4 ms)
-INFO:root:[1,  1327] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1328/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.88e-02] [mem: 6.67e+04] (909.4 ms)
-INFO:root:[1,  1328] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1329/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.89e-02] [mem: 6.67e+04] (909.4 ms)
-INFO:root:[1,  1329] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1330/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.89e-02] [mem: 6.67e+04] (909.3 ms)
-INFO:root:[1,  1330] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1331/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.89e-02] [mem: 6.67e+04] (909.3 ms)
-INFO:root:[1,  1331] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1332/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.89e-02] [mem: 6.67e+04] (909.2 ms)
-INFO:root:[1,  1332] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1333/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.90e-02] [mem: 6.67e+04] (909.2 ms)
-INFO:root:[1,  1333] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1334/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.90e-02] [mem: 6.67e+04] (909.2 ms)
-INFO:root:[1,  1334] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1335/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.90e-02] [mem: 6.67e+04] (909.1 ms)
-INFO:root:[1,  1335] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1336/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.90e-02] [mem: 6.67e+04] (909.1 ms)
-INFO:root:[1,  1336] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1337/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.91e-02] [mem: 6.67e+04] (909.1 ms)
-INFO:root:[1,  1337] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1338/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.91e-02] [mem: 6.67e+04] (909.0 ms)
-INFO:root:[1,  1338] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1339/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.91e-02] [mem: 6.67e+04] (909.0 ms)
-INFO:root:[1,  1339] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1340/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.91e-02] [mem: 6.67e+04] (908.9 ms)
-INFO:root:[1,  1340] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1341/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.92e-02] [mem: 6.67e+04] (908.9 ms)
-INFO:root:[1,  1341] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1342/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.92e-02] [mem: 6.67e+04] (908.9 ms)
-INFO:root:[1,  1342] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1343/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.92e-02] [mem: 6.67e+04] (908.8 ms)
-INFO:root:[1,  1343] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1344/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.92e-02] [mem: 6.67e+04] (908.8 ms)
-INFO:root:[1,  1344] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1345/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.93e-02] [mem: 6.67e+04] (908.8 ms)
-INFO:root:[1,  1345] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1346/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.93e-02] [mem: 6.67e+04] (908.7 ms)
-INFO:root:[1,  1346] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1347/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.93e-02] [mem: 6.67e+04] (908.7 ms)
-INFO:root:[1,  1347] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1348/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.93e-02] [mem: 6.67e+04] (908.6 ms)
-INFO:root:[1,  1348] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1349/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.94e-02] [mem: 6.67e+04] (908.6 ms)
-INFO:root:[1,  1349] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1350/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.94e-02] [mem: 6.67e+04] (908.6 ms)
-INFO:root:[1,  1350] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1351/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.94e-02] [mem: 6.67e+04] (908.5 ms)
-INFO:root:[1,  1351] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1352/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.94e-02] [mem: 6.67e+04] (908.5 ms)
-INFO:root:[1,  1352] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1353/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.95e-02] [mem: 6.67e+04] (908.5 ms)
-INFO:root:[1,  1353] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1354/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.95e-02] [mem: 6.67e+04] (908.4 ms)
-INFO:root:[1,  1354] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1355/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.95e-02] [mem: 6.67e+04] (908.4 ms)
-INFO:root:[1,  1355] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1356/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.95e-02] [mem: 6.67e+04] (908.3 ms)
-INFO:root:[1,  1356] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1357/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.96e-02] [mem: 6.67e+04] (908.3 ms)
-INFO:root:[1,  1357] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1358/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.96e-02] [mem: 6.67e+04] (908.3 ms)
-INFO:root:[1,  1358] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1359/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.96e-02] [mem: 6.67e+04] (908.2 ms)
-INFO:root:[1,  1359] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1360/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.96e-02] [mem: 6.67e+04] (908.2 ms)
-INFO:root:[1,  1360] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1361/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.97e-02] [mem: 6.67e+04] (908.2 ms)
-INFO:root:[1,  1361] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1362/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.97e-02] [mem: 6.67e+04] (908.1 ms)
-INFO:root:[1,  1362] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1363/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.97e-02] [mem: 6.67e+04] (908.1 ms)
-INFO:root:[1,  1363] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1364/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.97e-02] [mem: 6.67e+04] (908.1 ms)
-INFO:root:[1,  1364] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1365/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.98e-02] [mem: 6.67e+04] (908.0 ms)
-INFO:root:[1,  1365] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1366/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.98e-02] [mem: 6.67e+04] (908.0 ms)
-INFO:root:[1,  1366] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1367/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.98e-02] [mem: 6.67e+04] (907.9 ms)
-INFO:root:[1,  1367] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1368/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.98e-02] [mem: 6.67e+04] (907.9 ms)
-INFO:root:[1,  1368] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1369/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.99e-02] [mem: 6.67e+04] (907.9 ms)
-INFO:root:[1,  1369] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1370/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.99e-02] [mem: 6.67e+04] (907.8 ms)
-INFO:root:[1,  1370] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1371/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.99e-02] [mem: 6.67e+04] (907.8 ms)
-INFO:root:[1,  1371] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1372/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 5.99e-02] [mem: 6.67e+04] (907.8 ms)
-INFO:root:[1,  1372] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1373/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.00e-02] [mem: 6.67e+04] (907.7 ms)
-INFO:root:[1,  1373] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1374/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.00e-02] [mem: 6.67e+04] (907.7 ms)
-INFO:root:[1,  1374] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1375/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.00e-02] [mem: 6.67e+04] (907.7 ms)
-INFO:root:[1,  1375] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1376/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.00e-02] [mem: 6.67e+04] (907.6 ms)
-INFO:root:[1,  1376] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1377/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.01e-02] [mem: 6.67e+04] (907.6 ms)
-INFO:root:[1,  1377] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1378/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.01e-02] [mem: 6.67e+04] (907.6 ms)
-INFO:root:[1,  1378] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1379/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.01e-02] [mem: 6.67e+04] (907.5 ms)
-INFO:root:[1,  1379] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1380/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.01e-02] [mem: 6.67e+04] (907.5 ms)
-INFO:root:[1,  1380] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1381/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.02e-02] [mem: 6.67e+04] (907.5 ms)
-INFO:root:[1,  1381] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1382/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.02e-02] [mem: 6.67e+04] (907.4 ms)
-INFO:root:[1,  1382] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1383/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.02e-02] [mem: 6.67e+04] (907.4 ms)
-INFO:root:[1,  1383] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1384/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.03e-02] [mem: 6.67e+04] (907.3 ms)
-INFO:root:[1,  1384] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1385/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.03e-02] [mem: 6.67e+04] (907.3 ms)
-INFO:root:[1,  1385] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1386/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.03e-02] [mem: 6.67e+04] (907.3 ms)
-INFO:root:[1,  1386] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1387/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.03e-02] [mem: 6.67e+04] (907.2 ms)
-INFO:root:[1,  1387] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1388/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.04e-02] [mem: 6.67e+04] (907.2 ms)
-INFO:root:[1,  1388] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1389/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.04e-02] [mem: 6.67e+04] (907.2 ms)
-INFO:root:[1,  1389] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1390/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.04e-02] [mem: 6.67e+04] (907.1 ms)
-INFO:root:[1,  1390] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1391/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.04e-02] [mem: 6.67e+04] (907.1 ms)
-INFO:root:[1,  1391] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1392/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.05e-02] [mem: 6.67e+04] (907.1 ms)
-INFO:root:[1,  1392] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1393/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.05e-02] [mem: 6.67e+04] (907.0 ms)
-INFO:root:[1,  1393] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1394/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.05e-02] [mem: 6.67e+04] (907.0 ms)
-INFO:root:[1,  1394] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1395/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.05e-02] [mem: 6.67e+04] (907.0 ms)
-INFO:root:[1,  1395] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1396/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.06e-02] [mem: 6.67e+04] (906.9 ms)
-INFO:root:[1,  1396] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1397/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.06e-02] [mem: 6.67e+04] (906.9 ms)
-INFO:root:[1,  1397] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1398/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.06e-02] [mem: 6.67e+04] (906.9 ms)
-INFO:root:[1,  1398] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1399/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.06e-02] [mem: 6.67e+04] (906.8 ms)
-INFO:root:[1,  1399] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1400/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.07e-02] [mem: 6.67e+04] (906.8 ms)
-INFO:root:[1,  1400] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1401/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.07e-02] [mem: 6.67e+04] (906.8 ms)
-INFO:root:[1,  1401] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1402/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.07e-02] [mem: 6.67e+04] (906.7 ms)
-INFO:root:[1,  1402] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1403/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.07e-02] [mem: 6.67e+04] (906.7 ms)
-INFO:root:[1,  1403] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1404/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.08e-02] [mem: 6.67e+04] (906.7 ms)
-INFO:root:[1,  1404] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1405/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.08e-02] [mem: 6.67e+04] (906.6 ms)
-INFO:root:[1,  1405] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1406/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.08e-02] [mem: 6.67e+04] (906.6 ms)
-INFO:root:[1,  1406] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1407/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.08e-02] [mem: 6.67e+04] (906.6 ms)
-INFO:root:[1,  1407] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1408/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.09e-02] [mem: 6.67e+04] (906.5 ms)
-INFO:root:[1,  1408] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1409/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.09e-02] [mem: 6.67e+04] (906.5 ms)
-INFO:root:[1,  1409] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1410/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.09e-02] [mem: 6.67e+04] (906.5 ms)
-INFO:root:[1,  1410] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1411/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.09e-02] [mem: 6.67e+04] (906.4 ms)
-INFO:root:[1,  1411] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1412/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.10e-02] [mem: 6.67e+04] (906.4 ms)
-INFO:root:[1,  1412] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1413/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.10e-02] [mem: 6.67e+04] (906.4 ms)
-INFO:root:[1,  1413] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1414/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.10e-02] [mem: 6.67e+04] (906.3 ms)
-INFO:root:[1,  1414] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1415/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.10e-02] [mem: 6.67e+04] (906.3 ms)
-INFO:root:[1,  1415] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1416/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.11e-02] [mem: 6.67e+04] (906.3 ms)
-INFO:root:[1,  1416] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1417/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.11e-02] [mem: 6.67e+04] (906.2 ms)
-INFO:root:[1,  1417] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1418/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.11e-02] [mem: 6.67e+04] (906.2 ms)
-INFO:root:[1,  1418] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1419/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.11e-02] [mem: 6.67e+04] (906.2 ms)
-INFO:root:[1,  1419] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1420/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.12e-02] [mem: 6.67e+04] (906.1 ms)
-INFO:root:[1,  1420] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1421/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.12e-02] [mem: 6.67e+04] (906.1 ms)
-INFO:root:[1,  1421] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1422/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.12e-02] [mem: 6.67e+04] (906.1 ms)
-INFO:root:[1,  1422] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1423/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.12e-02] [mem: 6.67e+04] (906.0 ms)
-INFO:root:[1,  1423] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1424/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.13e-02] [mem: 6.67e+04] (906.0 ms)
-INFO:root:[1,  1424] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1425/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.13e-02] [mem: 6.67e+04] (906.0 ms)
-INFO:root:[1,  1425] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1426/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.13e-02] [mem: 6.67e+04] (905.9 ms)
-INFO:root:[1,  1426] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1427/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.13e-02] [mem: 6.67e+04] (905.9 ms)
-INFO:root:[1,  1427] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1428/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.14e-02] [mem: 6.67e+04] (905.9 ms)
-INFO:root:[1,  1428] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1429/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.14e-02] [mem: 6.67e+04] (905.8 ms)
-INFO:root:[1,  1429] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1430/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.14e-02] [mem: 6.67e+04] (905.8 ms)
-INFO:root:[1,  1430] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1431/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.14e-02] [mem: 6.67e+04] (905.8 ms)
-INFO:root:[1,  1431] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1432/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.15e-02] [mem: 6.67e+04] (905.7 ms)
-INFO:root:[1,  1432] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1433/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.15e-02] [mem: 6.67e+04] (905.7 ms)
-INFO:root:[1,  1433] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1434/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.15e-02] [mem: 6.67e+04] (905.7 ms)
-INFO:root:[1,  1434] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1435/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.15e-02] [mem: 6.67e+04] (905.6 ms)
-INFO:root:[1,  1435] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1436/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.16e-02] [mem: 6.67e+04] (905.6 ms)
-INFO:root:[1,  1436] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1437/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.16e-02] [mem: 6.67e+04] (905.6 ms)
-INFO:root:[1,  1437] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1438/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.16e-02] [mem: 6.67e+04] (905.5 ms)
-INFO:root:[1,  1438] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1439/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.17e-02] [mem: 6.67e+04] (905.5 ms)
-INFO:root:[1,  1439] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1440/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.17e-02] [mem: 6.67e+04] (905.5 ms)
-INFO:root:[1,  1440] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1441/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.17e-02] [mem: 6.67e+04] (905.4 ms)
-INFO:root:[1,  1441] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1442/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.17e-02] [mem: 6.67e+04] (905.4 ms)
-INFO:root:[1,  1442] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1443/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.18e-02] [mem: 6.67e+04] (905.4 ms)
-INFO:root:[1,  1443] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1444/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.18e-02] [mem: 6.67e+04] (905.3 ms)
-INFO:root:[1,  1444] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1445/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.18e-02] [mem: 6.67e+04] (905.3 ms)
-INFO:root:[1,  1445] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1446/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.18e-02] [mem: 6.67e+04] (905.3 ms)
-INFO:root:[1,  1446] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1447/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.19e-02] [mem: 6.67e+04] (905.2 ms)
-INFO:root:[1,  1447] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1448/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.19e-02] [mem: 6.67e+04] (905.2 ms)
-INFO:root:[1,  1448] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1449/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.19e-02] [mem: 6.67e+04] (905.2 ms)
-INFO:root:[1,  1449] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1450/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.19e-02] [mem: 6.67e+04] (905.1 ms)
-INFO:root:[1,  1450] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1451/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.20e-02] [mem: 6.67e+04] (905.1 ms)
-INFO:root:[1,  1451] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1452/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.20e-02] [mem: 6.67e+04] (905.1 ms)
-INFO:root:[1,  1452] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1453/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.20e-02] [mem: 6.67e+04] (905.0 ms)
-INFO:root:[1,  1453] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1454/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.20e-02] [mem: 6.67e+04] (905.0 ms)
-INFO:root:[1,  1454] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1455/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.21e-02] [mem: 6.67e+04] (905.0 ms)
-INFO:root:[1,  1455] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1456/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.21e-02] [mem: 6.67e+04] (904.9 ms)
-INFO:root:[1,  1456] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1457/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.21e-02] [mem: 6.67e+04] (904.9 ms)
-INFO:root:[1,  1457] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1458/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.21e-02] [mem: 6.67e+04] (904.9 ms)
-INFO:root:[1,  1458] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1459/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.22e-02] [mem: 6.67e+04] (904.8 ms)
-INFO:root:[1,  1459] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1460/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.22e-02] [mem: 6.67e+04] (904.8 ms)
-INFO:root:[1,  1460] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1461/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.22e-02] [mem: 6.67e+04] (904.8 ms)
-INFO:root:[1,  1461] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1462/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.22e-02] [mem: 6.67e+04] (904.8 ms)
-INFO:root:[1,  1462] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1463/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.23e-02] [mem: 6.67e+04] (904.7 ms)
-INFO:root:[1,  1463] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1464/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.23e-02] [mem: 6.67e+04] (904.7 ms)
-INFO:root:[1,  1464] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1465/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.23e-02] [mem: 6.67e+04] (904.7 ms)
-INFO:root:[1,  1465] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1466/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.23e-02] [mem: 6.67e+04] (904.6 ms)
-INFO:root:[1,  1466] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1467/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.24e-02] [mem: 6.67e+04] (904.6 ms)
-INFO:root:[1,  1467] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1468/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.24e-02] [mem: 6.67e+04] (904.6 ms)
-INFO:root:[1,  1468] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1469/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.24e-02] [mem: 6.67e+04] (904.5 ms)
-INFO:root:[1,  1469] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1470/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.24e-02] [mem: 6.67e+04] (904.5 ms)
-INFO:root:[1,  1470] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1471/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.25e-02] [mem: 6.67e+04] (904.5 ms)
-INFO:root:[1,  1471] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1472/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.25e-02] [mem: 6.67e+04] (904.4 ms)
-INFO:root:[1,  1472] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1473/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.25e-02] [mem: 6.67e+04] (904.4 ms)
-INFO:root:[1,  1473] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1474/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.25e-02] [mem: 6.67e+04] (904.4 ms)
-INFO:root:[1,  1474] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1475/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.26e-02] [mem: 6.67e+04] (904.3 ms)
-INFO:root:[1,  1475] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1476/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.26e-02] [mem: 6.67e+04] (904.3 ms)
-INFO:root:[1,  1476] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1477/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.26e-02] [mem: 6.67e+04] (904.3 ms)
-INFO:root:[1,  1477] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1478/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.26e-02] [mem: 6.67e+04] (904.3 ms)
-INFO:root:[1,  1478] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1479/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.27e-02] [mem: 6.67e+04] (904.2 ms)
-INFO:root:[1,  1479] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1480/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.27e-02] [mem: 6.67e+04] (904.2 ms)
-INFO:root:[1,  1480] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1481/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.27e-02] [mem: 6.67e+04] (904.2 ms)
-INFO:root:[1,  1481] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1482/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.27e-02] [mem: 6.67e+04] (904.1 ms)
-INFO:root:[1,  1482] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1483/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.28e-02] [mem: 6.67e+04] (904.1 ms)
-INFO:root:[1,  1483] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1484/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.28e-02] [mem: 6.67e+04] (904.1 ms)
-INFO:root:[1,  1484] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1485/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.28e-02] [mem: 6.67e+04] (904.0 ms)
-INFO:root:[1,  1485] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1486/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.28e-02] [mem: 6.67e+04] (904.0 ms)
-INFO:root:[1,  1486] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1487/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.29e-02] [mem: 6.67e+04] (904.0 ms)
-INFO:root:[1,  1487] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1488/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.29e-02] [mem: 6.67e+04] (903.9 ms)
-INFO:root:[1,  1488] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1489/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.29e-02] [mem: 6.67e+04] (903.9 ms)
-INFO:root:[1,  1489] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1490/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.29e-02] [mem: 6.67e+04] (903.9 ms)
-INFO:root:[1,  1490] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1491/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.30e-02] [mem: 6.67e+04] (903.9 ms)
-INFO:root:[1,  1491] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1492/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.30e-02] [mem: 6.67e+04] (903.8 ms)
-INFO:root:[1,  1492] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1493/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.30e-02] [mem: 6.67e+04] (903.8 ms)
-INFO:root:[1,  1493] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1494/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.31e-02] [mem: 6.67e+04] (903.8 ms)
-INFO:root:[1,  1494] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1495/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.31e-02] [mem: 6.67e+04] (903.7 ms)
-INFO:root:[1,  1495] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1496/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.31e-02] [mem: 6.67e+04] (903.7 ms)
-INFO:root:[1,  1496] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1497/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.31e-02] [mem: 6.67e+04] (903.7 ms)
-INFO:root:[1,  1497] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1498/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.32e-02] [mem: 6.67e+04] (903.7 ms)
-INFO:root:[1,  1498] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1499/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.32e-02] [mem: 6.67e+04] (903.6 ms)
-INFO:root:[1,  1499] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1500/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.32e-02] [mem: 6.67e+04] (903.6 ms)
-INFO:root:[1,  1500] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1501/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.32e-02] [mem: 6.67e+04] (903.6 ms)
-INFO:root:[1,  1501] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1502/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.33e-02] [mem: 6.67e+04] (903.5 ms)
-INFO:root:[1,  1502] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1503/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.33e-02] [mem: 6.67e+04] (903.5 ms)
-INFO:root:[1,  1503] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1504/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.33e-02] [mem: 6.67e+04] (903.5 ms)
-INFO:root:[1,  1504] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1505/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.33e-02] [mem: 6.67e+04] (903.4 ms)
-INFO:root:[1,  1505] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1506/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.34e-02] [mem: 6.67e+04] (903.4 ms)
-INFO:root:[1,  1506] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1507/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.34e-02] [mem: 6.67e+04] (903.4 ms)
-INFO:root:[1,  1507] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1508/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.34e-02] [mem: 6.67e+04] (903.4 ms)
-INFO:root:[1,  1508] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1509/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.34e-02] [mem: 6.67e+04] (903.3 ms)
-INFO:root:[1,  1509] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1510/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.35e-02] [mem: 6.67e+04] (903.3 ms)
-INFO:root:[1,  1510] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1511/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.35e-02] [mem: 6.67e+04] (903.3 ms)
-INFO:root:[1,  1511] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1512/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.35e-02] [mem: 6.67e+04] (903.2 ms)
-INFO:root:[1,  1512] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1513/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.35e-02] [mem: 6.67e+04] (903.2 ms)
-INFO:root:[1,  1513] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1514/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.36e-02] [mem: 6.67e+04] (903.2 ms)
-INFO:root:[1,  1514] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1515/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.36e-02] [mem: 6.67e+04] (903.1 ms)
-INFO:root:[1,  1515] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1516/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.36e-02] [mem: 6.67e+04] (903.1 ms)
-INFO:root:[1,  1516] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1517/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.36e-02] [mem: 6.67e+04] (903.1 ms)
-INFO:root:[1,  1517] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1518/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.37e-02] [mem: 6.67e+04] (903.1 ms)
-INFO:root:[1,  1518] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1519/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.37e-02] [mem: 6.67e+04] (903.0 ms)
-INFO:root:[1,  1519] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1520/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.37e-02] [mem: 6.67e+04] (903.0 ms)
-INFO:root:[1,  1520] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1521/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.37e-02] [mem: 6.67e+04] (903.0 ms)
-INFO:root:[1,  1521] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1522/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.38e-02] [mem: 6.67e+04] (902.9 ms)
-INFO:root:[1,  1522] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1523/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.38e-02] [mem: 6.67e+04] (902.9 ms)
-INFO:root:[1,  1523] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1524/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.38e-02] [mem: 6.67e+04] (902.9 ms)
-INFO:root:[1,  1524] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1525/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.38e-02] [mem: 6.67e+04] (902.9 ms)
-INFO:root:[1,  1525] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1526/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.39e-02] [mem: 6.67e+04] (902.8 ms)
-INFO:root:[1,  1526] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1527/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.39e-02] [mem: 6.67e+04] (902.8 ms)
-INFO:root:[1,  1527] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1528/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.39e-02] [mem: 6.67e+04] (902.8 ms)
-INFO:root:[1,  1528] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1529/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.39e-02] [mem: 6.67e+04] (902.7 ms)
-INFO:root:[1,  1529] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1530/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.40e-02] [mem: 6.67e+04] (902.7 ms)
-INFO:root:[1,  1530] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1531/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.40e-02] [mem: 6.67e+04] (902.7 ms)
-INFO:root:[1,  1531] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1532/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.40e-02] [mem: 6.67e+04] (902.7 ms)
-INFO:root:[1,  1532] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1533/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.40e-02] [mem: 6.67e+04] (902.6 ms)
-INFO:root:[1,  1533] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1534/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.41e-02] [mem: 6.67e+04] (902.6 ms)
-INFO:root:[1,  1534] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1535/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.41e-02] [mem: 6.67e+04] (902.6 ms)
-INFO:root:[1,  1535] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1536/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.41e-02] [mem: 6.67e+04] (902.5 ms)
-INFO:root:[1,  1536] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1537/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.41e-02] [mem: 6.67e+04] (902.5 ms)
-INFO:root:[1,  1537] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1538/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.42e-02] [mem: 6.67e+04] (902.5 ms)
-INFO:root:[1,  1538] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1539/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.42e-02] [mem: 6.67e+04] (902.5 ms)
-INFO:root:[1,  1539] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1540/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.42e-02] [mem: 6.67e+04] (902.4 ms)
-INFO:root:[1,  1540] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1541/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.42e-02] [mem: 6.67e+04] (902.4 ms)
-INFO:root:[1,  1541] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1542/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.43e-02] [mem: 6.67e+04] (902.4 ms)
-INFO:root:[1,  1542] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1543/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.43e-02] [mem: 6.67e+04] (902.3 ms)
-INFO:root:[1,  1543] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1544/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.43e-02] [mem: 6.67e+04] (902.3 ms)
-INFO:root:[1,  1544] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1545/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.43e-02] [mem: 6.67e+04] (902.3 ms)
-INFO:root:[1,  1545] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1546/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.44e-02] [mem: 6.67e+04] (902.3 ms)
-INFO:root:[1,  1546] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1547/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.44e-02] [mem: 6.67e+04] (902.2 ms)
-INFO:root:[1,  1547] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1548/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.44e-02] [mem: 6.67e+04] (902.2 ms)
-INFO:root:[1,  1548] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1549/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.44e-02] [mem: 6.67e+04] (902.2 ms)
-INFO:root:[1,  1549] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1550/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.45e-02] [mem: 6.67e+04] (902.1 ms)
-INFO:root:[1,  1550] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1551/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.45e-02] [mem: 6.67e+04] (902.1 ms)
-INFO:root:[1,  1551] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1552/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.45e-02] [mem: 6.67e+04] (902.1 ms)
-INFO:root:[1,  1552] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1553/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.46e-02] [mem: 6.67e+04] (902.1 ms)
-INFO:root:[1,  1553] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1554/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.46e-02] [mem: 6.67e+04] (902.0 ms)
-INFO:root:[1,  1554] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1555/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.46e-02] [mem: 6.67e+04] (902.0 ms)
-INFO:root:[1,  1555] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1556/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.46e-02] [mem: 6.67e+04] (902.0 ms)
-INFO:root:[1,  1556] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1557/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.47e-02] [mem: 6.67e+04] (901.9 ms)
-INFO:root:[1,  1557] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1558/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.47e-02] [mem: 6.67e+04] (901.9 ms)
-INFO:root:[1,  1558] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1559/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.47e-02] [mem: 6.67e+04] (901.9 ms)
-INFO:root:[1,  1559] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1560/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.47e-02] [mem: 6.67e+04] (901.9 ms)
-INFO:root:[1,  1560] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1561/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.48e-02] [mem: 6.67e+04] (901.8 ms)
-INFO:root:[1,  1561] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1562/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.48e-02] [mem: 6.67e+04] (901.8 ms)
-INFO:root:[1,  1562] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1563/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.48e-02] [mem: 6.67e+04] (901.8 ms)
-INFO:root:[1,  1563] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1564/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.48e-02] [mem: 6.67e+04] (901.8 ms)
-INFO:root:[1,  1564] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1565/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.49e-02] [mem: 6.67e+04] (901.7 ms)
-INFO:root:[1,  1565] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1566/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.49e-02] [mem: 6.67e+04] (901.7 ms)
-INFO:root:[1,  1566] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1567/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.49e-02] [mem: 6.67e+04] (901.7 ms)
-INFO:root:[1,  1567] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1568/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.49e-02] [mem: 6.67e+04] (901.6 ms)
-INFO:root:[1,  1568] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1569/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.50e-02] [mem: 6.67e+04] (901.6 ms)
-INFO:root:[1,  1569] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1570/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.50e-02] [mem: 6.67e+04] (901.6 ms)
-INFO:root:[1,  1570] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1571/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.50e-02] [mem: 6.67e+04] (901.6 ms)
-INFO:root:[1,  1571] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1572/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.50e-02] [mem: 6.67e+04] (901.5 ms)
-INFO:root:[1,  1572] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1573/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.51e-02] [mem: 6.67e+04] (901.5 ms)
-INFO:root:[1,  1573] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1574/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.51e-02] [mem: 6.67e+04] (901.5 ms)
-INFO:root:[1,  1574] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1575/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.51e-02] [mem: 6.67e+04] (901.4 ms)
-INFO:root:[1,  1575] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1576/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.51e-02] [mem: 6.67e+04] (901.4 ms)
-INFO:root:[1,  1576] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1577/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.52e-02] [mem: 6.67e+04] (901.4 ms)
-INFO:root:[1,  1577] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1578/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.52e-02] [mem: 6.67e+04] (901.4 ms)
-INFO:root:[1,  1578] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1579/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.52e-02] [mem: 6.67e+04] (901.3 ms)
-INFO:root:[1,  1579] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1580/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.52e-02] [mem: 6.67e+04] (901.3 ms)
-INFO:root:[1,  1580] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1581/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.53e-02] [mem: 6.67e+04] (901.3 ms)
-INFO:root:[1,  1581] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1582/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.53e-02] [mem: 6.67e+04] (901.3 ms)
-INFO:root:[1,  1582] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1583/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.53e-02] [mem: 6.67e+04] (901.2 ms)
-INFO:root:[1,  1583] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1584/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.53e-02] [mem: 6.67e+04] (901.2 ms)
-INFO:root:[1,  1584] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1585/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.54e-02] [mem: 6.67e+04] (901.2 ms)
-INFO:root:[1,  1585] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1586/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.54e-02] [mem: 6.67e+04] (901.1 ms)
-INFO:root:[1,  1586] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1587/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.54e-02] [mem: 6.67e+04] (901.1 ms)
-INFO:root:[1,  1587] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1588/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.54e-02] [mem: 6.67e+04] (901.1 ms)
-INFO:root:[1,  1588] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1589/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.55e-02] [mem: 6.67e+04] (901.1 ms)
-INFO:root:[1,  1589] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1590/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.55e-02] [mem: 6.67e+04] (901.0 ms)
-INFO:root:[1,  1590] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1591/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.55e-02] [mem: 6.67e+04] (901.0 ms)
-INFO:root:[1,  1591] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1592/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.55e-02] [mem: 6.67e+04] (901.0 ms)
-INFO:root:[1,  1592] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1593/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.56e-02] [mem: 6.67e+04] (901.0 ms)
-INFO:root:[1,  1593] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1594/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.56e-02] [mem: 6.67e+04] (900.9 ms)
-INFO:root:[1,  1594] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1595/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.56e-02] [mem: 6.67e+04] (900.9 ms)
-INFO:root:[1,  1595] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1596/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.56e-02] [mem: 6.67e+04] (900.9 ms)
-INFO:root:[1,  1596] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1597/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.57e-02] [mem: 6.67e+04] (900.9 ms)
-INFO:root:[1,  1597] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1598/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.57e-02] [mem: 6.67e+04] (900.8 ms)
-INFO:root:[1,  1598] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1599/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.57e-02] [mem: 6.67e+04] (900.8 ms)
-INFO:root:[1,  1599] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1600/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.57e-02] [mem: 6.67e+04] (900.8 ms)
-INFO:root:[1,  1600] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1601/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.58e-02] [mem: 6.67e+04] (900.7 ms)
-INFO:root:[1,  1601] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1602/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.58e-02] [mem: 6.67e+04] (900.7 ms)
-INFO:root:[1,  1602] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1603/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.58e-02] [mem: 6.67e+04] (900.7 ms)
-INFO:root:[1,  1603] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1604/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.58e-02] [mem: 6.67e+04] (900.7 ms)
-INFO:root:[1,  1604] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1605/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.59e-02] [mem: 6.67e+04] (900.6 ms)
-INFO:root:[1,  1605] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1606/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.59e-02] [mem: 6.67e+04] (900.6 ms)
-INFO:root:[1,  1606] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1607/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.59e-02] [mem: 6.67e+04] (900.6 ms)
-INFO:root:[1,  1607] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1608/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.60e-02] [mem: 6.67e+04] (900.6 ms)
-INFO:root:[1,  1608] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1609/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.60e-02] [mem: 6.67e+04] (900.5 ms)
-INFO:root:[1,  1609] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1610/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.60e-02] [mem: 6.67e+04] (900.5 ms)
-INFO:root:[1,  1610] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1611/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.60e-02] [mem: 6.67e+04] (900.5 ms)
-INFO:root:[1,  1611] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1612/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.61e-02] [mem: 6.67e+04] (900.5 ms)
-INFO:root:[1,  1612] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1613/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.61e-02] [mem: 6.67e+04] (900.4 ms)
-INFO:root:[1,  1613] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1614/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.61e-02] [mem: 6.67e+04] (900.4 ms)
-INFO:root:[1,  1614] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1615/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.61e-02] [mem: 6.67e+04] (900.4 ms)
-INFO:root:[1,  1615] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1616/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.62e-02] [mem: 6.67e+04] (900.4 ms)
-INFO:root:[1,  1616] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1617/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.62e-02] [mem: 6.67e+04] (900.3 ms)
-INFO:root:[1,  1617] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1618/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.62e-02] [mem: 6.67e+04] (900.3 ms)
-INFO:root:[1,  1618] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1619/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.62e-02] [mem: 6.67e+04] (900.3 ms)
-INFO:root:[1,  1619] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1620/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.63e-02] [mem: 6.67e+04] (900.3 ms)
-INFO:root:[1,  1620] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1621/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.63e-02] [mem: 6.67e+04] (900.2 ms)
-INFO:root:[1,  1621] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1622/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.63e-02] [mem: 6.67e+04] (900.2 ms)
-INFO:root:[1,  1622] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1623/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.63e-02] [mem: 6.67e+04] (900.2 ms)
-INFO:root:[1,  1623] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1624/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.64e-02] [mem: 6.67e+04] (900.2 ms)
-INFO:root:[1,  1624] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1625/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.64e-02] [mem: 6.67e+04] (900.1 ms)
-INFO:root:[1,  1625] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1626/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.64e-02] [mem: 6.67e+04] (900.1 ms)
-INFO:root:[1,  1626] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1627/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.64e-02] [mem: 6.67e+04] (900.1 ms)
-INFO:root:[1,  1627] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1628/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.65e-02] [mem: 6.67e+04] (900.1 ms)
-INFO:root:[1,  1628] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1629/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.65e-02] [mem: 6.67e+04] (900.0 ms)
-INFO:root:[1,  1629] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1630/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.65e-02] [mem: 6.67e+04] (900.0 ms)
-INFO:root:[1,  1630] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1631/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.65e-02] [mem: 6.67e+04] (900.0 ms)
-INFO:root:[1,  1631] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1632/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.66e-02] [mem: 6.67e+04] (900.0 ms)
-INFO:root:[1,  1632] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1633/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.66e-02] [mem: 6.67e+04] (899.9 ms)
-INFO:root:[1,  1633] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1634/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.66e-02] [mem: 6.67e+04] (899.9 ms)
-INFO:root:[1,  1634] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1635/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.66e-02] [mem: 6.67e+04] (899.9 ms)
-INFO:root:[1,  1635] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1636/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.67e-02] [mem: 6.67e+04] (899.8 ms)
-INFO:root:[1,  1636] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1637/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.67e-02] [mem: 6.67e+04] (899.8 ms)
-INFO:root:[1,  1637] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1638/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.67e-02] [mem: 6.67e+04] (899.8 ms)
-INFO:root:[1,  1638] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1639/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.67e-02] [mem: 6.67e+04] (899.8 ms)
-INFO:root:[1,  1639] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1640/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.68e-02] [mem: 6.67e+04] (899.7 ms)
-INFO:root:[1,  1640] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1641/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.68e-02] [mem: 6.67e+04] (899.7 ms)
-INFO:root:[1,  1641] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1642/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.68e-02] [mem: 6.67e+04] (899.7 ms)
-INFO:root:[1,  1642] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1643/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.68e-02] [mem: 6.67e+04] (899.7 ms)
-INFO:root:[1,  1643] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1644/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.69e-02] [mem: 6.67e+04] (899.6 ms)
-INFO:root:[1,  1644] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1645/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.69e-02] [mem: 6.67e+04] (899.6 ms)
-INFO:root:[1,  1645] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1646/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.69e-02] [mem: 6.67e+04] (899.6 ms)
-INFO:root:[1,  1646] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1647/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.69e-02] [mem: 6.67e+04] (899.6 ms)
-INFO:root:[1,  1647] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1648/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.70e-02] [mem: 6.67e+04] (899.5 ms)
-INFO:root:[1,  1648] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1649/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.70e-02] [mem: 6.67e+04] (899.5 ms)
-INFO:root:[1,  1649] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1650/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.70e-02] [mem: 6.67e+04] (899.5 ms)
-INFO:root:[1,  1650] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1651/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.70e-02] [mem: 6.67e+04] (899.5 ms)
-INFO:root:[1,  1651] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1652/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.71e-02] [mem: 6.67e+04] (899.5 ms)
-INFO:root:[1,  1652] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1653/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.71e-02] [mem: 6.67e+04] (899.4 ms)
-INFO:root:[1,  1653] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1654/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.71e-02] [mem: 6.67e+04] (899.4 ms)
-INFO:root:[1,  1654] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1655/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.71e-02] [mem: 6.67e+04] (899.4 ms)
-INFO:root:[1,  1655] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1656/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.72e-02] [mem: 6.67e+04] (899.4 ms)
-INFO:root:[1,  1656] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1657/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.72e-02] [mem: 6.67e+04] (899.3 ms)
-INFO:root:[1,  1657] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1658/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.72e-02] [mem: 6.67e+04] (899.3 ms)
-INFO:root:[1,  1658] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1659/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.72e-02] [mem: 6.67e+04] (899.3 ms)
-INFO:root:[1,  1659] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1660/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.73e-02] [mem: 6.67e+04] (899.3 ms)
-INFO:root:[1,  1660] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1661/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.73e-02] [mem: 6.67e+04] (899.2 ms)
-INFO:root:[1,  1661] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1662/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.73e-02] [mem: 6.67e+04] (899.2 ms)
-INFO:root:[1,  1662] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1663/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.74e-02] [mem: 6.67e+04] (899.2 ms)
-INFO:root:[1,  1663] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1664/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.74e-02] [mem: 6.67e+04] (899.2 ms)
-INFO:root:[1,  1664] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1665/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.74e-02] [mem: 6.67e+04] (899.1 ms)
-INFO:root:[1,  1665] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1666/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.74e-02] [mem: 6.67e+04] (899.1 ms)
-INFO:root:[1,  1666] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1667/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.75e-02] [mem: 6.67e+04] (899.1 ms)
-INFO:root:[1,  1667] grad_stats: [nan nan] (nan, nan)
-INFO:root:[1,  1668/ 6090] train_loss: nan [wd: 5.00e-02] [lr: 6.75e-02] [mem: 6.67e+04] (899.1 ms)
-INFO:root:[1,  1668] grad_stats: [nan nan] (nan, nan)
+INFO:root:[1,   100/ 6090] train_loss: 12.401 [wd: 5.00e-02] [lr: 1.20e-02] [mem: 6.67e+04] (1004.1 ms)
+INFO:root:[1,   100] grad_stats: [1.40e-04 1.53e-04] (1.00e-05, 1.22e-01)
+INFO:root:[1,   200/ 6090] train_loss: 11.774 [wd: 5.00e-02] [lr: 1.39e-02] [mem: 6.67e+04] (959.0 ms)
+INFO:root:[1,   200] grad_stats: [9.23e-05 1.16e-04] (7.84e-06, 5.66e-02)
