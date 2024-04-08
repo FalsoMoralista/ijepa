@@ -5,13 +5,13 @@ data:
   - 0.3
   - 1.0
   crop_size: 224
-  drop_path: 0.2
+  drop_path: 0.25
   mixup: 0.8
   nb_classes: 80000
   cutmix: 1.0
   reprob: 0.25
   image_folder: LifeCLEFPlant2022/
-  num_workers: 16
+  num_workers: 32
   pin_mem: true
   root_path: /home/rtcalumby/adam/luciano/
   use_color_distortion: false
@@ -47,13 +47,13 @@ optimization:
   ema:
   - 0.9
   - 0.999
-  epochs: 5
-  final_lr: 1.0e-06
+  epochs: 50
+  final_lr: 1.0e-04 # Default: 1e-6
   final_weight_decay: 0.4 
   ipe_scale: 1.0
-  lr: 0.001
-  start_lr: 0.0002
-  warmup: 10
-  weight_decay: 0.04
-  eval_epoch: 1
+  lr: 0.8 # Default 0.0015 -> lr = base lr × batchsize / 256. (learning rate formula).
+  start_lr: 0.025 # Default: 0.0002 
+  warmup: 5
+  weight_decay: 0.05
+  eval_epoch: 1 # TODO: remove
   label_smoothing: 0.1

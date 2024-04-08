@@ -5,11 +5,11 @@ INFO:root:loaded params...
                 'crop_scale': [0.3, 1.0],
                 'crop_size': 224,
                 'cutmix': 1.0,
-                'drop_path': 0.2,
+                'drop_path': 0.25,
                 'image_folder': 'LifeCLEFPlant2022/',
                 'mixup': 0.8,
                 'nb_classes': 80000,
-                'num_workers': 16,
+                'num_workers': 32,
                 'pin_mem': True,
                 'reprob': 0.25,
                 'root_path': '/home/rtcalumby/adam/luciano/',
@@ -34,20 +34,20 @@ INFO:root:loaded params...
                 'read_checkpoint': None,
                 'use_bfloat16': True},
     'optimization': {   'ema': [0.9, 0.999],
-                        'epochs': 5,
+                        'epochs': 50,
                         'eval_epoch': 1,
                         'final_lr': 1e-06,
                         'final_weight_decay': 0.4,
                         'ipe_scale': 1.0,
                         'label_smoothing': 0.1,
-                        'lr': 0.001,
-                        'start_lr': 0.0002,
-                        'warmup': 10,
-                        'weight_decay': 0.04}}
+                        'lr': 0.8,
+                        'start_lr': 0.025,
+                        'warmup': 5,
+                        'weight_decay': 0.05}}
 INFO:torch.distributed.distributed_c10d:Added key: store_based_barrier_key:1 to store for rank: 0
-INFO:torch.distributed.distributed_c10d:Rank 0: Completed store-based barrier for key:store_based_barrier_key:1 with 2 nodes.
-INFO:root:Running... (rank: 0/2)
-INFO:root:Initialized (rank/world-size) 0/2
+INFO:torch.distributed.distributed_c10d:Rank 0: Completed store-based barrier for key:store_based_barrier_key:1 with 4 nodes.
+INFO:root:Running... (rank: 0/4)
+INFO:root:Initialized (rank/world-size) 0/4
 INFO:root:VisionTransformer(
   (patch_embed): PatchEmbed(
     (proj): Conv2d(3, 1280, kernel_size=(14, 14), stride=(14, 14))
@@ -78,11 +78,11 @@ INFO:root:making imagenet data transforms
 INFO:root:data-path /home/rtcalumby/adam/luciano/LifeCLEFPlant2022/train/
 INFO:root:Initialized PC2022
 INFO:root:PlantCLEF dataset created
-Training dataset, length: 1169280
+Training dataset, length: 584640
 INFO:root:data-path /home/rtcalumby/adam/luciano/LifeCLEFPlant2022/val/
 INFO:root:Initialized PC2022
 INFO:root:PlantCLEF dataset created
-Val dataset, length: 273216
+Val dataset, length: 136608
 INFO:root:Using AdamW
 Mixup is activated!
 INFO:root:loaded pretrained encoder from epoch 299 with msg: <All keys matched successfully>
@@ -92,17 +92,16 @@ INFO:root:loaded pretrained encoder from epoch 299 with msg: <All keys matched s
 INFO:root:loaded optimizers from epoch 299
 INFO:root:read-path: /home/rtcalumby/adam/luciano/LifeCLEFPlant2022/IN1K-vit.h.14-300e.pth.tar
 INFO:root:Using AdamW
-INFO:root:Epoch 1
 {   'data': {   'batch_size': 96,
                 'color_jitter_strength': 0.0,
                 'crop_scale': [0.3, 1.0],
                 'crop_size': 224,
                 'cutmix': 1.0,
-                'drop_path': 0.2,
+                'drop_path': 0.25,
                 'image_folder': 'LifeCLEFPlant2022/',
                 'mixup': 0.8,
                 'nb_classes': 80000,
-                'num_workers': 16,
+                'num_workers': 32,
                 'pin_mem': True,
                 'reprob': 0.25,
                 'root_path': '/home/rtcalumby/adam/luciano/',
@@ -127,20 +126,173 @@ INFO:root:Epoch 1
                 'read_checkpoint': None,
                 'use_bfloat16': True},
     'optimization': {   'ema': [0.9, 0.999],
-                        'epochs': 5,
+                        'epochs': 50,
                         'eval_epoch': 1,
                         'final_lr': 1e-06,
                         'final_weight_decay': 0.4,
                         'ipe_scale': 1.0,
                         'label_smoothing': 0.1,
-                        'lr': 0.001,
-                        'start_lr': 0.0002,
-                        'warmup': 10,
-                        'weight_decay': 0.04}}
-Training dataset, length: 1169280
-Val dataset, length: 273216
+                        'lr': 0.8,
+                        'start_lr': 0.025,
+                        'warmup': 5,
+                        'weight_decay': 0.05}}
+Training dataset, length: 584640
+Val dataset, length: 136608
 Mixup is activated!
 ['encoder', 'predictor', 'opt', 'scaler', 'target_encoder', 'epoch', 'loss', 'batch_size', 'world_size', 'lr']
-INFO:root:[1,     0/12180] train_loss: 11.477 [wd: 4.00e-02] [lr: 2.00e-04] [mem: 6.35e+04] (3683.8 ms)
-INFO:root:[1,     0] grad_stats: [1.09e-01 8.92e-01] (4.23e-02, 1.52e+05)
+{   'data': {   'batch_size': 96,
+                'color_jitter_strength': 0.0,
+                'crop_scale': [0.3, 1.0],
+                'crop_size': 224,
+                'cutmix': 1.0,
+                'drop_path': 0.25,
+                'image_folder': 'LifeCLEFPlant2022/',
+                'mixup': 0.8,
+                'nb_classes': 80000,
+                'num_workers': 32,
+                'pin_mem': True,
+                'reprob': 0.25,
+                'root_path': '/home/rtcalumby/adam/luciano/',
+                'use_color_distortion': False,
+                'use_gaussian_blur': False,
+                'use_horizontal_flip': False},
+    'logging': {   'folder': '/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/logs/inet_feature_extraction',
+                   'write_tag': 'jepa'},
+    'mask': {   'allow_overlap': False,
+                'aspect_ratio': [0.75, 1.5],
+                'enc_mask_scale': [0.85, 1.0],
+                'min_keep': 10,
+                'num_enc_masks': 1,
+                'num_pred_masks': 4,
+                'patch_size': 14,
+                'pred_mask_scale': [0.15, 0.2]},
+    'meta': {   'copy_data': False,
+                'load_checkpoint': True,
+                'model_name': 'vit_huge',
+                'pred_depth': 12,
+                'pred_emb_dim': 384,
+                'read_checkpoint': None,
+                'use_bfloat16': True},
+    'optimization': {   'ema': [0.9, 0.999],
+                        'epochs': 50,
+                        'eval_epoch': 1,
+                        'final_lr': 1e-06,
+                        'final_weight_decay': 0.4,
+                        'ipe_scale': 1.0,
+                        'label_smoothing': 0.1,
+                        'lr': 0.8,
+                        'start_lr': 0.025,
+                        'warmup': 5,
+                        'weight_decay': 0.05}}
+Training dataset, length: 584640
+Val dataset, length: 136608
+Mixup is activated!
+['encoder', 'predictor', 'opt', 'scaler', 'target_encoder', 'epoch', 'loss', 'batch_size', 'world_size', 'lr']
+INFO:root:DistributedDataParallel(
+  (module): FinetuningModel(
+    (pretrained_model): VisionTransformer(
+      (patch_embed): PatchEmbed(
+        (proj): Conv2d(3, 1280, kernel_size=(14, 14), stride=(14, 14))
+      )
+      (blocks): ModuleList(
+        (0-31): 32 x Block(
+          (norm1): LayerNorm((1280,), eps=1e-06, elementwise_affine=True)
+          (attn): Attention(
+            (qkv): Linear(in_features=1280, out_features=3840, bias=True)
+            (attn_drop): Dropout(p=0.0, inplace=False)
+            (proj): Linear(in_features=1280, out_features=1280, bias=True)
+            (proj_drop): Dropout(p=0.0, inplace=False)
+          )
+          (drop_path): Identity()
+          (norm2): LayerNorm((1280,), eps=1e-06, elementwise_affine=True)
+          (mlp): MLP(
+            (fc1): Linear(in_features=1280, out_features=5120, bias=True)
+            (act): GELU(approximate='none')
+            (fc2): Linear(in_features=5120, out_features=1280, bias=True)
+            (drop): Dropout(p=0.0, inplace=False)
+          )
+        )
+      )
+      (norm): LayerNorm((1280,), eps=1e-06, elementwise_affine=True)
+    )
+    (average_pool): AvgPool1d(kernel_size=(256,), stride=(1,), padding=(0,))
+    (mlp_head): Sequential(
+      (0): LayerNorm((1280,), eps=1e-05, elementwise_affine=True)
+      (1): Linear(in_features=1280, out_features=80000, bias=True)
+    )
+  )
+)
+{   'data': {   'batch_size': 96,
+                'color_jitter_strength': 0.0,
+                'crop_scale': [0.3, 1.0],
+                'crop_size': 224,
+                'cutmix': 1.0,
+                'drop_path': 0.25,
+                'image_folder': 'LifeCLEFPlant2022/',
+                'mixup': 0.8,
+                'nb_classes': 80000,
+                'num_workers': 32,
+                'pin_mem': True,
+                'reprob': 0.25,
+                'root_path': '/home/rtcalumby/adam/luciano/',
+                'use_color_distortion': False,
+                'use_gaussian_blur': False,
+                'use_horizontal_flip': False},
+    'logging': {   'folder': '/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/logs/inet_feature_extraction',
+                   'write_tag': 'jepa'},
+    'mask': {   'allow_overlap': False,
+                'aspect_ratio': [0.75, 1.5],
+                'enc_mask_scale': [0.85, 1.0],
+                'min_keep': 10,
+                'num_enc_masks': 1,
+                'num_pred_masks': 4,
+                'patch_size': 14,
+                'pred_mask_scale': [0.15, 0.2]},
+    'meta': {   'copy_data': False,
+                'load_checkpoint': True,
+                'model_name': 'vit_huge',
+                'pred_depth': 12,
+                'pred_emb_dim': 384,
+                'read_checkpoint': None,
+                'use_bfloat16': True},
+    'optimization': {   'ema': [0.9, 0.999],
+                        'epochs': 50,
+                        'eval_epoch': 1,
+                        'final_lr': 1e-06,
+                        'final_weight_decay': 0.4,
+                        'ipe_scale': 1.0,
+                        'label_smoothing': 0.1,
+                        'lr': 0.8,
+                        'start_lr': 0.025,
+                        'warmup': 5,
+                        'weight_decay': 0.05}}
+Training dataset, length: 584640
+Val dataset, length: 136608
+Mixup is activated!
+['encoder', 'predictor', 'opt', 'scaler', 'target_encoder', 'epoch', 'loss', 'batch_size', 'world_size', 'lr']
+INFO:root:Epoch 1
+INFO:root:[1,     0/ 6090] train_loss: 11.409 [wd: 5.00e-02] [lr: 2.50e-02] [mem: 6.10e+04] (5413.9 ms)
+INFO:root:[1,     0] grad_stats: [7.65e-02 6.17e-01] (2.66e-02, 1.64e+00)
 INFO:torch.nn.parallel.distributed:Reducer buckets have been rebuilt in this iteration.
+INFO:root:[1,   100/ 6090] train_loss: 13.172 [wd: 5.00e-02] [lr: 2.76e-02] [mem: 6.67e+04] (956.8 ms)
+INFO:root:[1,   100] grad_stats: [4.10e-05 6.71e-05] (8.15e-06, 3.78e-02)
+INFO:root:[1,   200/ 6090] train_loss: 12.256 [wd: 5.00e-02] [lr: 3.01e-02] [mem: 6.67e+04] (932.4 ms)
+INFO:root:[1,   200] grad_stats: [6.46e-05 1.82e-04] (3.97e-06, 8.13e-02)
+INFO:root:[1,   300/ 6090] train_loss: 12.020 [wd: 5.00e-02] [lr: 3.27e-02] [mem: 6.67e+04] (924.7 ms)
+INFO:root:[1,   300] grad_stats: [2.22e-05 7.65e-05] (3.78e-06, 8.27e-02)
+INFO:root:[1,   400/ 6090] train_loss: 11.860 [wd: 5.00e-02] [lr: 3.52e-02] [mem: 6.67e+04] (920.9 ms)
+INFO:root:[1,   400] grad_stats: [1.44e-05 4.52e-05] (3.54e-06, 5.32e-02)
+INFO:root:[1,   500/ 6090] train_loss: 11.757 [wd: 5.00e-02] [lr: 3.78e-02] [mem: 6.67e+04] (918.7 ms)
+INFO:root:[1,   500] grad_stats: [1.25e-05 5.48e-05] (1.63e-06, 5.16e-02)
+INFO:root:[1,   600/ 6090] train_loss: 11.690 [wd: 5.00e-02] [lr: 4.03e-02] [mem: 6.67e+04] (917.5 ms)
+INFO:root:[1,   600] grad_stats: [1.59e-05 6.26e-05] (1.56e-06, 4.63e-02)
+INFO:root:[1,   700/ 6090] train_loss: 11.636 [wd: 5.00e-02] [lr: 4.28e-02] [mem: 6.67e+04] (916.8 ms)
+INFO:root:[1,   700] grad_stats: [1.38e-05 3.82e-05] (1.12e-06, 4.24e-02)
+INFO:root:[1,   800/ 6090] train_loss: 11.597 [wd: 5.00e-02] [lr: 4.54e-02] [mem: 6.67e+04] (916.3 ms)
+INFO:root:[1,   800] grad_stats: [1.24e-05 4.22e-05] (6.48e-07, 4.19e-02)
+INFO:root:[1,   900/ 6090] train_loss: 11.567 [wd: 5.00e-02] [lr: 4.79e-02] [mem: 6.67e+04] (915.8 ms)
+INFO:root:[1,   900] grad_stats: [9.07e-06 2.37e-05] (3.01e-07, 3.66e-02)
+INFO:root:[1,  1000/ 6090] train_loss: 11.544 [wd: 5.00e-02] [lr: 5.05e-02] [mem: 6.67e+04] (915.6 ms)
+INFO:root:[1,  1000] grad_stats: [4.70e-05 1.17e-04] (3.77e-07, 4.35e-02)
+INFO:root:[1,  1100/ 6090] train_loss: 11.527 [wd: 5.00e-02] [lr: 5.30e-02] [mem: 6.67e+04] (915.4 ms)
+INFO:root:[1,  1100] grad_stats: [7.31e-06 3.06e-05] (8.49e-08, 4.47e-02)

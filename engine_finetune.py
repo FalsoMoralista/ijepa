@@ -284,7 +284,7 @@ def main(args, resume_preempt=False):
     mixup_active = mixup > 0 or cutmix > 0. # or args.cutmix_minmax is not None
     if mixup_active:
         print("Mixup is activated!")
-        mixup_fn = Mixup(mixup_alpha=mixup, cutmix_alpha=cutmix, label_smoothing=0.1, num_classes=nb_classes) # TODO: use inside the training loop []
+        mixup_fn = Mixup(mixup_alpha=mixup, cutmix_alpha=cutmix, label_smoothing=0.1, num_classes=nb_classes)
 
     if mixup_fn is not None:
         # smoothing is handled with mixup label transform
@@ -316,19 +316,12 @@ def main(args, resume_preempt=False):
         -----------------------------------------------
     '''    
 
-    '''
-         
-        TODO(s):
-        (1) - Map overlapping code with vit mae [x]
-        (2) - Avg pool the output embeddings and feed them into a mlp with the same config as in MAE []
-        (3) - Look up for which encoder was used to extract features in the ablation studies []
+    # lr = base lr × batchsize / 256. (learning rate formula).
 
-        OBS:  lr = base lr×batchsize / 256. (learning rate formula).
-    '''
     # -- # -- # -- #
     encoder = DistributedDataParallel(encoder, static_graph=True)
     predictor = DistributedDataParallel(predictor, static_graph=True)
-    target_encoder = DistributedDataParallel(target_encoder, static_graph=True) # TODO: verify what does static_graph do[]
+    target_encoder = DistributedDataParallel(target_encoder)
 
     # TODO:
     # (1) - Make checkpoint a requirement[]
@@ -348,21 +341,6 @@ def main(args, resume_preempt=False):
         #    wd_scheduler.step()
         #    next(momentum_scheduler)
         #    mask_collator.step()
-
-    # -- Override loaded configs from above.
-    optimizer, scaler, scheduler, wd_scheduler = init_opt(
-        encoder=target_encoder,
-        predictor=predictor,
-        wd=wd,
-        final_wd=final_wd,
-        start_lr=start_lr,
-        ref_lr=lr,
-        final_lr=final_lr,
-        iterations_per_epoch=ipe,
-        warmup=warmup,
-        num_epochs=num_epochs,
-        ipe_scale=ipe_scale,
-        use_bfloat16=use_bfloat16)
     
     def save_checkpoint(epoch):
         save_dict = {
@@ -382,19 +360,38 @@ def main(args, resume_preempt=False):
             if (epoch + 1) % checkpoint_freq == 0:
                 torch.save(save_dict, save_path.format(epoch=f'{epoch + 1}'))
 
+    target_encoder = target_encoder.module # Unwrap from DDP
     for p in target_encoder.parameters():
         p.requires_grad = True
-    target_encoder = add_classification_head(target_encoder, nb_classes=nb_classes, drop_path=0.2, device=device)
-    target_encoder = DistributedDataParallel(target_encoder)
+    target_encoder = add_classification_head(target_encoder, nb_classes=nb_classes, drop_path=drop_path, device=device)
 
+    # -- Override previously loaded optimization configs.
+    optimizer, scaler, scheduler, wd_scheduler = init_opt(
+        encoder=target_encoder,
+        predictor=predictor,
+        wd=wd,
+        final_wd=final_wd,
+        start_lr=start_lr,
+        ref_lr=lr,
+        final_lr=final_lr,
+        iterations_per_epoch=ipe,
+        warmup=warmup,
+        num_epochs=num_epochs,
+        ipe_scale=ipe_scale,
+        use_bfloat16=use_bfloat16)
+    
+    target_encoder = DistributedDataParallel(target_encoder, static_graph=True) # Static Graph: the set of used and unused parameters will not change during the whole training loop.
+    logger.info(target_encoder)
 
     # -- Remove from device once they are required for loading pretrained parameters only
     del encoder
     del predictor
 
-    # -- TODO:
-    # --
-
+    # TODO: 
+    # Future work:
+    # Accumulate iterations[]
+    # Add gradient clipping[] (see MAE -> util/misc.py -> NativeScalerWithGradNormCount)
+    # Add layer decay[]
     start_epoch = 0
     # -- TRAINING LOOP
     for epoch in range(start_epoch, num_epochs):
@@ -424,7 +421,11 @@ def main(args, resume_preempt=False):
                          
                 def loss_fn(h, targets):
                     loss = criterion(h, targets)
-                    loss = AllReduce.apply(loss)
+                    
+                    # It is not necessary to use another allreduce to sum all loss. 
+                    # Additional allreduce might have considerable negative impact on training speed.
+                    # See: https://discuss.pytorch.org/t/distributeddataparallel-loss-compute-and-backpropogation/47205/4
+                    #loss = AllReduce.apply(loss) # TODO: check[]
                     return loss
                             
                 # Step 1. Forward
@@ -445,13 +446,13 @@ def main(args, resume_preempt=False):
                 
                 return (float(loss), _new_lr, _new_wd, grad_stats)
             (loss, _new_lr, _new_wd, grad_stats), etime = gpu_timer(train_step)
-
+            
             loss_meter.update(loss)
             time_meter.update(etime)      
 
             # -- Logging
             def log_stats():
-                csv_logger.log(epoch + 1, itr, loss_meter.val, etime)
+                csv_logger.log(epoch + 1, itr, loss, etime)
                 if (itr % log_freq == 0) or np.isnan(loss) or np.isinf(loss):
                     logger.info('[%d, %5d/%5d] train_loss: %.3f '
                                 '[wd: %.2e] [lr: %.2e] '
@@ -474,11 +475,6 @@ def main(args, resume_preempt=False):
                                         grad_stats.max))
             log_stats()
 
-        # TODO:
-        # Does evaluation requires synchronization? []
-        # add autocast before with torch no grad []
-        # Increase batch (gpus) []
-        # Accumulate grad iterations? []
         def evaluate():
             testAcc1 = AverageMeter()
             testAcc5 = AverageMeter()
@@ -502,9 +498,8 @@ def main(args, resume_preempt=False):
 
             print('* Acc@1 {top1.avg:.3f} Acc@5 {top5.avg:.3f} loss {losses.avg:.3f}'
                     .format(top1=testAcc1, top5=testAcc5, losses=test_loss))
-            return (testAcc1, testAcc5, test_loss)
-
-        (testAcc1, testAcc5, test_loss), vtime = gpu_timer(evaluate)
+            return (testAcc1, testAcc5, test_loss, 0)
+        (testAcc1, testAcc5, test_loss), vtime = evaluate()#gpu_timer(evaluate) # TODO TEST
         
         # -- Logging
         def log_test():

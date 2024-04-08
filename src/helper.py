@@ -75,24 +75,22 @@ class FinetuningModel(nn.Module):
         self.drop_path = drop_path
         self.nb_classes = nb_classes
 
-        self.pretrained_model.module.layer_dropout = self.drop_path 
+        self.pretrained_model.layer_dropout = self.drop_path 
 
-        # TODO:
-        # (1) - VERIFY IF THIS WORK []
-        self.average_pool = nn.AvgPool1d((self.pretrained_model.module.patch_embed.num_patches), stride=1)
+        self.average_pool = nn.AvgPool1d((self.pretrained_model.patch_embed.num_patches), stride=1)
 
         # TODO: 
         # (1) - Verify if layer norm still necessary, considering that it is already performed in the ouput of the target encoder's features[]
         # (2) - Check how is it the mlp head is added into the ViT-MAE[]  
         self.mlp_head = nn.Sequential(
-            nn.LayerNorm(self.pretrained_model.module.embed_dim),
-            nn.Linear(self.pretrained_model.module.embed_dim, self.nb_classes)
+            nn.LayerNorm(self.pretrained_model.embed_dim),
+            nn.Linear(self.pretrained_model.embed_dim, self.nb_classes)
         )
     
     def forward(self, x):
-        x = self.pretrained_model.module(x)
+        x = self.pretrained_model(x)
         x = F.layer_norm(x, (x.size(-1),))  # normalize over feature-dim - This was added to match the implementation at the "forward target" function but i don't see very much the point as the model has one layer as this in its output. 
-        x = self.average_pool(x.transpose(1, 2)).transpose(1, 2) #conduct average pool like in paper
+        x = self.average_pool(x.transpose(1, 2)).transpose(1, 2) # conduct average pool like in paper
         x = x.squeeze(1)
         x = self.mlp_head(x) #pass through mlp head
         return x
