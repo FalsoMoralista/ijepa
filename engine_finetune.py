@@ -50,6 +50,7 @@ from src.helper import (
     init_model,
     init_opt)
 from src.transforms import make_transforms
+import time
 
 # --BROUGHT fRoM MAE
 from timm.data.mixup import Mixup
@@ -59,7 +60,7 @@ from timm.utils import accuracy
 # --
 log_timings = True
 log_freq = 100
-checkpoint_freq = 5
+checkpoint_freq = 10
 # --
 
 _GLOBAL_SEED = 0
@@ -248,6 +249,9 @@ def main(args, resume_preempt=False):
     ipe = len(supervised_loader_train)
     print('Training dataset, length:', ipe*batch_size)
 
+    # Warning: Enabling distributed evaluation with an eval dataset not divisible by process number. 
+    # This will slightly alter validation results as extra duplicate entries are added to achieve
+    # equal num of samples per-process.'
     _, supervised_loader_val, supervised_sampler_val = make_PlantCLEF2022(
             transform=val_transform,
             batch_size=batch_size,
@@ -260,7 +264,7 @@ def main(args, resume_preempt=False):
             root_path=root_path,
             image_folder=image_folder,
             copy_data=copy_data,
-            drop_last=False)
+            drop_last=True)
     
     ipe_val = len(supervised_loader_val)
     print('Val dataset, length:', ipe_val*batch_size)
@@ -345,8 +349,8 @@ def main(args, resume_preempt=False):
     # TODO: Implement
     def save_checkpoint(epoch):
         save_dict = {
-            'encoder': encoder.state_dict(),
-            'predictor': predictor.state_dict(),
+            #'encoder': encoder.state_dict(),
+            #'predictor': predictor.state_dict(),
             'target_encoder': target_encoder.state_dict(),
             'opt': optimizer.state_dict(),
             'scaler': None if scaler is None else scaler.state_dict(),
@@ -392,7 +396,7 @@ def main(args, resume_preempt=False):
     # Future work:
     # Accumulate iterations[]
     # Add gradient clipping[] (see MAE -> util/misc.py -> NativeScalerWithGradNormCount)
-    # Add layer decay[]
+    # Add layerwise lr decay[]
     start_epoch = 0
     # -- TRAINING LOOP
     for epoch in range(start_epoch, num_epochs):
@@ -478,12 +482,13 @@ def main(args, resume_preempt=False):
             log_stats()
 
         def evaluate():
+            crossentropy = torch.nn.CrossEntropyLoss()
             testAcc1 = AverageMeter()
             testAcc5 = AverageMeter()
             test_loss = AverageMeter()
             
             target_encoder.eval()
-
+            start_time = time.time()
             for cnt, (val_data, masks_enc, masks_pred) in enumerate(supervised_loader_val):
                 images = val_data[0].to(device, non_blocking=True)
                 labels = val_data[1].to(device, non_blocking=True)
@@ -492,18 +497,19 @@ def main(args, resume_preempt=False):
                 with torch.no_grad(): 
                     with torch.cuda.amp.autocast():
                         output = target_encoder.forward(images)
-                        loss = criterion(output, labels)
-
+                        loss = crossentropy(output, labels)
+                
                 acc1, acc5 = accuracy(output, labels, topk=(1, 5))
 
                 testAcc1.update(acc1)
                 testAcc5.update(acc5)
                 test_loss.update(loss)
+            vtime = time.time() - start_time
 
             print('* Acc@1 {top1.avg:.3f} Acc@5 {top5.avg:.3f} loss {losses.avg:.3f}'
                     .format(top1=testAcc1, top5=testAcc5, losses=test_loss))
-            return (testAcc1, testAcc5, test_loss, 0)
-        (testAcc1, testAcc5, test_loss), vtime = evaluate()#gpu_timer(evaluate) # TODO TEST
+            return (testAcc1, testAcc5, test_loss), vtime 
+        (testAcc1, testAcc5, test_loss), vtime = evaluate() 
         
         # -- Logging
         def log_test():
@@ -518,13 +524,13 @@ def main(args, resume_preempt=False):
                                 test_loss.avg,
                                 testAcc1.avg, testAcc5.avg,
                                 torch.cuda.max_memory_allocated() / 1024.**2,
-                                vtime.avg))
+                                vtime))
         log_test()
 
         # -- Save Checkpoint after every epoch
         logger.info('avg. train_loss %.3f' % loss_meter.avg)
-        logger.info('avg. test_loss %.3f avg. Accuracy@1 %.3f - avg. Accuracy@1 %.3f' % (test_loss.avg, testAcc1.val,testAcc5.val))
-        #save_checkpoint(epoch+1)
+        logger.info('avg. test_loss %.3f avg. Accuracy@1 %.3f - avg. Accuracy@1 %.3f' % (test_loss.avg, testAcc1.val, testAcc5.val))
+        save_checkpoint(epoch+1)
         assert not np.isnan(loss), 'loss is nan'
         print('Loss:', loss)        
 
