@@ -267,7 +267,11 @@ def main(args, resume_preempt=False):
             drop_last=True)
     
     ipe_val = len(supervised_loader_val)
+
+    # The val dataset has length of 546048, which alongside with a batch_size of 96 * 4 gpus = 1422 batches per gpu so distributed testing
+    # under these circumstances should be fine. 
     print('Val dataset, length:', ipe_val*batch_size)
+
 
     # -- init optimizer and scheduler
     optimizer, scaler, scheduler, wd_scheduler = init_opt(
@@ -338,7 +342,7 @@ def main(args, resume_preempt=False):
             encoder=encoder,
             predictor=predictor,
             target_encoder=target_encoder,
-            opt=optimizer,
+            opt=optimizer, #TODO: check[]
             scaler=scaler)
         #for _ in range(start_epoch*ipe):
         #    scheduler.step()
@@ -481,18 +485,23 @@ def main(args, resume_preempt=False):
                                         grad_stats.max))
             log_stats()
 
+        testAcc1 = AverageMeter()
+        testAcc5 = AverageMeter() # Moving those outside the test area will allow averaging between different processes? 
+        test_loss = AverageMeter()
+
+        # Warning: Enabling distributed evaluation with an eval dataset not divisible by process number
+        # will slightly alter validation results as extra duplicate entries are added to achieve equal 
+        # num of samples per-process.
         def evaluate():
             crossentropy = torch.nn.CrossEntropyLoss()
-            testAcc1 = AverageMeter()
-            testAcc5 = AverageMeter()
-            test_loss = AverageMeter()
+
+            target_encoder.eval()              
+            supervised_sampler_val.set_epoch(epoch) # -- Enable shuffling to reduce monitor bias
             
-            target_encoder.eval()
-            start_time = time.time()
+            #start_time = time.time()
             for cnt, (val_data, masks_enc, masks_pred) in enumerate(supervised_loader_val):
                 images = val_data[0].to(device, non_blocking=True)
                 labels = val_data[1].to(device, non_blocking=True)
-
                 
                 with torch.no_grad(): 
                     with torch.cuda.amp.autocast():
@@ -504,17 +513,17 @@ def main(args, resume_preempt=False):
                 testAcc1.update(acc1)
                 testAcc5.update(acc5)
                 test_loss.update(loss)
-            vtime = time.time() - start_time
-
-            print('* Acc@1 {top1.avg:.3f} Acc@5 {top5.avg:.3f} loss {losses.avg:.3f}'
-                    .format(top1=testAcc1, top5=testAcc5, losses=test_loss))
-            return (testAcc1, testAcc5, test_loss), vtime 
-        (testAcc1, testAcc5, test_loss), vtime = evaluate() 
+            #vtime = time.time() - start_time            
+            #return (testAcc1, testAcc5, test_loss)#, vtime 
+        #(testAcc1, testAcc5, test_loss), vtime = gpu_timer(evaluate)
+        vtime = gpu_timer(evaluate)
+        print('* Acc@1 {top1.avg:.3f} Acc@5 {top5.avg:.3f} Test loss {losses.avg:.3f}'.format(top1=testAcc1, top5=testAcc5, losses=test_loss))
         
         # -- Logging
         def log_test():
             csv_logger.log(epoch + 1, test_loss.val, testAcc1.avg, testAcc5.avg, vtime)
-            if (itr % log_freq == 0) or np.isnan(test_loss) or np.isinf(test_loss):
+            if (itr % log_freq == 0) or np.isnan(test_loss) or np.isinf(test_loss): # TODO: fix TypeError: ufunc 'isnan' not supported for the input types, and the inputs could not be safely coerced to any supported types according to the casting rule ''safe''
+
                 logger.info('[%d] test_loss: %.3f '
                             ' - test_acc1 - [%.3f], test_acc5 - [%.3f]'
                             '[mem: %.2e] '
@@ -525,12 +534,12 @@ def main(args, resume_preempt=False):
                                 testAcc1.avg, testAcc5.avg,
                                 torch.cuda.max_memory_allocated() / 1024.**2,
                                 vtime))
-        log_test()
+        #log_test()
 
         # -- Save Checkpoint after every epoch
         logger.info('avg. train_loss %.3f' % loss_meter.avg)
         logger.info('avg. test_loss %.3f avg. Accuracy@1 %.3f - avg. Accuracy@1 %.3f' % (test_loss.avg, testAcc1.val, testAcc5.val))
-        save_checkpoint(epoch+1)
+        #save_checkpoint(epoch+1)
         assert not np.isnan(loss), 'loss is nan'
         print('Loss:', loss)        
 
