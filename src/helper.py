@@ -66,6 +66,37 @@ def load_checkpoint(
 
     return encoder, predictor, target_encoder, opt, scaler, epoch
 
+def load_FT_checkpoint(
+    device,
+    r_path,
+    target_encoder,
+    opt,
+    scaler,
+):
+    try:
+        checkpoint = torch.load(r_path, map_location=torch.device('cpu'))
+        epoch = checkpoint['epoch']
+
+        # -- loading target_encoder
+        if target_encoder is not None:
+            print(list(checkpoint.keys()))
+            pretrained_dict = checkpoint['target_encoder']
+            msg = target_encoder.load_state_dict(pretrained_dict)
+            logger.info(f'loaded pretrained encoder from epoch {epoch} with msg: {msg}')
+
+        # -- loading optimizer
+        opt.load_state_dict(checkpoint['opt'])
+        if scaler is not None:
+            scaler.load_state_dict(checkpoint['scaler'])
+        logger.info(f'loaded optimizers from epoch {epoch}')
+        logger.info(f'read-path: {r_path}')
+        del checkpoint
+
+    except Exception as e:
+        logger.info(f'Encountered exception when loading checkpoint {e}')
+        epoch = 0
+
+    return target_encoder, opt, scaler, epoch
 
 class FinetuningModel(nn.Module):
     def __init__(self, pretrained_model, drop_path, nb_classes):

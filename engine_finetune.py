@@ -47,6 +47,7 @@ from src.datasets.PlantCLEF2022 import make_PlantCLEF2022
 from src.helper import (
     add_classification_head,
     load_checkpoint,
+    load_FT_checkpoint,
     init_model,
     init_opt)
 from src.transforms import make_transforms
@@ -60,7 +61,7 @@ from timm.utils import accuracy
 # --
 log_timings = True
 log_freq = 100
-checkpoint_freq = 10
+checkpoint_freq = 5
 # --
 
 _GLOBAL_SEED = 0
@@ -105,8 +106,6 @@ def main(args, resume_preempt=False):
     reprob = args['data']['reprob']
     nb_classes = args['data']['nb_classes']
 
-    eval_epoch = args['optimization']['eval_epoch'] # TODO CHECK where it is used []
-
     # --
     batch_size = args['data']['batch_size']
     pin_mem = args['data']['pin_mem']
@@ -115,6 +114,7 @@ def main(args, resume_preempt=False):
     image_folder = args['data']['image_folder']
     crop_size = args['data']['crop_size']
     crop_scale = args['data']['crop_scale']
+    resume_epoch = args['data']['resume_epoch']
 
     # --
 
@@ -172,8 +172,9 @@ def main(args, resume_preempt=False):
     if load_model:
         load_path = '/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/' + 'IN1K-vit.h.14-300e.pth.tar' #os.path.join(folder, r_file) if r_file is not None else latest_path
     
-    #if load_model:
-    #    load_path = os.path.join(folder, r_file) if r_file is not None else latest_path
+    if resume_epoch > 0:
+        r_file = 'jepa-ep{}.pth.tar'.format(resume_epoch + 1)
+        load_path = os.path.join(folder, r_file) if r_file is not None else latest_path
 
     # -- make csv_logger
     csv_logger = CSVLogger(log_file,
@@ -302,28 +303,6 @@ def main(args, resume_preempt=False):
     else:
         criterion = torch.nn.CrossEntropyLoss()
 
-    '''
-    # TODO (Fine-tuning parameters) according to ViT Paper:
-         _______________________________________________
-        |        config          |          value      |
-        |------------------------|----------------------      
-        | optimizer              |      AdamW          | [x]
-        | base learning rate     |      1e-3           | [x]
-        | weight decay           |      0.05           | [?]  
-        | optimizer momentum     | β1 , β2 =0.9, 0.999 | [x]    
-        | layer-wise lr decay    |      0.75           | [ ]
-        | batch size             |      1024           | [x]
-        | learning rate schedule |  cosine decay       | [x]
-        | warmup epochs          |      5              | [x]
-        | training epochs        | 100 (B), 50 (L/H)   | [x]
-        | augmentation           | RandAug (9, 0.5)    | [x]
-        | label smoothing        |      0.1            | [x]
-        | mixup                  |      0.8            | [x]
-        | cutmix                 |      1.0            | [x]
-        | drop path [30]         |  0.1 (B/L) 0.2 (H)  | [x]
-        -----------------------------------------------
-    '''    
-
     # lr = base lr × batchsize / 256. (learning rate formula).
 
     # -- # -- # -- #
@@ -331,30 +310,19 @@ def main(args, resume_preempt=False):
     predictor = DistributedDataParallel(predictor, static_graph=True)
     target_encoder = DistributedDataParallel(target_encoder)
 
-    # TODO:
-    # (1) - Make checkpoint a requirement[]
-    # (2) - Iterate optmizers when resuming training[]
-    # -- load training checkpoint
-    if load_model:
+    # -- Load ImageNet weights
+    if resume_epoch == 0:    
         encoder, predictor, target_encoder, optimizer, scaler, start_epoch = load_checkpoint(
             device=device,
             r_path=load_path,
             encoder=encoder,
             predictor=predictor,
             target_encoder=target_encoder,
-            opt=optimizer, #TODO: check[]
+            opt=optimizer,
             scaler=scaler)
-        #for _ in range(start_epoch*ipe):
-        #    scheduler.step()
-        #    wd_scheduler.step()
-        #    next(momentum_scheduler)
-        #    mask_collator.step()
     
-    # TODO: Implement
     def save_checkpoint(epoch):
         save_dict = {
-            #'encoder': encoder.state_dict(),
-            #'predictor': predictor.state_dict(),
             'target_encoder': target_encoder.state_dict(),
             'opt': optimizer.state_dict(),
             'scaler': None if scaler is None else scaler.state_dict(),
@@ -373,7 +341,6 @@ def main(args, resume_preempt=False):
     for p in target_encoder.parameters():
         p.requires_grad = True
     target_encoder = add_classification_head(target_encoder, nb_classes=nb_classes, drop_path=drop_path, device=device)
-
     # -- Override previously loaded optimization configs.
     optimizer, scaler, scheduler, wd_scheduler = init_opt(
         encoder=target_encoder,
@@ -388,8 +355,20 @@ def main(args, resume_preempt=False):
         num_epochs=num_epochs,
         ipe_scale=ipe_scale,
         use_bfloat16=use_bfloat16)
-    
     target_encoder = DistributedDataParallel(target_encoder, static_graph=True) # Static Graph: the set of used and unused parameters will not change during the whole training loop.
+    
+    if resume_epoch != 0:
+        target_encoder, optimizer, scaler, start_epoch = load_FT_checkpoint(
+            device=device,
+            r_path=load_path,
+            target_encoder=target_encoder,
+            opt=optimizer,
+            scaler=scaler)
+        for _ in range(resume_epoch*ipe):
+            scheduler.step()
+            wd_scheduler.step()
+            mask_collator.step() # no use
+
     logger.info(target_encoder)
 
     # -- Remove from device once they are required for loading pretrained parameters only
@@ -398,10 +377,11 @@ def main(args, resume_preempt=False):
 
     # TODO: 
     # Future work:
-    # Accumulate iterations[]
+    # Accumulate iterations[] see ~ https://medium.com/@harshit158/gradient-accumulation-307de7599e87
     # Add gradient clipping[] (see MAE -> util/misc.py -> NativeScalerWithGradNormCount)
     # Add layerwise lr decay[]
-    start_epoch = 0
+
+    start_epoch = resume_epoch
     # -- TRAINING LOOP
     for epoch in range(start_epoch, num_epochs):
         
@@ -431,11 +411,12 @@ def main(args, resume_preempt=False):
                          
                 def loss_fn(h, targets):
                     loss = criterion(h, targets)
-                    
+                    #loss = AllReduce.apply(loss) # TODO: verify[]
+
                     # It is not necessary to use another allreduce to sum all loss. 
                     # Additional allreduce might have considerable negative impact on training speed.
                     # See: https://discuss.pytorch.org/t/distributeddataparallel-loss-compute-and-backpropogation/47205/4
-                    #loss = AllReduce.apply(loss) # TODO: check[]
+                    
                     return loss
                             
                 # Step 1. Forward
@@ -498,7 +479,6 @@ def main(args, resume_preempt=False):
             target_encoder.eval()              
             supervised_sampler_val.set_epoch(epoch) # -- Enable shuffling to reduce monitor bias
             
-            #start_time = time.time()
             for cnt, (val_data, masks_enc, masks_pred) in enumerate(supervised_loader_val):
                 images = val_data[0].to(device, non_blocking=True)
                 labels = val_data[1].to(device, non_blocking=True)
@@ -513,11 +493,9 @@ def main(args, resume_preempt=False):
                 testAcc1.update(acc1)
                 testAcc5.update(acc5)
                 test_loss.update(loss)
-            #vtime = time.time() - start_time            
-            #return (testAcc1, testAcc5, test_loss)#, vtime 
         #(testAcc1, testAcc5, test_loss), vtime = gpu_timer(evaluate)
         vtime = gpu_timer(evaluate)
-        print('* Acc@1 {top1.avg:.3f} Acc@5 {top5.avg:.3f} Test loss {losses.avg:.3f}'.format(top1=testAcc1, top5=testAcc5, losses=test_loss))
+        logger.info('* Acc@1 {top1.avg:.3f} Acc@5 {top5.avg:.3f} Test loss {losses.avg:.3f}'.format(top1=testAcc1, top5=testAcc5, losses=test_loss))
         
         # -- Logging
         def log_test():
@@ -539,7 +517,7 @@ def main(args, resume_preempt=False):
         # -- Save Checkpoint after every epoch
         logger.info('avg. train_loss %.3f' % loss_meter.avg)
         logger.info('avg. test_loss %.3f avg. Accuracy@1 %.3f - avg. Accuracy@1 %.3f' % (test_loss.avg, testAcc1.val, testAcc5.val))
-        #save_checkpoint(epoch+1)
+        save_checkpoint(epoch+1)
         assert not np.isnan(loss), 'loss is nan'
         print('Loss:', loss)        
 
