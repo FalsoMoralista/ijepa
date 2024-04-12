@@ -269,3 +269,8 @@ Training dataset, length: 584640
 Val dataset, length: 136512
 Mixup is activated!
 ['target_encoder', 'opt', 'scaler', 'epoch', 'loss', 'batch_size', 'world_size', 'lr']
+INFO:root:[8,     0/ 6090] train_loss: 9.860 [wd: 6.67e-02] [lr: 1.99e-03] [mem: 6.67e+04] (5012.1 ms)
+INFO:root:[8,     0] grad_stats: [5.16e-02 4.56e-03] (3.62e-03, 2.53e-01)
+INFO:torch.nn.parallel.distributed:Reducer buckets have been rebuilt in this iteration.
+INFO:root:[8,   100/ 6090] train_loss: 8.941 [wd: 6.67e-02] [lr: 1.99e-03] [mem: 6.67e+04] (963.2 ms)
+INFO:root:[8,   100] grad_stats: [6.22e-02 4.30e-03] (3.49e-03, 2.59e-01)
