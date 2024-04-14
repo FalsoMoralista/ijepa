@@ -17,7 +17,7 @@ data:
   use_color_distortion: false
   use_gaussian_blur: false
   use_horizontal_flip: false
-  resume_epoch: 7
+  resume_epoch: 0
 logging:
   folder: /home/rtcalumby/adam/luciano/LifeCLEFPlant2022/logs/inet_feature_extraction
   write_tag: jepa
@@ -52,8 +52,8 @@ optimization:
   final_lr: 1.0e-06 # Default: 1e-6
   final_weight_decay: 0.4 
   ipe_scale: 1.0
-  lr: 2.0e-03 #0.0007 # Default 0.0015 -> lr = base lr × batchsize / 256. (learning rate formula). /0.0007
-  start_lr: 8.0e-05 #0.00001 # Default: 0.0002 
+  lr: 1.0e-04 #0.0007 # Default 0.0015 -> lr = base lr × batchsize / 256. (learning rate formula). /0.0007
+  start_lr: 2.5e-05 #0.00001 # Default: 0.0002 
   warmup: 5
   weight_decay: 0.05
   label_smoothing: 0.1

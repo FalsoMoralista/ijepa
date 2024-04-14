@@ -17,6 +17,7 @@ from src.utils.schedulers import (
 from src.utils.tensors import trunc_normal_
 import torch.nn  as nn
 import torch.nn.functional as F
+from torch import inf 
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 logger = logging.getLogger()
@@ -109,10 +110,10 @@ class FinetuningModel(nn.Module):
         self.pretrained_model.layer_dropout = self.drop_path 
 
         self.average_pool = nn.AvgPool1d((self.pretrained_model.patch_embed.num_patches), stride=1)
+        self.head_drop = nn.Dropout(drop_path)
 
         # TODO: 
         # (1) - Verify if layer norm still necessary, considering that it is already performed in the ouput of the target encoder's features[]
-        # (2) - Check how is it the mlp head is added into the ViT-MAE[]  
         self.mlp_head = nn.Sequential(
             nn.LayerNorm(self.pretrained_model.embed_dim),
             nn.Linear(self.pretrained_model.embed_dim, self.nb_classes)
@@ -123,7 +124,8 @@ class FinetuningModel(nn.Module):
         x = F.layer_norm(x, (x.size(-1),))  # normalize over feature-dim - This was added to match the implementation at the "forward target" function but i don't see very much the point as the model has one layer as this in its output. 
         x = self.average_pool(x.transpose(1, 2)).transpose(1, 2) # conduct average pool like in paper
         x = x.squeeze(1)
-        x = self.mlp_head(x) #pass through mlp head
+        x = self.head_drop(x) # This is applied in timm models.
+        x = self.mlp_head(x) #pass through mlp head.
         return x
     
 def add_classification_head(pretrained_model, drop_path, nb_classes, device):
@@ -131,6 +133,52 @@ def add_classification_head(pretrained_model, drop_path, nb_classes, device):
     model.to(device)
     return model         
         
+
+# Borrowed from MAE.
+class NativeScalerWithGradNormCount:
+    state_dict_key = "amp_scaler"
+
+    def __init__(self):
+        self._scaler = torch.cuda.amp.GradScaler()
+
+    def __call__(self, loss, optimizer, clip_grad=None, parameters=None, create_graph=False, update_grad=True):
+        self._scaler.scale(loss).backward(create_graph=create_graph)
+        if update_grad:
+            if clip_grad is not None:
+                assert parameters is not None
+                self._scaler.unscale_(optimizer)  # unscale the gradients of optimizer's assigned params in-place
+                norm = torch.nn.utils.clip_grad_norm_(parameters, clip_grad)
+            else:
+                self._scaler.unscale_(optimizer)
+                norm = get_grad_norm_(parameters)
+            self._scaler.step(optimizer)
+            self._scaler.update()
+        else:
+            norm = None
+        return norm
+
+    def state_dict(self):
+        return self._scaler.state_dict()
+
+    def load_state_dict(self, state_dict):
+        self._scaler.load_state_dict(state_dict)
+
+
+def get_grad_norm_(parameters, norm_type: float = 2.0) -> torch.Tensor:
+    if isinstance(parameters, torch.Tensor):
+        parameters = [parameters]
+    parameters = [p for p in parameters if p.grad is not None]
+    norm_type = float(norm_type)
+    if len(parameters) == 0:
+        return torch.tensor(0.)
+    device = parameters[0].grad.device
+    if norm_type == inf:
+        total_norm = max(p.grad.detach().abs().max().to(device) for p in parameters)
+    else:
+        total_norm = torch.norm(torch.stack([torch.norm(p.grad.detach(), norm_type).to(device) for p in parameters]), norm_type)
+    return total_norm
+
+
 def init_model(
     device,
     patch_size=16,
@@ -168,7 +216,6 @@ def init_model(
     predictor.to(device)
     logger.info(encoder)
     return encoder, predictor
-
 
 def init_opt(
     encoder,
@@ -225,4 +272,62 @@ def init_opt(
         final_wd=final_wd,
         T_max=int(ipe_scale*num_epochs*iterations_per_epoch))
     scaler = torch.cuda.amp.GradScaler() if use_bfloat16 else None
+    return optimizer, scaler, scheduler, wd_scheduler
+
+
+def init_FT_opt(
+    encoder,
+    predictor,
+    iterations_per_epoch,
+    start_lr,
+    ref_lr,
+    warmup,
+    num_epochs,
+    wd=1e-6,
+    final_wd=1e-6,
+    final_lr=0.0,
+    use_bfloat16=False,
+    ipe_scale=1.25
+):
+    param_groups = [
+        {
+            'params': (p for n, p in encoder.named_parameters()
+                       if ('bias' not in n) and (len(p.shape) != 1))
+        }, {
+            'params': (p for n, p in predictor.named_parameters()
+                       if ('bias' not in n) and (len(p.shape) != 1))
+        }, {
+            'params': (p for n, p in encoder.named_parameters()
+                       if ('bias' in n) or (len(p.shape) == 1)),
+            'WD_exclude': True,
+            'weight_decay': 0 
+        }, {
+            'params': (p for n, p in predictor.named_parameters()
+                       if ('bias' in n) or (len(p.shape) == 1)),
+            'WD_exclude': True,
+            'weight_decay': 0
+        }
+    ]
+
+    # -- TODO [] : Verify whether param_groups is equivalent to the code below:
+    # From utils.lr_decay
+    #lrd.param_groups_lrd(model_without_ddp, 0.05,
+    #    no_weight_decay_list=model_without_ddp.no_weight_decay(),
+    #    layer_decay=0.75)
+
+    logger.info('Using AdamW')
+    optimizer = torch.optim.AdamW(param_groups)
+    scheduler = WarmupCosineSchedule(
+        optimizer,
+        warmup_steps=int(warmup*iterations_per_epoch),
+        start_lr=start_lr,
+        ref_lr=ref_lr,
+        final_lr=final_lr,
+        T_max=int(ipe_scale*num_epochs*iterations_per_epoch))
+    wd_scheduler = CosineWDSchedule(
+        optimizer,
+        ref_wd=wd,
+        final_wd=final_wd,
+        T_max=int(ipe_scale*num_epochs*iterations_per_epoch))
+    scaler = NativeScalerWithGradNormCount() if use_bfloat16 else None
     return optimizer, scaler, scheduler, wd_scheduler

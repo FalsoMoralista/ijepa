@@ -49,7 +49,9 @@ from src.helper import (
     load_checkpoint,
     load_FT_checkpoint,
     init_model,
-    init_opt)
+    init_opt,
+    init_FT_opt
+    )
 from src.transforms import make_transforms
 import time
 
@@ -342,7 +344,7 @@ def main(args, resume_preempt=False):
         p.requires_grad = True
     target_encoder = add_classification_head(target_encoder, nb_classes=nb_classes, drop_path=drop_path, device=device)
     # -- Override previously loaded optimization configs.
-    optimizer, scaler, scheduler, wd_scheduler = init_opt(
+    optimizer, scaler, scheduler, wd_scheduler = init_FT_opt(
         encoder=target_encoder,
         predictor=predictor,
         wd=wd,
@@ -376,12 +378,14 @@ def main(args, resume_preempt=False):
     del predictor
 
     # TODO: 
-    # Future work:
-    # Accumulate iterations[] see ~ https://medium.com/@harshit158/gradient-accumulation-307de7599e87
-    # Add gradient clipping[] (see MAE -> util/misc.py -> NativeScalerWithGradNormCount)
     # Add layerwise lr decay[]
-
+    
+    accum_iter = 2
     start_epoch = resume_epoch
+
+    _new_lr = scheduler.step()
+    _new_wd = wd_scheduler.step()
+
     # -- TRAINING LOOP
     for epoch in range(start_epoch, num_epochs):
         
@@ -405,18 +409,15 @@ def main(args, resume_preempt=False):
                 return (samples, targets)
             imgs, targets = load_imgs()
 
-            def train_step():               
-                _new_lr = scheduler.step()
-                _new_wd = wd_scheduler.step()
+            def train_step():    
                          
                 def loss_fn(h, targets):
                     loss = criterion(h, targets)
-                    #loss = AllReduce.apply(loss) # TODO: verify[]
-
+                    #loss = AllReduce.apply(loss)
+                    # TODO: verify below.
                     # It is not necessary to use another allreduce to sum all loss. 
                     # Additional allreduce might have considerable negative impact on training speed.
-                    # See: https://discuss.pytorch.org/t/distributeddataparallel-loss-compute-and-backpropogation/47205/4
-                    
+                    # See: https://discuss.pytorch.org/t/distributeddataparallel-loss-compute-and-backpropogation/47205/4                    
                     return loss
                             
                 # Step 1. Forward
@@ -426,20 +427,28 @@ def main(args, resume_preempt=False):
 
                 #  Step 2. Backward & step
                 if use_bfloat16:
-                    scaler.scale(loss).backward()
-                    scaler.step(optimizer)
-                    scaler.update()
+                    #loss /= accum_iter
+                    scaler(loss, optimizer, clip_grad=None,
+                                parameters=target_encoder.parameters(), create_graph=False,
+                                update_grad=(itr + 1) % accum_iter == 0)
                 else:
                     loss.backward()
                     optimizer.step()
+
                 grad_stats = grad_logger(target_encoder.named_parameters())
-                optimizer.zero_grad()
-                
-                return (float(loss), _new_lr, _new_wd, grad_stats)
-            (loss, _new_lr, _new_wd, grad_stats), etime = gpu_timer(train_step)
+                if (itr + 1) % accum_iter == 0:
+                    optimizer.zero_grad()
+
+                return (float(loss), grad_stats)
+            
+            if (itr + 1)  % accum_iter == 0:
+                _new_lr = scheduler.step()
+                _new_wd = wd_scheduler.step()
+
+            (loss, grad_stats), etime = gpu_timer(train_step)
             
             loss_meter.update(loss)
-            time_meter.update(etime)      
+            time_meter.update(etime)
 
             # -- Logging
             def log_stats():
@@ -467,7 +476,7 @@ def main(args, resume_preempt=False):
             log_stats()
 
         testAcc1 = AverageMeter()
-        testAcc5 = AverageMeter() # Moving those outside the test area will allow averaging between different processes? 
+        testAcc5 = AverageMeter()
         test_loss = AverageMeter()
 
         # Warning: Enabling distributed evaluation with an eval dataset not divisible by process number
@@ -493,7 +502,7 @@ def main(args, resume_preempt=False):
                 testAcc1.update(acc1)
                 testAcc5.update(acc5)
                 test_loss.update(loss)
-        #(testAcc1, testAcc5, test_loss), vtime = gpu_timer(evaluate)
+        
         vtime = gpu_timer(evaluate)
         logger.info('* Acc@1 {top1.avg:.3f} Acc@5 {top5.avg:.3f} Test loss {losses.avg:.3f}'.format(top1=testAcc1, top5=testAcc5, losses=test_loss))
         
@@ -516,7 +525,7 @@ def main(args, resume_preempt=False):
 
         # -- Save Checkpoint after every epoch
         logger.info('avg. train_loss %.3f' % loss_meter.avg)
-        logger.info('avg. test_loss %.3f avg. Accuracy@1 %.3f - avg. Accuracy@1 %.3f' % (test_loss.avg, testAcc1.val, testAcc5.val))
+        logger.info('avg. test_loss %.3f avg. Accuracy@1 %.3f - avg. Accuracy@5 %.3f' % (test_loss.avg, testAcc1.avg, testAcc5.avg))
         save_checkpoint(epoch+1)
         assert not np.isnan(loss), 'loss is nan'
         print('Loss:', loss)        
