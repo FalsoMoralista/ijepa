@@ -36,51 +36,22 @@ INFO:root:loaded params...
                 'use_bfloat16': True},
     'optimization': {   'ema': [0.9, 0.999],
                         'epochs': 50,
-                        'final_lr': 1e-06,
+                        'final_lr': 5e-05,
                         'final_weight_decay': 0.4,
                         'ipe_scale': 1.0,
                         'label_smoothing': 0.1,
-                        'lr': 0.0001,
-                        'start_lr': 2.5e-05,
+                        'lr': 0.0025,
+                        'start_lr': 0.001,
                         'warmup': 5,
                         'weight_decay': 0.05}}
 INFO:torch.distributed.distributed_c10d:Added key: store_based_barrier_key:1 to store for rank: 0
 INFO:torch.distributed.distributed_c10d:Rank 0: Completed store-based barrier for key:store_based_barrier_key:1 with 4 nodes.
 INFO:root:Running... (rank: 0/4)
 INFO:root:Initialized (rank/world-size) 0/4
-INFO:root:VisionTransformer(
-  (patch_embed): PatchEmbed(
-    (proj): Conv2d(3, 1280, kernel_size=(14, 14), stride=(14, 14))
-  )
-  (blocks): ModuleList(
-    (0-31): 32 x Block(
-      (norm1): LayerNorm((1280,), eps=1e-06, elementwise_affine=True)
-      (attn): Attention(
-        (qkv): Linear(in_features=1280, out_features=3840, bias=True)
-        (attn_drop): Dropout(p=0.0, inplace=False)
-        (proj): Linear(in_features=1280, out_features=1280, bias=True)
-        (proj_drop): Dropout(p=0.0, inplace=False)
-      )
-      (drop_path): Identity()
-      (norm2): LayerNorm((1280,), eps=1e-06, elementwise_affine=True)
-      (mlp): MLP(
-        (fc1): Linear(in_features=1280, out_features=5120, bias=True)
-        (act): GELU(approximate='none')
-        (fc2): Linear(in_features=5120, out_features=1280, bias=True)
-        (drop): Dropout(p=0.0, inplace=False)
-      )
-    )
-  )
-  (norm): LayerNorm((1280,), eps=1e-06, elementwise_affine=True)
-)
 INFO:root:making imagenet data transforms
 INFO:root:making imagenet data transforms
-INFO:root:data-path /home/rtcalumby/adam/luciano/LifeCLEFPlant2022/train/
-INFO:root:Initialized PC2022
 INFO:root:PlantCLEF dataset created
 Training dataset, length: 584640
-INFO:root:data-path /home/rtcalumby/adam/luciano/LifeCLEFPlant2022/val/
-INFO:root:Initialized PC2022
 INFO:root:PlantCLEF dataset created
 Val dataset, length: 136512
 INFO:root:Using AdamW
@@ -92,6 +63,102 @@ INFO:root:loaded pretrained encoder from epoch 299 with msg: <All keys matched s
 INFO:root:loaded optimizers from epoch 299
 INFO:root:read-path: /home/rtcalumby/adam/luciano/LifeCLEFPlant2022/IN1K-vit.h.14-300e.pth.tar
 INFO:root:Using AdamW
+{   'data': {   'batch_size': 96,
+                'color_jitter_strength': 0.0,
+                'crop_scale': [0.3, 1.0],
+                'crop_size': 224,
+                'cutmix': 1.0,
+                'drop_path': 0.25,
+                'image_folder': 'LifeCLEFPlant2022/',
+                'mixup': 0.8,
+                'nb_classes': 80000,
+                'num_workers': 32,
+                'pin_mem': True,
+                'reprob': 0.25,
+                'resume_epoch': 0,
+                'root_path': '/home/rtcalumby/adam/luciano/',
+                'use_color_distortion': False,
+                'use_gaussian_blur': False,
+                'use_horizontal_flip': False},
+    'logging': {   'folder': '/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/logs/inet_feature_extraction',
+                   'write_tag': 'jepa'},
+    'mask': {   'allow_overlap': False,
+                'aspect_ratio': [0.75, 1.5],
+                'enc_mask_scale': [0.85, 1.0],
+                'min_keep': 10,
+                'num_enc_masks': 1,
+                'num_pred_masks': 4,
+                'patch_size': 14,
+                'pred_mask_scale': [0.15, 0.2]},
+    'meta': {   'copy_data': False,
+                'load_checkpoint': True,
+                'model_name': 'vit_huge',
+                'pred_depth': 12,
+                'pred_emb_dim': 384,
+                'read_checkpoint': None,
+                'use_bfloat16': True},
+    'optimization': {   'ema': [0.9, 0.999],
+                        'epochs': 50,
+                        'final_lr': 5e-05,
+                        'final_weight_decay': 0.4,
+                        'ipe_scale': 1.0,
+                        'label_smoothing': 0.1,
+                        'lr': 0.0025,
+                        'start_lr': 0.001,
+                        'warmup': 5,
+                        'weight_decay': 0.05}}
+Training dataset, length: 584640
+Val dataset, length: 136512
+Mixup is activated!
+['encoder', 'predictor', 'opt', 'scaler', 'target_encoder', 'epoch', 'loss', 'batch_size', 'world_size', 'lr']
+{   'data': {   'batch_size': 96,
+                'color_jitter_strength': 0.0,
+                'crop_scale': [0.3, 1.0],
+                'crop_size': 224,
+                'cutmix': 1.0,
+                'drop_path': 0.25,
+                'image_folder': 'LifeCLEFPlant2022/',
+                'mixup': 0.8,
+                'nb_classes': 80000,
+                'num_workers': 32,
+                'pin_mem': True,
+                'reprob': 0.25,
+                'resume_epoch': 0,
+                'root_path': '/home/rtcalumby/adam/luciano/',
+                'use_color_distortion': False,
+                'use_gaussian_blur': False,
+                'use_horizontal_flip': False},
+    'logging': {   'folder': '/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/logs/inet_feature_extraction',
+                   'write_tag': 'jepa'},
+    'mask': {   'allow_overlap': False,
+                'aspect_ratio': [0.75, 1.5],
+                'enc_mask_scale': [0.85, 1.0],
+                'min_keep': 10,
+                'num_enc_masks': 1,
+                'num_pred_masks': 4,
+                'patch_size': 14,
+                'pred_mask_scale': [0.15, 0.2]},
+    'meta': {   'copy_data': False,
+                'load_checkpoint': True,
+                'model_name': 'vit_huge',
+                'pred_depth': 12,
+                'pred_emb_dim': 384,
+                'read_checkpoint': None,
+                'use_bfloat16': True},
+    'optimization': {   'ema': [0.9, 0.999],
+                        'epochs': 50,
+                        'final_lr': 5e-05,
+                        'final_weight_decay': 0.4,
+                        'ipe_scale': 1.0,
+                        'label_smoothing': 0.1,
+                        'lr': 0.0025,
+                        'start_lr': 0.001,
+                        'warmup': 5,
+                        'weight_decay': 0.05}}
+Training dataset, length: 584640
+Val dataset, length: 136512
+Mixup is activated!
+['encoder', 'predictor', 'opt', 'scaler', 'target_encoder', 'epoch', 'loss', 'batch_size', 'world_size', 'lr']
 INFO:root:DistributedDataParallel(
   (module): FinetuningModel(
     (pretrained_model): VisionTransformer(
@@ -120,11 +187,9 @@ INFO:root:DistributedDataParallel(
       (norm): LayerNorm((1280,), eps=1e-06, elementwise_affine=True)
     )
     (average_pool): AvgPool1d(kernel_size=(256,), stride=(1,), padding=(0,))
+    (norm): LayerNorm((1280,), eps=1e-05, elementwise_affine=True)
     (head_drop): Dropout(p=0.25, inplace=False)
-    (mlp_head): Sequential(
-      (0): LayerNorm((1280,), eps=1e-05, elementwise_affine=True)
-      (1): Linear(in_features=1280, out_features=80000, bias=True)
-    )
+    (mlp_head): Linear(in_features=1280, out_features=80000, bias=True)
   )
 )
 INFO:root:Epoch 1
@@ -164,546 +229,36 @@ INFO:root:Epoch 1
                 'use_bfloat16': True},
     'optimization': {   'ema': [0.9, 0.999],
                         'epochs': 50,
-                        'final_lr': 1e-06,
+                        'final_lr': 5e-05,
                         'final_weight_decay': 0.4,
                         'ipe_scale': 1.0,
                         'label_smoothing': 0.1,
-                        'lr': 0.0001,
-                        'start_lr': 2.5e-05,
+                        'lr': 0.0025,
+                        'start_lr': 0.001,
                         'warmup': 5,
                         'weight_decay': 0.05}}
 Training dataset, length: 584640
 Val dataset, length: 136512
 Mixup is activated!
 ['encoder', 'predictor', 'opt', 'scaler', 'target_encoder', 'epoch', 'loss', 'batch_size', 'world_size', 'lr']
-{   'data': {   'batch_size': 96,
-                'color_jitter_strength': 0.0,
-                'crop_scale': [0.3, 1.0],
-                'crop_size': 224,
-                'cutmix': 1.0,
-                'drop_path': 0.25,
-                'image_folder': 'LifeCLEFPlant2022/',
-                'mixup': 0.8,
-                'nb_classes': 80000,
-                'num_workers': 32,
-                'pin_mem': True,
-                'reprob': 0.25,
-                'resume_epoch': 0,
-                'root_path': '/home/rtcalumby/adam/luciano/',
-                'use_color_distortion': False,
-                'use_gaussian_blur': False,
-                'use_horizontal_flip': False},
-    'logging': {   'folder': '/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/logs/inet_feature_extraction',
-                   'write_tag': 'jepa'},
-    'mask': {   'allow_overlap': False,
-                'aspect_ratio': [0.75, 1.5],
-                'enc_mask_scale': [0.85, 1.0],
-                'min_keep': 10,
-                'num_enc_masks': 1,
-                'num_pred_masks': 4,
-                'patch_size': 14,
-                'pred_mask_scale': [0.15, 0.2]},
-    'meta': {   'copy_data': False,
-                'load_checkpoint': True,
-                'model_name': 'vit_huge',
-                'pred_depth': 12,
-                'pred_emb_dim': 384,
-                'read_checkpoint': None,
-                'use_bfloat16': True},
-    'optimization': {   'ema': [0.9, 0.999],
-                        'epochs': 50,
-                        'final_lr': 1e-06,
-                        'final_weight_decay': 0.4,
-                        'ipe_scale': 1.0,
-                        'label_smoothing': 0.1,
-                        'lr': 0.0001,
-                        'start_lr': 2.5e-05,
-                        'warmup': 5,
-                        'weight_decay': 0.05}}
-Training dataset, length: 584640
-Val dataset, length: 136512
-Mixup is activated!
-['encoder', 'predictor', 'opt', 'scaler', 'target_encoder', 'epoch', 'loss', 'batch_size', 'world_size', 'lr']
-{   'data': {   'batch_size': 96,
-                'color_jitter_strength': 0.0,
-                'crop_scale': [0.3, 1.0],
-                'crop_size': 224,
-                'cutmix': 1.0,
-                'drop_path': 0.25,
-                'image_folder': 'LifeCLEFPlant2022/',
-                'mixup': 0.8,
-                'nb_classes': 80000,
-                'num_workers': 32,
-                'pin_mem': True,
-                'reprob': 0.25,
-                'resume_epoch': 0,
-                'root_path': '/home/rtcalumby/adam/luciano/',
-                'use_color_distortion': False,
-                'use_gaussian_blur': False,
-                'use_horizontal_flip': False},
-    'logging': {   'folder': '/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/logs/inet_feature_extraction',
-                   'write_tag': 'jepa'},
-    'mask': {   'allow_overlap': False,
-                'aspect_ratio': [0.75, 1.5],
-                'enc_mask_scale': [0.85, 1.0],
-                'min_keep': 10,
-                'num_enc_masks': 1,
-                'num_pred_masks': 4,
-                'patch_size': 14,
-                'pred_mask_scale': [0.15, 0.2]},
-    'meta': {   'copy_data': False,
-                'load_checkpoint': True,
-                'model_name': 'vit_huge',
-                'pred_depth': 12,
-                'pred_emb_dim': 384,
-                'read_checkpoint': None,
-                'use_bfloat16': True},
-    'optimization': {   'ema': [0.9, 0.999],
-                        'epochs': 50,
-                        'final_lr': 1e-06,
-                        'final_weight_decay': 0.4,
-                        'ipe_scale': 1.0,
-                        'label_smoothing': 0.1,
-                        'lr': 0.0001,
-                        'start_lr': 2.5e-05,
-                        'warmup': 5,
-                        'weight_decay': 0.05}}
-Training dataset, length: 584640
-Val dataset, length: 136512
-Mixup is activated!
-['encoder', 'predictor', 'opt', 'scaler', 'target_encoder', 'epoch', 'loss', 'batch_size', 'world_size', 'lr']
-INFO:root:[1,     0/ 6090] train_loss: 11.404 [wd: 5.00e-02] [lr: 2.50e-05] [mem: 6.10e+04] (9627.5 ms)
-INFO:root:[1,     0] grad_stats: [5.92e+03 3.83e+04] (1.78e+03, 1.01e+05)
+INFO:root:[1,     0/ 6090] train_loss: 2.823 [wd: 5.00e-02] [lr: 1.00e-03] [mem: 6.09e+04] (6197.2 ms)
+INFO:root:[1,     0] grad_stats: [2.17e+00 1.50e+01] (7.05e-01, 2.91e+04)
 INFO:torch.nn.parallel.distributed:Reducer buckets have been rebuilt in this iteration.
-INFO:root:[1,   100/ 6090] train_loss: 11.408 [wd: 5.00e-02] [lr: 2.51e-05] [mem: 6.95e+04] (997.1 ms)
-INFO:root:[1,   100] grad_stats: [1.00e+03 1.67e+04] (3.29e+02, 1.02e+05)
-INFO:root:[1,   200/ 6090] train_loss: 11.341 [wd: 5.00e-02] [lr: 2.52e-05] [mem: 6.95e+04] (952.5 ms)
-INFO:root:[1,   200] grad_stats: [9.67e+02 1.57e+04] (3.20e+02, 1.03e+05)
-INFO:root:[1,   300/ 6090] train_loss: 11.288 [wd: 5.00e-02] [lr: 2.54e-05] [mem: 6.95e+04] (937.6 ms)
-INFO:root:[1,   300] grad_stats: [8.02e+02 1.42e+04] (2.95e+02, 1.03e+05)
-INFO:root:[1,   400/ 6090] train_loss: 11.247 [wd: 5.00e-02] [lr: 2.55e-05] [mem: 6.95e+04] (930.1 ms)
-INFO:root:[1,   400] grad_stats: [6.74e+02 1.35e+04] (2.97e+02, 1.01e+05)
-INFO:root:[1,   500/ 6090] train_loss: 11.219 [wd: 5.00e-02] [lr: 2.56e-05] [mem: 6.95e+04] (925.6 ms)
-INFO:root:[1,   500] grad_stats: [1.31e+02 1.28e+04] (4.62e+01, 1.01e+05)
-INFO:root:[1,   600/ 6090] train_loss: 11.194 [wd: 5.00e-02] [lr: 2.57e-05] [mem: 6.95e+04] (922.5 ms)
-INFO:root:[1,   600] grad_stats: [1.77e+02 1.16e+04] (3.10e+01, 1.07e+05)
-INFO:root:[1,   700/ 6090] train_loss: 11.172 [wd: 5.00e-02] [lr: 2.59e-05] [mem: 6.95e+04] (920.3 ms)
-INFO:root:[1,   700] grad_stats: [1.14e+02 9.98e+03] (2.19e+01, 1.00e+05)
-INFO:root:[1,   800/ 6090] train_loss: 11.153 [wd: 5.00e-02] [lr: 2.60e-05] [mem: 6.95e+04] (918.6 ms)
-INFO:root:[1,   800] grad_stats: [1.04e+02 9.75e+03] (3.79e+01, 1.01e+05)
-INFO:root:[1,   900/ 6090] train_loss: 11.139 [wd: 5.00e-02] [lr: 2.61e-05] [mem: 6.95e+04] (917.2 ms)
-INFO:root:[1,   900] grad_stats: [1.16e+02 8.83e+03] (3.46e+01, 1.00e+05)
-INFO:root:[1,  1000/ 6090] train_loss: 11.127 [wd: 5.00e-02] [lr: 2.62e-05] [mem: 6.95e+04] (916.2 ms)
-INFO:root:[1,  1000] grad_stats: [1.59e+02 8.08e+03] (8.83e+01, 1.04e+05)
-INFO:root:[1,  1100/ 6090] train_loss: 11.116 [wd: 5.00e-02] [lr: 2.64e-05] [mem: 6.95e+04] (915.4 ms)
-INFO:root:[1,  1100] grad_stats: [1.47e+02 8.49e+03] (6.26e+01, 1.00e+05)
-INFO:root:[1,  1200/ 6090] train_loss: 11.106 [wd: 5.00e-02] [lr: 2.65e-05] [mem: 6.95e+04] (914.7 ms)
-INFO:root:[1,  1200] grad_stats: [1.94e+02 7.93e+03] (8.29e+01, 1.01e+05)
-INFO:root:[1,  1300/ 6090] train_loss: 11.098 [wd: 5.00e-02] [lr: 2.66e-05] [mem: 6.95e+04] (914.2 ms)
-INFO:root:[1,  1300] grad_stats: [2.46e+02 7.51e+03] (1.38e+02, 1.00e+05)
-INFO:root:[1,  1400/ 6090] train_loss: 11.089 [wd: 5.00e-02] [lr: 2.67e-05] [mem: 6.95e+04] (913.7 ms)
-INFO:root:[1,  1400] grad_stats: [1.84e+02 7.45e+03] (1.01e+02, 1.00e+05)
-INFO:root:[1,  1500/ 6090] train_loss: 11.081 [wd: 5.00e-02] [lr: 2.68e-05] [mem: 6.95e+04] (913.2 ms)
-INFO:root:[1,  1500] grad_stats: [1.69e+02 7.20e+03] (1.02e+02, 1.03e+05)
-INFO:root:[1,  1600/ 6090] train_loss: 11.076 [wd: 5.00e-02] [lr: 2.70e-05] [mem: 6.95e+04] (912.9 ms)
-INFO:root:[1,  1600] grad_stats: [2.11e+02 7.67e+03] (1.49e+02, 1.00e+05)
-INFO:root:[1,  1700/ 6090] train_loss: 11.069 [wd: 5.00e-02] [lr: 2.71e-05] [mem: 6.95e+04] (912.5 ms)
-INFO:root:[1,  1700] grad_stats: [1.84e+02 6.79e+03] (1.20e+02, 9.96e+04)
-INFO:root:[1,  1800/ 6090] train_loss: 11.064 [wd: 5.00e-02] [lr: 2.72e-05] [mem: 6.95e+04] (912.2 ms)
-INFO:root:[1,  1800] grad_stats: [2.43e+02 6.30e+03] (1.30e+02, 1.03e+05)
-INFO:root:[1,  1900/ 6090] train_loss: 11.059 [wd: 5.00e-02] [lr: 2.73e-05] [mem: 6.95e+04] (912.0 ms)
-INFO:root:[1,  1900] grad_stats: [1.43e+02 6.42e+03] (1.03e+02, 1.00e+05)
-INFO:root:[1,  2000/ 6090] train_loss: 11.054 [wd: 5.00e-02] [lr: 2.75e-05] [mem: 6.95e+04] (911.8 ms)
-INFO:root:[1,  2000] grad_stats: [2.21e+02 6.31e+03] (1.07e+02, 1.00e+05)
-INFO:root:[1,  2100/ 6090] train_loss: 11.049 [wd: 5.00e-02] [lr: 2.76e-05] [mem: 6.95e+04] (911.6 ms)
-INFO:root:[1,  2100] grad_stats: [1.76e+02 6.39e+03] (1.07e+02, 1.02e+05)
-INFO:root:[1,  2200/ 6090] train_loss: 11.045 [wd: 5.00e-02] [lr: 2.77e-05] [mem: 6.95e+04] (911.5 ms)
-INFO:root:[1,  2200] grad_stats: [1.34e+02 6.04e+03] (7.14e+01, 9.92e+04)
-INFO:root:[1,  2300/ 6090] train_loss: 11.041 [wd: 5.00e-02] [lr: 2.78e-05] [mem: 6.95e+04] (911.3 ms)
-INFO:root:[1,  2300] grad_stats: [2.38e+02 6.63e+03] (1.28e+02, 1.02e+05)
-INFO:root:[1,  2400/ 6090] train_loss: 11.038 [wd: 5.00e-02] [lr: 2.80e-05] [mem: 6.95e+04] (911.1 ms)
-INFO:root:[1,  2400] grad_stats: [1.71e+02 5.47e+03] (8.13e+01, 9.86e+04)
-INFO:root:[1,  2500/ 6090] train_loss: 11.035 [wd: 5.00e-02] [lr: 2.81e-05] [mem: 6.95e+04] (911.0 ms)
-INFO:root:[1,  2500] grad_stats: [2.98e+02 6.94e+03] (1.49e+02, 9.81e+04)
-INFO:root:[1,  2600/ 6090] train_loss: 11.032 [wd: 5.00e-02] [lr: 2.82e-05] [mem: 6.95e+04] (910.8 ms)
-INFO:root:[1,  2600] grad_stats: [2.19e+02 6.22e+03] (1.35e+02, 1.00e+05)
-INFO:root:[1,  2700/ 6090] train_loss: 11.030 [wd: 5.00e-02] [lr: 2.83e-05] [mem: 6.95e+04] (910.7 ms)
-INFO:root:[1,  2700] grad_stats: [2.13e+02 5.74e+03] (1.34e+02, 9.99e+04)
-INFO:root:[1,  2800/ 6090] train_loss: 11.027 [wd: 5.00e-02] [lr: 2.85e-05] [mem: 6.95e+04] (910.6 ms)
-INFO:root:[1,  2800] grad_stats: [2.07e+02 5.73e+03] (1.28e+02, 9.88e+04)
-INFO:root:[1,  2900/ 6090] train_loss: 11.024 [wd: 5.00e-02] [lr: 2.86e-05] [mem: 6.95e+04] (910.5 ms)
-INFO:root:[1,  2900] grad_stats: [2.73e+02 6.27e+03] (1.42e+02, 1.02e+05)
-INFO:root:[1,  3000/ 6090] train_loss: 11.022 [wd: 5.00e-02] [lr: 2.87e-05] [mem: 6.95e+04] (910.4 ms)
-INFO:root:[1,  3000] grad_stats: [3.28e+02 6.28e+03] (1.99e+02, 1.02e+05)
-INFO:root:[1,  3100/ 6090] train_loss: 11.020 [wd: 5.00e-02] [lr: 2.88e-05] [mem: 6.95e+04] (910.3 ms)
-INFO:root:[1,  3100] grad_stats: [3.21e+02 6.17e+03] (1.69e+02, 9.88e+04)
-INFO:root:[1,  3200/ 6090] train_loss: 11.017 [wd: 5.00e-02] [lr: 2.89e-05] [mem: 6.95e+04] (910.2 ms)
-INFO:root:[1,  3200] grad_stats: [2.96e+02 5.80e+03] (1.56e+02, 9.85e+04)
-INFO:root:[1,  3300/ 6090] train_loss: 11.014 [wd: 5.00e-02] [lr: 2.91e-05] [mem: 6.95e+04] (910.1 ms)
-INFO:root:[1,  3300] grad_stats: [3.30e+02 6.54e+03] (1.60e+02, 1.05e+05)
-INFO:root:[1,  3400/ 6090] train_loss: 11.012 [wd: 5.00e-02] [lr: 2.92e-05] [mem: 6.95e+04] (910.1 ms)
-INFO:root:[1,  3400] grad_stats: [4.63e+02 6.14e+03] (2.71e+02, 1.03e+05)
-INFO:root:[1,  3500/ 6090] train_loss: 11.010 [wd: 5.00e-02] [lr: 2.93e-05] [mem: 6.95e+04] (910.0 ms)
-INFO:root:[1,  3500] grad_stats: [3.93e+02 6.06e+03] (2.44e+02, 9.87e+04)
-INFO:root:[1,  3600/ 6090] train_loss: 11.007 [wd: 5.00e-02] [lr: 2.94e-05] [mem: 6.95e+04] (909.9 ms)
-INFO:root:[1,  3600] grad_stats: [5.60e+02 6.95e+03] (3.03e+02, 1.03e+05)
-INFO:root:[1,  3700/ 6090] train_loss: 11.004 [wd: 5.00e-02] [lr: 2.96e-05] [mem: 6.95e+04] (909.8 ms)
-INFO:root:[1,  3700] grad_stats: [5.45e+02 6.13e+03] (3.14e+02, 9.78e+04)
-INFO:root:[1,  3800/ 6090] train_loss: 11.002 [wd: 5.00e-02] [lr: 2.97e-05] [mem: 6.95e+04] (909.7 ms)
-INFO:root:[1,  3800] grad_stats: [5.03e+02 6.10e+03] (2.93e+02, 9.85e+04)
-INFO:root:[1,  3900/ 6090] train_loss: 11.000 [wd: 5.00e-02] [lr: 2.98e-05] [mem: 6.95e+04] (909.7 ms)
-INFO:root:[1,  3900] grad_stats: [8.43e+02 6.10e+03] (4.43e+02, 9.75e+04)
-INFO:root:[1,  4000/ 6090] train_loss: 10.997 [wd: 5.00e-02] [lr: 2.99e-05] [mem: 6.95e+04] (909.6 ms)
-INFO:root:[1,  4000] grad_stats: [1.37e+03 1.23e+04] (7.01e+02, 1.95e+05)
-INFO:root:[1,  4100/ 6090] train_loss: 10.994 [wd: 5.00e-02] [lr: 3.01e-05] [mem: 6.95e+04] (909.6 ms)
-INFO:root:[1,  4100] grad_stats: [2.17e+03 1.23e+04] (1.16e+03, 1.95e+05)
-INFO:root:[1,  4200/ 6090] train_loss: 10.992 [wd: 5.00e-02] [lr: 3.02e-05] [mem: 6.95e+04] (909.5 ms)
-INFO:root:[1,  4200] grad_stats: [1.88e+03 1.30e+04] (9.63e+02, 1.95e+05)
-INFO:root:[1,  4300/ 6090] train_loss: 10.989 [wd: 5.00e-02] [lr: 3.03e-05] [mem: 6.95e+04] (909.5 ms)
-INFO:root:[1,  4300] grad_stats: [1.88e+03 1.43e+04] (7.39e+02, 2.06e+05)
-INFO:root:[1,  4400/ 6090] train_loss: 10.986 [wd: 5.00e-02] [lr: 3.04e-05] [mem: 6.95e+04] (909.5 ms)
-INFO:root:[1,  4400] grad_stats: [1.69e+03 1.38e+04] (1.12e+03, 1.93e+05)
-INFO:root:[1,  4500/ 6090] train_loss: 10.983 [wd: 5.00e-02] [lr: 3.05e-05] [mem: 6.95e+04] (909.4 ms)
-INFO:root:[1,  4500] grad_stats: [1.52e+03 1.22e+04] (7.47e+02, 1.91e+05)
-INFO:root:[1,  4600/ 6090] train_loss: 10.979 [wd: 5.00e-02] [lr: 3.07e-05] [mem: 6.95e+04] (909.4 ms)
-INFO:root:[1,  4600] grad_stats: [2.20e+03 1.30e+04] (1.18e+03, 1.92e+05)
-INFO:root:[1,  4700/ 6090] train_loss: 10.976 [wd: 5.01e-02] [lr: 3.08e-05] [mem: 6.95e+04] (909.3 ms)
-INFO:root:[1,  4700] grad_stats: [2.53e+03 1.38e+04] (9.43e+02, 1.96e+05)
-INFO:root:[1,  4800/ 6090] train_loss: 10.973 [wd: 5.01e-02] [lr: 3.09e-05] [mem: 6.95e+04] (909.3 ms)
-INFO:root:[1,  4800] grad_stats: [1.91e+03 1.32e+04] (8.26e+02, 1.92e+05)
-INFO:root:[1,  4900/ 6090] train_loss: 10.970 [wd: 5.01e-02] [lr: 3.10e-05] [mem: 6.95e+04] (909.3 ms)
-INFO:root:[1,  4900] grad_stats: [2.48e+03 1.50e+04] (1.03e+03, 2.05e+05)
-INFO:root:[1,  5000/ 6090] train_loss: 10.966 [wd: 5.01e-02] [lr: 3.12e-05] [mem: 6.95e+04] (909.2 ms)
-INFO:root:[1,  5000] grad_stats: [3.68e+03 1.52e+04] (1.85e+03, 1.93e+05)
-INFO:root:[1,  5100/ 6090] train_loss: 10.962 [wd: 5.01e-02] [lr: 3.13e-05] [mem: 6.95e+04] (909.2 ms)
-INFO:root:[1,  5100] grad_stats: [2.96e+03 1.50e+04] (1.18e+03, 1.94e+05)
-INFO:root:[1,  5200/ 6090] train_loss: 10.959 [wd: 5.01e-02] [lr: 3.14e-05] [mem: 6.95e+04] (909.2 ms)
-INFO:root:[1,  5200] grad_stats: [2.66e+03 1.39e+04] (1.02e+03, 1.92e+05)
-INFO:root:[1,  5300/ 6090] train_loss: 10.955 [wd: 5.01e-02] [lr: 3.15e-05] [mem: 6.95e+04] (909.1 ms)
-INFO:root:[1,  5300] grad_stats: [3.00e+03 1.44e+04] (1.26e+03, 1.89e+05)
-INFO:root:[1,  5400/ 6090] train_loss: 10.952 [wd: 5.01e-02] [lr: 3.17e-05] [mem: 6.95e+04] (909.1 ms)
-INFO:root:[1,  5400] grad_stats: [3.59e+03 1.40e+04] (1.36e+03, 1.88e+05)
-INFO:root:[1,  5500/ 6090] train_loss: 10.948 [wd: 5.01e-02] [lr: 3.18e-05] [mem: 6.95e+04] (909.1 ms)
-INFO:root:[1,  5500] grad_stats: [3.92e+03 1.48e+04] (1.44e+03, 1.94e+05)
-INFO:root:[1,  5600/ 6090] train_loss: 10.944 [wd: 5.01e-02] [lr: 3.19e-05] [mem: 6.95e+04] (909.1 ms)
-INFO:root:[1,  5600] grad_stats: [3.41e+03 1.62e+04] (1.27e+03, 2.04e+05)
-INFO:root:[1,  5700/ 6090] train_loss: 10.940 [wd: 5.01e-02] [lr: 3.20e-05] [mem: 6.95e+04] (909.1 ms)
-INFO:root:[1,  5700] grad_stats: [3.74e+03 1.48e+04] (1.43e+03, 1.92e+05)
-INFO:root:[1,  5800/ 6090] train_loss: 10.935 [wd: 5.01e-02] [lr: 3.21e-05] [mem: 6.95e+04] (909.0 ms)
-INFO:root:[1,  5800] grad_stats: [4.24e+03 1.48e+04] (1.43e+03, 1.94e+05)
-INFO:root:[1,  5900/ 6090] train_loss: 10.931 [wd: 5.01e-02] [lr: 3.23e-05] [mem: 6.95e+04] (909.0 ms)
-INFO:root:[1,  5900] grad_stats: [4.93e+03 1.56e+04] (1.86e+03, 1.95e+05)
-INFO:root:[1,  6000/ 6090] train_loss: 10.927 [wd: 5.01e-02] [lr: 3.24e-05] [mem: 6.95e+04] (909.0 ms)
-INFO:root:[1,  6000] grad_stats: [4.07e+03 1.63e+04] (1.23e+03, 1.91e+05)
-Loss: 10.679716110229492
-Loss: 10.773193359375
-INFO:root:* Acc@1 0.003 Acc@5 0.010 Test loss 11.961
-INFO:root:avg. train_loss 10.923
-INFO:root:avg. test_loss 11.961 avg. Accuracy@1 0.000 - avg. Accuracy@1 0.000
-Loss: 10.770548820495605
-Loss: 10.678629875183105
-INFO:root:Epoch 2
-INFO:root:[2,     0/ 6090] train_loss: 10.634 [wd: 5.01e-02] [lr: 3.25e-05] [mem: 6.95e+04] (913.1 ms)
-INFO:root:[2,     0] grad_stats: [5.29e+03 1.63e+04] (1.95e+03, 1.97e+05)
-INFO:root:[2,   100/ 6090] train_loss: 10.609 [wd: 5.01e-02] [lr: 3.26e-05] [mem: 6.95e+04] (904.2 ms)
-INFO:root:[2,   100] grad_stats: [3.77e+03 1.59e+04] (1.36e+03, 1.90e+05)
-INFO:root:[2,   200/ 6090] train_loss: 10.612 [wd: 5.01e-02] [lr: 3.27e-05] [mem: 6.95e+04] (906.5 ms)
-INFO:root:[2,   200] grad_stats: [4.67e+03 1.67e+04] (1.86e+03, 1.95e+05)
-INFO:root:[2,   300/ 6090] train_loss: 10.610 [wd: 5.01e-02] [lr: 3.29e-05] [mem: 6.95e+04] (907.2 ms)
-INFO:root:[2,   300] grad_stats: [5.23e+03 1.64e+04] (1.92e+03, 1.95e+05)
-INFO:root:[2,   400/ 6090] train_loss: 10.599 [wd: 5.01e-02] [lr: 3.30e-05] [mem: 6.95e+04] (907.6 ms)
-INFO:root:[2,   400] grad_stats: [5.49e+03 1.74e+04] (1.92e+03, 1.97e+05)
-INFO:root:[2,   500/ 6090] train_loss: 10.592 [wd: 5.01e-02] [lr: 3.31e-05] [mem: 6.95e+04] (907.5 ms)
-INFO:root:[2,   500] grad_stats: [5.16e+03 1.67e+04] (1.77e+03, 1.89e+05)
-INFO:root:[2,   600/ 6090] train_loss: 10.583 [wd: 5.01e-02] [lr: 3.32e-05] [mem: 6.95e+04] (907.6 ms)
-INFO:root:[2,   600] grad_stats: [5.55e+03 1.89e+04] (1.83e+03, 2.09e+05)
-INFO:root:[2,   700/ 6090] train_loss: 10.578 [wd: 5.01e-02] [lr: 3.34e-05] [mem: 6.95e+04] (907.6 ms)
-INFO:root:[2,   700] grad_stats: [5.96e+03 1.66e+04] (1.82e+03, 1.91e+05)
-INFO:root:[2,   800/ 6090] train_loss: 10.568 [wd: 5.01e-02] [lr: 3.35e-05] [mem: 6.95e+04] (907.5 ms)
-INFO:root:[2,   800] grad_stats: [5.22e+03 1.63e+04] (1.72e+03, 1.87e+05)
-INFO:root:[2,   900/ 6090] train_loss: 10.561 [wd: 5.01e-02] [lr: 3.36e-05] [mem: 6.95e+04] (907.4 ms)
-INFO:root:[2,   900] grad_stats: [5.11e+03 1.79e+04] (1.64e+03, 1.87e+05)
-INFO:root:[2,  1000/ 6090] train_loss: 10.555 [wd: 5.01e-02] [lr: 3.37e-05] [mem: 6.95e+04] (907.4 ms)
-INFO:root:[2,  1000] grad_stats: [6.38e+03 1.83e+04] (2.21e+03, 1.94e+05)
-INFO:root:[2,  1100/ 6090] train_loss: 10.550 [wd: 5.01e-02] [lr: 3.39e-05] [mem: 6.95e+04] (907.3 ms)
-INFO:root:[2,  1100] grad_stats: [6.97e+03 1.81e+04] (2.08e+03, 1.92e+05)
-INFO:root:[2,  1200/ 6090] train_loss: 10.544 [wd: 5.01e-02] [lr: 3.40e-05] [mem: 6.95e+04] (907.3 ms)
-INFO:root:[2,  1200] grad_stats: [5.52e+03 1.85e+04] (1.58e+03, 1.89e+05)
-INFO:root:[2,  1300/ 6090] train_loss: 10.538 [wd: 5.01e-02] [lr: 3.41e-05] [mem: 6.95e+04] (907.5 ms)
-INFO:root:[2,  1300] grad_stats: [5.80e+03 1.88e+04] (1.94e+03, 1.88e+05)
-INFO:root:[2,  1400/ 6090] train_loss: 10.532 [wd: 5.01e-02] [lr: 3.42e-05] [mem: 6.95e+04] (907.6 ms)
-INFO:root:[2,  1400] grad_stats: [5.87e+03 1.88e+04] (1.94e+03, 1.89e+05)
-INFO:root:[2,  1500/ 6090] train_loss: 10.525 [wd: 5.01e-02] [lr: 3.43e-05] [mem: 6.95e+04] (907.6 ms)
-INFO:root:[2,  1500] grad_stats: [5.63e+03 1.77e+04] (1.95e+03, 1.85e+05)
-INFO:root:[2,  1600/ 6090] train_loss: 10.519 [wd: 5.01e-02] [lr: 3.45e-05] [mem: 6.95e+04] (907.6 ms)
-INFO:root:[2,  1600] grad_stats: [6.13e+03 1.93e+04] (1.73e+03, 1.89e+05)
-INFO:root:[2,  1700/ 6090] train_loss: 10.512 [wd: 5.01e-02] [lr: 3.46e-05] [mem: 6.95e+04] (907.6 ms)
-INFO:root:[2,  1700] grad_stats: [5.67e+03 2.11e+04] (2.23e+03, 2.01e+05)
-INFO:root:[2,  1800/ 6090] train_loss: 10.506 [wd: 5.01e-02] [lr: 3.47e-05] [mem: 6.95e+04] (907.5 ms)
-INFO:root:[2,  1800] grad_stats: [6.56e+03 1.93e+04] (2.41e+03, 1.89e+05)
-INFO:root:[2,  1900/ 6090] train_loss: 10.499 [wd: 5.01e-02] [lr: 3.48e-05] [mem: 6.95e+04] (907.5 ms)
-INFO:root:[2,  1900] grad_stats: [8.22e+03 2.28e+04] (2.86e+03, 2.14e+05)
-INFO:root:[2,  2000/ 6090] train_loss: 10.493 [wd: 5.02e-02] [lr: 3.50e-05] [mem: 6.95e+04] (907.5 ms)
-INFO:root:[2,  2000] grad_stats: [1.71e+04 4.02e+04] (4.72e+03, 3.99e+05)
-INFO:root:[2,  2100/ 6090] train_loss: 10.487 [wd: 5.02e-02] [lr: 3.51e-05] [mem: 6.95e+04] (907.5 ms)
-INFO:root:[2,  2100] grad_stats: [1.34e+04 4.13e+04] (3.42e+03, 3.74e+05)
-INFO:root:[2,  2200/ 6090] train_loss: 10.480 [wd: 5.02e-02] [lr: 3.52e-05] [mem: 6.95e+04] (907.5 ms)
-INFO:root:[2,  2200] grad_stats: [1.28e+04 4.25e+04] (4.29e+03, 3.80e+05)
-INFO:root:[2,  2300/ 6090] train_loss: 10.475 [wd: 5.02e-02] [lr: 3.53e-05] [mem: 6.95e+04] (907.5 ms)
-INFO:root:[2,  2300] grad_stats: [1.46e+04 4.20e+04] (4.38e+03, 3.79e+05)
-INFO:root:[2,  2400/ 6090] train_loss: 10.469 [wd: 5.02e-02] [lr: 3.55e-05] [mem: 6.95e+04] (907.6 ms)
-INFO:root:[2,  2400] grad_stats: [1.40e+04 4.28e+04] (4.20e+03, 3.93e+05)
-INFO:root:[2,  2500/ 6090] train_loss: 10.464 [wd: 5.02e-02] [lr: 3.56e-05] [mem: 6.95e+04] (907.6 ms)
-INFO:root:[2,  2500] grad_stats: [1.52e+04 4.33e+04] (4.91e+03, 3.88e+05)
-INFO:root:[2,  2600/ 6090] train_loss: 10.458 [wd: 5.02e-02] [lr: 3.57e-05] [mem: 6.95e+04] (907.7 ms)
-INFO:root:[2,  2600] grad_stats: [1.44e+04 4.24e+04] (4.23e+03, 3.85e+05)
-INFO:root:[2,  2700/ 6090] train_loss: 10.452 [wd: 5.02e-02] [lr: 3.58e-05] [mem: 6.95e+04] (907.7 ms)
-INFO:root:[2,  2700] grad_stats: [1.50e+04 4.62e+04] (5.81e+03, 3.82e+05)
-INFO:root:[2,  2800/ 6090] train_loss: 10.446 [wd: 5.02e-02] [lr: 3.60e-05] [mem: 6.95e+04] (907.7 ms)
-INFO:root:[2,  2800] grad_stats: [1.51e+04 4.76e+04] (4.35e+03, 4.17e+05)
-INFO:root:[2,  2900/ 6090] train_loss: 10.440 [wd: 5.02e-02] [lr: 3.61e-05] [mem: 6.95e+04] (907.7 ms)
-INFO:root:[2,  2900] grad_stats: [1.44e+04 4.57e+04] (4.96e+03, 3.83e+05)
-INFO:root:[2,  3000/ 6090] train_loss: 10.432 [wd: 5.02e-02] [lr: 3.62e-05] [mem: 6.95e+04] (907.7 ms)
-INFO:root:[2,  3000] grad_stats: [2.05e+04 4.35e+04] (5.05e+03, 3.93e+05)
-INFO:root:[2,  3100/ 6090] train_loss: 10.424 [wd: 5.02e-02] [lr: 3.63e-05] [mem: 6.95e+04] (907.7 ms)
-INFO:root:[2,  3100] grad_stats: [1.62e+04 4.93e+04] (5.50e+03, 4.29e+05)
-INFO:root:[2,  3200/ 6090] train_loss: 10.419 [wd: 5.02e-02] [lr: 3.64e-05] [mem: 6.95e+04] (907.7 ms)
-INFO:root:[2,  3200] grad_stats: [1.58e+04 4.95e+04] (5.14e+03, 4.28e+05)
-INFO:root:[2,  3300/ 6090] train_loss: 10.413 [wd: 5.02e-02] [lr: 3.66e-05] [mem: 6.95e+04] (907.7 ms)
-INFO:root:[2,  3300] grad_stats: [1.60e+04 4.28e+04] (4.76e+03, 3.77e+05)
-INFO:root:[2,  3400/ 6090] train_loss: 10.408 [wd: 5.02e-02] [lr: 3.67e-05] [mem: 6.95e+04] (907.8 ms)
-INFO:root:[2,  3400] grad_stats: [1.69e+04 4.91e+04] (5.17e+03, 4.30e+05)
-INFO:root:[2,  3500/ 6090] train_loss: 10.400 [wd: 5.02e-02] [lr: 3.68e-05] [mem: 6.95e+04] (907.8 ms)
-INFO:root:[2,  3500] grad_stats: [1.68e+04 4.45e+04] (4.82e+03, 3.79e+05)
-INFO:root:[2,  3600/ 6090] train_loss: 10.394 [wd: 5.02e-02] [lr: 3.69e-05] [mem: 6.95e+04] (907.9 ms)
-INFO:root:[2,  3600] grad_stats: [2.03e+04 4.60e+04] (5.73e+03, 4.01e+05)
-INFO:root:[2,  3700/ 6090] train_loss: 10.388 [wd: 5.02e-02] [lr: 3.71e-05] [mem: 6.95e+04] (907.9 ms)
-INFO:root:[2,  3700] grad_stats: [1.54e+04 4.60e+04] (4.80e+03, 3.78e+05)
-INFO:root:[2,  3800/ 6090] train_loss: 10.381 [wd: 5.02e-02] [lr: 3.72e-05] [mem: 6.95e+04] (907.9 ms)
-INFO:root:[2,  3800] grad_stats: [1.75e+04 4.56e+04] (5.40e+03, 3.98e+05)
-INFO:root:[2,  3900/ 6090] train_loss: 10.374 [wd: 5.02e-02] [lr: 3.73e-05] [mem: 6.95e+04] (907.9 ms)
-INFO:root:[2,  3900] grad_stats: [1.73e+04 4.68e+04] (5.50e+03, 3.85e+05)
-INFO:root:[2,  4000/ 6090] train_loss: 10.369 [wd: 5.02e-02] [lr: 3.74e-05] [mem: 6.95e+04] (907.9 ms)
-INFO:root:[2,  4000] grad_stats: [2.04e+04 4.57e+04] (6.11e+03, 3.91e+05)
-INFO:root:[2,  4100/ 6090] train_loss: 10.363 [wd: 5.02e-02] [lr: 3.76e-05] [mem: 6.95e+04] (907.9 ms)
-INFO:root:[2,  4100] grad_stats: [1.81e+04 4.42e+04] (5.08e+03, 3.79e+05)
-INFO:root:[2,  4200/ 6090] train_loss: 10.357 [wd: 5.02e-02] [lr: 3.77e-05] [mem: 6.95e+04] (907.9 ms)
-INFO:root:[2,  4200] grad_stats: [1.90e+04 4.81e+04] (4.93e+03, 3.87e+05)
-INFO:root:[2,  4300/ 6090] train_loss: 10.351 [wd: 5.03e-02] [lr: 3.78e-05] [mem: 6.95e+04] (907.9 ms)
-INFO:root:[2,  4300] grad_stats: [1.69e+04 4.56e+04] (5.60e+03, 3.82e+05)
-INFO:root:[2,  4400/ 6090] train_loss: 10.344 [wd: 5.03e-02] [lr: 3.79e-05] [mem: 6.95e+04] (907.9 ms)
-INFO:root:[2,  4400] grad_stats: [2.01e+04 4.51e+04] (5.47e+03, 3.81e+05)
-INFO:root:[2,  4500/ 6090] train_loss: 10.337 [wd: 5.03e-02] [lr: 3.80e-05] [mem: 6.95e+04] (907.9 ms)
-INFO:root:[2,  4500] grad_stats: [1.97e+04 5.17e+04] (6.20e+03, 4.06e+05)
-INFO:root:[2,  4600/ 6090] train_loss: 10.330 [wd: 5.03e-02] [lr: 3.82e-05] [mem: 6.95e+04] (907.9 ms)
-INFO:root:[2,  4600] grad_stats: [1.82e+04 4.99e+04] (6.11e+03, 4.08e+05)
-INFO:root:[2,  4700/ 6090] train_loss: 10.324 [wd: 5.03e-02] [lr: 3.83e-05] [mem: 6.95e+04] (907.9 ms)
-INFO:root:[2,  4700] grad_stats: [1.73e+04 5.00e+04] (5.99e+03, 3.83e+05)
-INFO:root:[2,  4800/ 6090] train_loss: 10.318 [wd: 5.03e-02] [lr: 3.84e-05] [mem: 6.95e+04] (907.9 ms)
-INFO:root:[2,  4800] grad_stats: [1.92e+04 4.98e+04] (4.59e+03, 3.89e+05)
-INFO:root:[2,  4900/ 6090] train_loss: 10.312 [wd: 5.03e-02] [lr: 3.85e-05] [mem: 6.95e+04] (907.9 ms)
-INFO:root:[2,  4900] grad_stats: [2.39e+04 5.47e+04] (5.25e+03, 4.31e+05)
-INFO:root:[2,  5000/ 6090] train_loss: 10.307 [wd: 5.03e-02] [lr: 3.87e-05] [mem: 6.95e+04] (907.9 ms)
-INFO:root:[2,  5000] grad_stats: [1.63e+04 5.11e+04] (5.01e+03, 3.88e+05)
-INFO:root:[2,  5100/ 6090] train_loss: 10.301 [wd: 5.03e-02] [lr: 3.88e-05] [mem: 6.95e+04] (907.9 ms)
-INFO:root:[2,  5100] grad_stats: [2.01e+04 4.82e+04] (7.03e+03, 3.81e+05)
-INFO:root:[2,  5200/ 6090] train_loss: 10.294 [wd: 5.03e-02] [lr: 3.89e-05] [mem: 6.95e+04] (907.9 ms)
-INFO:root:[2,  5200] grad_stats: [1.83e+04 4.71e+04] (6.01e+03, 3.76e+05)
-INFO:root:[2,  5300/ 6090] train_loss: 10.288 [wd: 5.03e-02] [lr: 3.90e-05] [mem: 6.95e+04] (907.9 ms)
-INFO:root:[2,  5300] grad_stats: [1.67e+04 5.05e+04] (4.94e+03, 3.85e+05)
-INFO:root:[2,  5400/ 6090] train_loss: 10.283 [wd: 5.03e-02] [lr: 3.92e-05] [mem: 6.95e+04] (907.9 ms)
-INFO:root:[2,  5400] grad_stats: [2.07e+04 5.38e+04] (6.95e+03, 4.32e+05)
-INFO:root:[2,  5500/ 6090] train_loss: 10.277 [wd: 5.03e-02] [lr: 3.93e-05] [mem: 6.95e+04] (907.9 ms)
-INFO:root:[2,  5500] grad_stats: [1.91e+04 5.23e+04] (5.78e+03, 3.94e+05)
-INFO:root:[2,  5600/ 6090] train_loss: 10.270 [wd: 5.03e-02] [lr: 3.94e-05] [mem: 6.95e+04] (907.9 ms)
-INFO:root:[2,  5600] grad_stats: [2.24e+04 5.10e+04] (7.53e+03, 4.01e+05)
-INFO:root:[2,  5700/ 6090] train_loss: 10.263 [wd: 5.03e-02] [lr: 3.95e-05] [mem: 6.95e+04] (907.9 ms)
-INFO:root:[2,  5700] grad_stats: [1.95e+04 5.09e+04] (5.43e+03, 3.84e+05)
-INFO:root:[2,  5800/ 6090] train_loss: 10.257 [wd: 5.03e-02] [lr: 3.96e-05] [mem: 6.95e+04] (908.0 ms)
-INFO:root:[2,  5800] grad_stats: [2.28e+04 5.22e+04] (5.70e+03, 3.96e+05)
-INFO:root:[2,  5900/ 6090] train_loss: 10.251 [wd: 5.03e-02] [lr: 3.98e-05] [mem: 6.95e+04] (908.0 ms)
-INFO:root:[2,  5900] grad_stats: [2.78e+04 5.48e+04] (6.72e+03, 4.32e+05)
-INFO:root:[2,  6000/ 6090] train_loss: 10.245 [wd: 5.03e-02] [lr: 3.99e-05] [mem: 6.95e+04] (908.0 ms)
-INFO:root:[2,  6000] grad_stats: [3.73e+04 1.07e+05] (1.07e+04, 7.77e+05)
-Loss: 9.944400787353516
-INFO:root:* Acc@1 0.003 Acc@5 0.010 Test loss 12.412
-INFO:root:avg. train_loss 10.238
-INFO:root:avg. test_loss 12.412 avg. Accuracy@1 0.000 - avg. Accuracy@1 0.000
-Loss: 10.136861801147461
-Loss: 9.79453182220459
-Loss: 10.052828788757324
-INFO:root:Epoch 3
-INFO:root:[3,     0/ 6090] train_loss: 9.832 [wd: 5.03e-02] [lr: 4.00e-05] [mem: 6.95e+04] (883.3 ms)
-INFO:root:[3,     0] grad_stats: [4.44e+04 1.07e+05] (1.26e+04, 7.83e+05)
-INFO:root:[3,   100/ 6090] train_loss: 9.743 [wd: 5.04e-02] [lr: 4.01e-05] [mem: 6.95e+04] (904.1 ms)
-INFO:root:[3,   100] grad_stats: [4.84e+04 1.05e+05] (1.29e+04, 8.14e+05)
-INFO:root:[3,   200/ 6090] train_loss: 9.752 [wd: 5.04e-02] [lr: 4.02e-05] [mem: 6.95e+04] (905.7 ms)
-INFO:root:[3,   200] grad_stats: [5.10e+04 1.05e+05] (1.40e+04, 7.98e+05)
-INFO:root:[3,   300/ 6090] train_loss: 9.746 [wd: 5.04e-02] [lr: 4.04e-05] [mem: 6.95e+04] (906.2 ms)
-INFO:root:[3,   300] grad_stats: [4.87e+04 1.10e+05] (1.36e+04, 7.97e+05)
-INFO:root:[3,   400/ 6090] train_loss: 9.756 [wd: 5.04e-02] [lr: 4.05e-05] [mem: 6.95e+04] (906.9 ms)
-INFO:root:[3,   400] grad_stats: [5.41e+04 1.12e+05] (1.28e+04, 8.54e+05)
-INFO:root:[3,   500/ 6090] train_loss: 9.762 [wd: 5.04e-02] [lr: 4.06e-05] [mem: 6.95e+04] (907.1 ms)
-INFO:root:[3,   500] grad_stats: [4.99e+04 9.95e+04] (1.49e+04, 7.71e+05)
-INFO:root:[3,   600/ 6090] train_loss: 9.766 [wd: 5.04e-02] [lr: 4.07e-05] [mem: 6.95e+04] (907.7 ms)
-INFO:root:[3,   600] grad_stats: [4.87e+04 1.09e+05] (1.50e+04, 7.90e+05)
-INFO:root:[3,   700/ 6090] train_loss: 9.760 [wd: 5.04e-02] [lr: 4.09e-05] [mem: 6.95e+04] (907.9 ms)
-INFO:root:[3,   700] grad_stats: [4.75e+04 1.10e+05] (1.36e+04, 7.74e+05)
-INFO:root:[3,   800/ 6090] train_loss: 9.760 [wd: 5.04e-02] [lr: 4.10e-05] [mem: 6.95e+04] (907.9 ms)
-INFO:root:[3,   800] grad_stats: [4.61e+04 1.16e+05] (1.36e+04, 8.90e+05)
-INFO:root:[3,   900/ 6090] train_loss: 9.755 [wd: 5.04e-02] [lr: 4.11e-05] [mem: 6.95e+04] (907.8 ms)
-INFO:root:[3,   900] grad_stats: [5.74e+04 1.08e+05] (1.33e+04, 7.71e+05)
-INFO:root:[3,  1000/ 6090] train_loss: 9.753 [wd: 5.04e-02] [lr: 4.12e-05] [mem: 6.95e+04] (907.7 ms)
-INFO:root:[3,  1000] grad_stats: [4.34e+04 1.07e+05] (1.37e+04, 7.86e+05)
-INFO:root:[3,  1100/ 6090] train_loss: 9.746 [wd: 5.04e-02] [lr: 4.14e-05] [mem: 6.95e+04] (907.7 ms)
-INFO:root:[3,  1100] grad_stats: [5.14e+04 1.03e+05] (1.43e+04, 7.91e+05)
-INFO:root:[3,  1200/ 6090] train_loss: 9.744 [wd: 5.04e-02] [lr: 4.15e-05] [mem: 6.95e+04] (907.7 ms)
-INFO:root:[3,  1200] grad_stats: [4.01e+04 1.05e+05] (1.14e+04, 7.85e+05)
-INFO:root:[3,  1300/ 6090] train_loss: 9.737 [wd: 5.04e-02] [lr: 4.16e-05] [mem: 6.95e+04] (907.7 ms)
-INFO:root:[3,  1300] grad_stats: [5.95e+04 1.09e+05] (1.80e+04, 8.11e+05)
-INFO:root:[3,  1400/ 6090] train_loss: 9.727 [wd: 5.04e-02] [lr: 4.17e-05] [mem: 6.95e+04] (907.7 ms)
-INFO:root:[3,  1400] grad_stats: [4.58e+04 1.09e+05] (1.23e+04, 7.78e+05)
-INFO:root:[3,  1500/ 6090] train_loss: 9.717 [wd: 5.04e-02] [lr: 4.18e-05] [mem: 6.95e+04] (907.8 ms)
-INFO:root:[3,  1500] grad_stats: [4.27e+04 1.06e+05] (1.32e+04, 7.84e+05)
-INFO:root:[3,  1600/ 6090] train_loss: 9.713 [wd: 5.04e-02] [lr: 4.20e-05] [mem: 6.95e+04] (907.8 ms)
-INFO:root:[3,  1600] grad_stats: [5.68e+04 1.00e+05] (1.45e+04, 7.82e+05)
-INFO:root:[3,  1700/ 6090] train_loss: 9.706 [wd: 5.04e-02] [lr: 4.21e-05] [mem: 6.95e+04] (907.9 ms)
-INFO:root:[3,  1700] grad_stats: [5.84e+04 1.22e+05] (1.64e+04, 8.92e+05)
-INFO:root:[3,  1800/ 6090] train_loss: 9.698 [wd: 5.05e-02] [lr: 4.22e-05] [mem: 6.95e+04] (908.0 ms)
-INFO:root:[3,  1800] grad_stats: [3.75e+04 1.14e+05] (1.41e+04, 7.95e+05)
-INFO:root:[3,  1900/ 6090] train_loss: 9.696 [wd: 5.05e-02] [lr: 4.23e-05] [mem: 6.95e+04] (908.0 ms)
-INFO:root:[3,  1900] grad_stats: [6.68e+04 1.09e+05] (1.72e+04, 8.44e+05)
-INFO:root:[3,  2000/ 6090] train_loss: 9.691 [wd: 5.05e-02] [lr: 4.25e-05] [mem: 6.95e+04] (908.0 ms)
-INFO:root:[3,  2000] grad_stats: [5.44e+04 1.24e+05] (1.70e+04, 9.07e+05)
-INFO:root:[3,  2100/ 6090] train_loss: 9.684 [wd: 5.05e-02] [lr: 4.26e-05] [mem: 6.95e+04] (908.0 ms)
-INFO:root:[3,  2100] grad_stats: [6.09e+04 1.19e+05] (1.59e+04, 8.69e+05)
-INFO:root:[3,  2200/ 6090] train_loss: 9.679 [wd: 5.05e-02] [lr: 4.27e-05] [mem: 6.95e+04] (908.0 ms)
-INFO:root:[3,  2200] grad_stats: [5.68e+04 1.12e+05] (1.51e+04, 8.06e+05)
-INFO:root:[3,  2300/ 6090] train_loss: 9.677 [wd: 5.05e-02] [lr: 4.28e-05] [mem: 6.95e+04] (908.0 ms)
-INFO:root:[3,  2300] grad_stats: [5.02e+04 1.07e+05] (1.70e+04, 8.18e+05)
-INFO:root:[3,  2400/ 6090] train_loss: 9.671 [wd: 5.05e-02] [lr: 4.30e-05] [mem: 6.95e+04] (908.0 ms)
-INFO:root:[3,  2400] grad_stats: [6.50e+04 1.11e+05] (1.44e+04, 8.25e+05)
-INFO:root:[3,  2500/ 6090] train_loss: 9.666 [wd: 5.05e-02] [lr: 4.31e-05] [mem: 6.95e+04] (908.0 ms)
-INFO:root:[3,  2500] grad_stats: [4.87e+04 1.13e+05] (1.44e+04, 7.97e+05)
-INFO:root:[3,  2600/ 6090] train_loss: 9.657 [wd: 5.05e-02] [lr: 4.32e-05] [mem: 6.95e+04] (908.1 ms)
-INFO:root:[3,  2600] grad_stats: [5.76e+04 1.29e+05] (1.46e+04, 9.06e+05)
-INFO:root:[3,  2700/ 6090] train_loss: 9.653 [wd: 5.05e-02] [lr: 4.33e-05] [mem: 6.95e+04] (908.1 ms)
-INFO:root:[3,  2700] grad_stats: [5.52e+04 1.21e+05] (1.81e+04, 8.57e+05)
-INFO:root:[3,  2800/ 6090] train_loss: 9.647 [wd: 5.05e-02] [lr: 4.35e-05] [mem: 6.95e+04] (908.2 ms)
-INFO:root:[3,  2800] grad_stats: [4.63e+04 1.14e+05] (1.24e+04, 8.02e+05)
-INFO:root:[3,  2900/ 6090] train_loss: 9.641 [wd: 5.05e-02] [lr: 4.36e-05] [mem: 6.95e+04] (908.2 ms)
-INFO:root:[3,  2900] grad_stats: [5.17e+04 1.04e+05] (1.41e+04, 7.81e+05)
-INFO:root:[3,  3000/ 6090] train_loss: 9.636 [wd: 5.05e-02] [lr: 4.37e-05] [mem: 6.95e+04] (908.2 ms)
-INFO:root:[3,  3000] grad_stats: [4.72e+04 1.13e+05] (1.39e+04, 8.06e+05)
-INFO:root:[3,  3100/ 6090] train_loss: 9.631 [wd: 5.05e-02] [lr: 4.38e-05] [mem: 6.95e+04] (908.2 ms)
-INFO:root:[3,  3100] grad_stats: [6.97e+04 1.14e+05] (1.87e+04, 8.46e+05)
-INFO:root:[3,  3200/ 6090] train_loss: 9.625 [wd: 5.06e-02] [lr: 4.39e-05] [mem: 6.95e+04] (908.2 ms)
-INFO:root:[3,  3200] grad_stats: [6.62e+04 1.06e+05] (1.89e+04, 7.90e+05)
-INFO:root:[3,  3300/ 6090] train_loss: 9.617 [wd: 5.06e-02] [lr: 4.41e-05] [mem: 6.95e+04] (908.2 ms)
-INFO:root:[3,  3300] grad_stats: [5.36e+04 1.15e+05] (1.45e+04, 8.04e+05)
-INFO:root:[3,  3400/ 6090] train_loss: 9.613 [wd: 5.06e-02] [lr: 4.42e-05] [mem: 6.95e+04] (908.2 ms)
-INFO:root:[3,  3400] grad_stats: [6.25e+04 1.25e+05] (1.94e+04, 9.23e+05)
-INFO:root:[3,  3500/ 6090] train_loss: 9.607 [wd: 5.06e-02] [lr: 4.43e-05] [mem: 6.95e+04] (908.2 ms)
-INFO:root:[3,  3500] grad_stats: [5.79e+04 1.13e+05] (1.69e+04, 8.57e+05)
-INFO:root:[3,  3600/ 6090] train_loss: 9.601 [wd: 5.06e-02] [lr: 4.44e-05] [mem: 6.95e+04] (908.2 ms)
-INFO:root:[3,  3600] grad_stats: [5.35e+04 1.09e+05] (1.35e+04, 8.17e+05)
-INFO:root:[3,  3700/ 6090] train_loss: 9.597 [wd: 5.06e-02] [lr: 4.46e-05] [mem: 6.95e+04] (908.2 ms)
-INFO:root:[3,  3700] grad_stats: [8.41e+04 1.10e+05] (2.06e+04, 8.67e+05)
-INFO:root:[3,  3800/ 6090] train_loss: 9.590 [wd: 5.06e-02] [lr: 4.47e-05] [mem: 6.95e+04] (908.2 ms)
-INFO:root:[3,  3800] grad_stats: [5.68e+04 1.10e+05] (1.49e+04, 8.02e+05)
-INFO:root:[3,  3900/ 6090] train_loss: 9.584 [wd: 5.06e-02] [lr: 4.48e-05] [mem: 6.95e+04] (908.3 ms)
-INFO:root:[3,  3900] grad_stats: [1.53e+05 2.24e+05] (4.14e+04, 1.74e+06)
-INFO:root:[3,  4000/ 6090] train_loss: 9.578 [wd: 5.06e-02] [lr: 4.49e-05] [mem: 6.95e+04] (908.3 ms)
-INFO:root:[3,  4000] grad_stats: [1.47e+05 2.45e+05] (3.34e+04, 1.74e+06)
-INFO:root:[3,  4100/ 6090] train_loss: 9.571 [wd: 5.06e-02] [lr: 4.51e-05] [mem: 6.95e+04] (908.3 ms)
-INFO:root:[3,  4100] grad_stats: [1.44e+05 2.13e+05] (3.25e+04, 1.60e+06)
-INFO:root:[3,  4200/ 6090] train_loss: 9.564 [wd: 5.06e-02] [lr: 4.52e-05] [mem: 6.95e+04] (908.3 ms)
-INFO:root:[3,  4200] grad_stats: [1.54e+05 2.51e+05] (3.65e+04, 1.86e+06)
-INFO:root:[3,  4300/ 6090] train_loss: 9.558 [wd: 5.06e-02] [lr: 4.53e-05] [mem: 6.95e+04] (908.3 ms)
-INFO:root:[3,  4300] grad_stats: [1.35e+05 2.25e+05] (3.78e+04, 1.88e+06)
-INFO:root:[3,  4400/ 6090] train_loss: 9.551 [wd: 5.06e-02] [lr: 4.54e-05] [mem: 6.95e+04] (908.3 ms)
-INFO:root:[3,  4400] grad_stats: [1.08e+05 2.19e+05] (2.98e+04, 1.63e+06)
-INFO:root:[3,  4500/ 6090] train_loss: 9.545 [wd: 5.06e-02] [lr: 4.55e-05] [mem: 6.95e+04] (908.3 ms)
-INFO:root:[3,  4500] grad_stats: [1.42e+05 2.13e+05] (3.23e+04, 1.62e+06)
-INFO:root:[3,  4600/ 6090] train_loss: 9.541 [wd: 5.07e-02] [lr: 4.57e-05] [mem: 6.95e+04] (908.3 ms)
-INFO:root:[3,  4600] grad_stats: [1.28e+05 2.28e+05] (3.55e+04, 1.64e+06)
-INFO:root:[3,  4700/ 6090] train_loss: 9.535 [wd: 5.07e-02] [lr: 4.58e-05] [mem: 6.95e+04] (908.3 ms)
-INFO:root:[3,  4700] grad_stats: [1.26e+05 2.25e+05] (3.50e+04, 1.62e+06)
-INFO:root:[3,  4800/ 6090] train_loss: 9.529 [wd: 5.07e-02] [lr: 4.59e-05] [mem: 6.95e+04] (908.3 ms)
-INFO:root:[3,  4800] grad_stats: [1.22e+05 2.55e+05] (3.77e+04, 1.86e+06)
-INFO:root:[3,  4900/ 6090] train_loss: 9.522 [wd: 5.07e-02] [lr: 4.60e-05] [mem: 6.95e+04] (908.3 ms)
-INFO:root:[3,  4900] grad_stats: [1.32e+05 2.16e+05] (3.42e+04, 1.61e+06)
-INFO:root:[3,  5000/ 6090] train_loss: 9.517 [wd: 5.07e-02] [lr: 4.62e-05] [mem: 6.95e+04] (908.4 ms)
-INFO:root:[3,  5000] grad_stats: [1.15e+05 2.67e+05] (3.51e+04, 1.88e+06)
-INFO:root:[3,  5100/ 6090] train_loss: 9.510 [wd: 5.07e-02] [lr: 4.63e-05] [mem: 6.95e+04] (908.4 ms)
-INFO:root:[3,  5100] grad_stats: [1.30e+05 2.22e+05] (2.95e+04, 1.64e+06)
-INFO:root:[3,  5200/ 6090] train_loss: 9.504 [wd: 5.07e-02] [lr: 4.64e-05] [mem: 6.95e+04] (908.4 ms)
-INFO:root:[3,  5200] grad_stats: [1.20e+05 2.57e+05] (3.45e+04, 1.89e+06)
-INFO:root:[3,  5300/ 6090] train_loss: 9.498 [wd: 5.07e-02] [lr: 4.65e-05] [mem: 6.95e+04] (908.4 ms)
-INFO:root:[3,  5300] grad_stats: [1.35e+05 2.30e+05] (3.91e+04, 1.67e+06)
-INFO:root:[3,  5400/ 6090] train_loss: 9.492 [wd: 5.07e-02] [lr: 4.67e-05] [mem: 6.95e+04] (908.4 ms)
-INFO:root:[3,  5400] grad_stats: [1.17e+05 2.27e+05] (2.97e+04, 1.65e+06)
-INFO:root:[3,  5500/ 6090] train_loss: 9.486 [wd: 5.07e-02] [lr: 4.68e-05] [mem: 6.95e+04] (908.4 ms)
-INFO:root:[3,  5500] grad_stats: [1.60e+05 2.26e+05] (4.20e+04, 1.68e+06)
-INFO:root:[3,  5600/ 6090] train_loss: 9.479 [wd: 5.07e-02] [lr: 4.69e-05] [mem: 6.95e+04] (908.4 ms)
-INFO:root:[3,  5600] grad_stats: [1.37e+05 2.16e+05] (4.03e+04, 1.64e+06)
-INFO:root:[3,  5700/ 6090] train_loss: 9.472 [wd: 5.07e-02] [lr: 4.70e-05] [mem: 6.95e+04] (908.4 ms)
-INFO:root:[3,  5700] grad_stats: [1.19e+05 2.36e+05] (3.62e+04, 1.68e+06)
-INFO:root:[3,  5800/ 6090] train_loss: 9.466 [wd: 5.08e-02] [lr: 4.71e-05] [mem: 6.95e+04] (908.4 ms)
-INFO:root:[3,  5800] grad_stats: [1.62e+05 2.65e+05] (4.34e+04, 1.90e+06)
-INFO:root:[3,  5900/ 6090] train_loss: 9.460 [wd: 5.08e-02] [lr: 4.73e-05] [mem: 6.95e+04] (908.4 ms)
-INFO:root:[3,  5900] grad_stats: [1.62e+05 2.59e+05] (4.06e+04, 1.87e+06)
-INFO:root:[3,  6000/ 6090] train_loss: 9.455 [wd: 5.08e-02] [lr: 4.74e-05] [mem: 6.95e+04] (908.4 ms)
-INFO:root:[3,  6000] grad_stats: [1.79e+05 2.34e+05] (4.24e+04, 1.79e+06)
-Loss: 8.758928298950195
-Loss: 8.975641250610352
-INFO:root:* Acc@1 0.001 Acc@5 0.004 Test loss 12.899
-INFO:root:avg. train_loss 9.451
-INFO:root:avg. test_loss 12.899 avg. Accuracy@1 0.000 - avg. Accuracy@1 0.000
-Loss: 9.03567886352539
-Loss: 8.823623657226562
-INFO:root:Epoch 4
-INFO:root:[4,     0/ 6090] train_loss: 9.111 [wd: 5.08e-02] [lr: 4.75e-05] [mem: 6.95e+04] (883.3 ms)
-INFO:root:[4,     0] grad_stats: [1.16e+05 2.21e+05] (3.06e+04, 1.65e+06)
-INFO:root:[4,   100/ 6090] train_loss: 9.004 [wd: 5.08e-02] [lr: 4.76e-05] [mem: 6.95e+04] (904.9 ms)
-INFO:root:[4,   100] grad_stats: [1.46e+05 2.21e+05] (4.12e+04, 1.66e+06)
-INFO:root:[4,   200/ 6090] train_loss: 8.988 [wd: 5.08e-02] [lr: 4.77e-05] [mem: 6.95e+04] (906.6 ms)
-INFO:root:[4,   200] grad_stats: [1.58e+05 2.31e+05] (4.50e+04, 1.81e+06)
-INFO:root:[4,   300/ 6090] train_loss: 9.001 [wd: 5.08e-02] [lr: 4.79e-05] [mem: 6.95e+04] (907.3 ms)
-INFO:root:[4,   300] grad_stats: [1.51e+05 2.24e+05] (4.27e+04, 1.72e+06)
-INFO:root:[4,   400/ 6090] train_loss: 8.980 [wd: 5.08e-02] [lr: 4.80e-05] [mem: 6.95e+04] (907.5 ms)
-INFO:root:[4,   400] grad_stats: [1.27e+05 2.10e+05] (3.72e+04, 1.65e+06)
-INFO:root:[4,   500/ 6090] train_loss: 8.965 [wd: 5.08e-02] [lr: 4.81e-05] [mem: 6.95e+04] (907.6 ms)
-INFO:root:[4,   500] grad_stats: [1.14e+05 2.28e+05] (3.17e+04, 1.70e+06)
-INFO:root:[4,   600/ 6090] train_loss: 8.961 [wd: 5.08e-02] [lr: 4.82e-05] [mem: 6.95e+04] (907.8 ms)
-INFO:root:[4,   600] grad_stats: [1.29e+05 2.28e+05] (3.32e+04, 1.69e+06)
-INFO:root:[4,   700/ 6090] train_loss: 8.958 [wd: 5.08e-02] [lr: 4.84e-05] [mem: 6.95e+04] (907.8 ms)
-INFO:root:[4,   700] grad_stats: [1.49e+05 2.16e+05] (3.89e+04, 1.67e+06)
-INFO:root:[4,   800/ 6090] train_loss: 8.950 [wd: 5.08e-02] [lr: 4.85e-05] [mem: 6.95e+04] (907.8 ms)
-INFO:root:[4,   800] grad_stats: [1.50e+05 2.20e+05] (4.18e+04, 1.67e+06)
-INFO:root:[4,   900/ 6090] train_loss: 8.951 [wd: 5.09e-02] [lr: 4.86e-05] [mem: 6.95e+04] (908.1 ms)
-INFO:root:[4,   900] grad_stats: [1.73e+05 2.39e+05] (4.45e+04, 1.78e+06)
-INFO:root:[4,  1000/ 6090] train_loss: 8.952 [wd: 5.09e-02] [lr: 4.87e-05] [mem: 6.95e+04] (908.4 ms)
-INFO:root:[4,  1000] grad_stats: [1.59e+05 2.30e+05] (4.46e+04, 1.74e+06)
-INFO:root:[4,  1100/ 6090] train_loss: 8.943 [wd: 5.09e-02] [lr: 4.89e-05] [mem: 6.95e+04] (908.4 ms)
-INFO:root:[4,  1100] grad_stats: [1.83e+05 2.28e+05] (4.86e+04, 1.99e+06)
-INFO:root:[4,  1200/ 6090] train_loss: 8.941 [wd: 5.09e-02] [lr: 4.90e-05] [mem: 6.95e+04] (908.3 ms)
-INFO:root:[4,  1200] grad_stats: [1.40e+05 2.46e+05] (3.92e+04, 1.83e+06)
-INFO:root:[4,  1300/ 6090] train_loss: 8.940 [wd: 5.09e-02] [lr: 4.91e-05] [mem: 6.95e+04] (908.3 ms)
-INFO:root:[4,  1300] grad_stats: [1.60e+05 2.47e+05] (4.09e+04, 1.71e+06)
-INFO:root:[4,  1400/ 6090] train_loss: 8.931 [wd: 5.09e-02] [lr: 4.92e-05] [mem: 6.95e+04] (908.2 ms)
-INFO:root:[4,  1400] grad_stats: [2.04e+05 2.37e+05] (4.60e+04, 1.77e+06)
-INFO:root:[4,  1500/ 6090] train_loss: 8.927 [wd: 5.09e-02] [lr: 4.93e-05] [mem: 6.95e+04] (908.2 ms)
-INFO:root:[4,  1500] grad_stats: [1.75e+05 2.24e+05] (4.56e+04, 1.69e+06)
-INFO:root:[4,  1600/ 6090] train_loss: 8.914 [wd: 5.09e-02] [lr: 4.95e-05] [mem: 6.95e+04] (908.2 ms)
-INFO:root:[4,  1600] grad_stats: [1.79e+05 2.17e+05] (4.94e+04, 1.70e+06)
-INFO:root:[4,  1700/ 6090] train_loss: 8.912 [wd: 5.09e-02] [lr: 4.96e-05] [mem: 6.95e+04] (908.3 ms)
-INFO:root:[4,  1700] grad_stats: [2.31e+05 2.49e+05] (5.17e+04, 1.83e+06)
-INFO:root:[4,  1800/ 6090] train_loss: 8.910 [wd: 5.09e-02] [lr: 4.97e-05] [mem: 6.95e+04] (908.3 ms)
-INFO:root:[4,  1800] grad_stats: [3.14e+05 4.54e+05] (8.98e+04, 4.01e+06)
-INFO:root:[4,  1900/ 6090] train_loss: 8.904 [wd: 5.09e-02] [lr: 4.98e-05] [mem: 6.95e+04] (908.3 ms)
-INFO:root:[4,  1900] grad_stats: [3.57e+05 4.87e+05] (9.58e+04, 3.78e+06)
-INFO:root:[4,  2000/ 6090] train_loss: 8.894 [wd: 5.10e-02] [lr: 5.00e-05] [mem: 6.95e+04] (908.4 ms)
-INFO:root:[4,  2000] grad_stats: [3.34e+05 4.78e+05] (7.86e+04, 3.66e+06)
-INFO:root:[4,  2100/ 6090] train_loss: 8.891 [wd: 5.10e-02] [lr: 5.01e-05] [mem: 6.95e+04] (908.5 ms)
-INFO:root:[4,  2100] grad_stats: [2.77e+05 4.59e+05] (5.88e+04, 3.43e+06)
+INFO:root:[1,   100/ 6090] train_loss: 2.832 [wd: 5.00e-02] [lr: 1.00e-03] [mem: 6.93e+04] (940.7 ms)
+INFO:root:[1,   100] grad_stats: [2.17e+00 5.66e+01] (6.43e-02, 2.94e+04)
+INFO:root:[1,   200/ 6090] train_loss: 2.817 [wd: 5.00e-02] [lr: 1.00e-03] [mem: 6.93e+04] (913.2 ms)
+INFO:root:[1,   200] grad_stats: [5.07e+00 5.36e+01] (8.24e-02, 2.98e+04)
+INFO:root:[1,   300/ 6090] train_loss: 2.811 [wd: 5.00e-02] [lr: 1.00e-03] [mem: 6.93e+04] (904.6 ms)
+INFO:root:[1,   300] grad_stats: [3.42e+01 1.98e+01] (7.90e-01, 3.00e+04)
+INFO:root:[1,   400/ 6090] train_loss: 2.808 [wd: 5.00e-02] [lr: 1.00e-03] [mem: 6.93e+04] (900.6 ms)
+INFO:root:[1,   400] grad_stats: [3.13e+00 2.71e+01] (7.86e-02, 2.95e+04)
+INFO:root:[1,   500/ 6090] train_loss: 2.806 [wd: 5.00e-02] [lr: 1.01e-03] [mem: 6.93e+04] (898.1 ms)
+INFO:root:[1,   500] grad_stats: [3.81e+00 3.65e+01] (1.90e-01, 2.87e+04)
+INFO:root:[1,   600/ 6090] train_loss: 2.804 [wd: 5.00e-02] [lr: 1.01e-03] [mem: 6.93e+04] (896.3 ms)
+INFO:root:[1,   600] grad_stats: [2.27e+00 4.19e+01] (1.93e-01, 3.11e+04)
+INFO:root:[1,   700/ 6090] train_loss: 2.803 [wd: 5.00e-02] [lr: 1.01e-03] [mem: 6.93e+04] (894.8 ms)
+INFO:root:[1,   700] grad_stats: [2.06e+00 2.34e+01] (1.55e-01, 2.89e+04)
+INFO:root:[1,   800/ 6090] train_loss: 2.801 [wd: 5.00e-02] [lr: 1.01e-03] [mem: 6.93e+04] (893.7 ms)
+INFO:root:[1,   800] grad_stats: [1.21e+01 3.89e+01] (3.43e-01, 2.90e+04)
+INFO:root:[1,   900/ 6090] train_loss: 2.800 [wd: 5.00e-02] [lr: 1.01e-03] [mem: 6.93e+04] (893.0 ms)
+INFO:root:[1,   900] grad_stats: [7.71e+00 2.81e+01] (2.29e-01, 3.04e+04)

@@ -199,18 +199,6 @@ def main(args, resume_preempt=False):
         model_name=model_name)
     target_encoder = copy.deepcopy(encoder)
 
-    # -- make data transforms
-    mask_collator = MBMaskCollator(
-        input_size=crop_size,
-        patch_size=patch_size,
-        pred_mask_scale=pred_mask_scale,
-        enc_mask_scale=enc_mask_scale,
-        aspect_ratio=aspect_ratio,
-        nenc=num_enc_masks,
-        npred=num_pred_masks,
-        allow_overlap=allow_overlap,
-        min_keep=min_keep)
-
     training_transform = make_transforms( 
         crop_size=crop_size,
         crop_scale=crop_scale,
@@ -239,7 +227,7 @@ def main(args, resume_preempt=False):
     _, supervised_loader_train, supervised_sampler_train = make_PlantCLEF2022(
             transform=training_transform,
             batch_size=batch_size,
-            collator=mask_collator,
+            collator= None,
             pin_mem=pin_mem,
             training=True,
             num_workers=num_workers,
@@ -258,7 +246,7 @@ def main(args, resume_preempt=False):
     _, supervised_loader_val, supervised_sampler_val = make_PlantCLEF2022(
             transform=val_transform,
             batch_size=batch_size,
-            collator=mask_collator,
+            collator= None,
             pin_mem=pin_mem,
             training=False,
             num_workers=num_workers,
@@ -291,8 +279,9 @@ def main(args, resume_preempt=False):
         ipe_scale=ipe_scale,
         use_bfloat16=use_bfloat16)
     
-    mixup_fn = None 
+    mixup_fn = None
     mixup_active = mixup > 0 or cutmix > 0. # or args.cutmix_minmax is not None
+    
     if mixup_active:
         print("Mixup is activated!")
         mixup_fn = Mixup(mixup_alpha=mixup, cutmix_alpha=cutmix, label_smoothing=0.1, num_classes=nb_classes)
@@ -342,11 +331,12 @@ def main(args, resume_preempt=False):
     target_encoder = target_encoder.module # Unwrap from DDP
     for p in target_encoder.parameters():
         p.requires_grad = True
+
     target_encoder = add_classification_head(target_encoder, nb_classes=nb_classes, drop_path=drop_path, device=device)
+    
     # -- Override previously loaded optimization configs.
     optimizer, scaler, scheduler, wd_scheduler = init_FT_opt(
         encoder=target_encoder,
-        predictor=predictor,
         wd=wd,
         final_wd=final_wd,
         start_lr=start_lr,
@@ -357,6 +347,7 @@ def main(args, resume_preempt=False):
         num_epochs=num_epochs,
         ipe_scale=ipe_scale,
         use_bfloat16=use_bfloat16)
+    
     target_encoder = DistributedDataParallel(target_encoder, static_graph=True) # Static Graph: the set of used and unused parameters will not change during the whole training loop.
     
     if resume_epoch != 0:
@@ -367,26 +358,24 @@ def main(args, resume_preempt=False):
             opt=optimizer,
             scaler=scaler)
         for _ in range(resume_epoch*ipe):
-            scheduler.step()
+            scheduler.step() 
             wd_scheduler.step()
-            mask_collator.step() # no use
 
     logger.info(target_encoder)
 
     # -- Remove from device once they are required for loading pretrained parameters only
     del encoder
     del predictor
-
-    # TODO: 
-    # Add layerwise lr decay[]
     
-    accum_iter = 2
+    accum_iter = 4
     start_epoch = resume_epoch
 
     _new_lr = scheduler.step()
     _new_wd = wd_scheduler.step()
 
     # -- TRAINING LOOP
+    # TODO: 
+    # Add layerwise lr decay[]    
     for epoch in range(start_epoch, num_epochs):
         
         logger.info('Epoch %d' % (epoch + 1))
@@ -400,12 +389,13 @@ def main(args, resume_preempt=False):
         time_meter = AverageMeter()
 
         target_encoder.train(True)
-        for itr, (udata, masks_enc, masks_pred) in enumerate(supervised_loader_train):
+        for itr, (sample, target) in enumerate(supervised_loader_train):
             def load_imgs():
-                imgs = udata[0].to(device, non_blocking=True)
-                targets = udata[1].to(device, non_blocking=True)
+                samples = sample.to(device, non_blocking=True)
+                targets = target.to(device, non_blocking=True)
+
                 if mixup_fn is not None:
-                    samples, targets = mixup_fn(imgs, targets)
+                    samples, targets = mixup_fn(samples, targets)
                 return (samples, targets)
             imgs, targets = load_imgs()
 
@@ -413,7 +403,7 @@ def main(args, resume_preempt=False):
                          
                 def loss_fn(h, targets):
                     loss = criterion(h, targets)
-                    #loss = AllReduce.apply(loss)
+                    loss = AllReduce.apply(loss)
                     # TODO: verify below.
                     # It is not necessary to use another allreduce to sum all loss. 
                     # Additional allreduce might have considerable negative impact on training speed.
@@ -427,7 +417,7 @@ def main(args, resume_preempt=False):
 
                 #  Step 2. Backward & step
                 if use_bfloat16:
-                    #loss /= accum_iter
+                    loss /= accum_iter
                     scaler(loss, optimizer, clip_grad=None,
                                 parameters=target_encoder.parameters(), create_graph=False,
                                 update_grad=(itr + 1) % accum_iter == 0)
@@ -435,6 +425,7 @@ def main(args, resume_preempt=False):
                     loss.backward()
                     optimizer.step()
 
+                #loss = AllReduce.apply(loss)
                 grad_stats = grad_logger(target_encoder.named_parameters())
                 if (itr + 1) % accum_iter == 0:
                     optimizer.zero_grad()
@@ -482,20 +473,21 @@ def main(args, resume_preempt=False):
         # Warning: Enabling distributed evaluation with an eval dataset not divisible by process number
         # will slightly alter validation results as extra duplicate entries are added to achieve equal 
         # num of samples per-process.
-        def evaluate():
+        @torch.no_grad()
+        def evaluate(unused_parameters=None):
             crossentropy = torch.nn.CrossEntropyLoss()
 
             target_encoder.eval()              
             supervised_sampler_val.set_epoch(epoch) # -- Enable shuffling to reduce monitor bias
             
-            for cnt, (val_data, masks_enc, masks_pred) in enumerate(supervised_loader_val):
-                images = val_data[0].to(device, non_blocking=True)
-                labels = val_data[1].to(device, non_blocking=True)
+            for cnt, (samples, targets) in enumerate(supervised_loader_val):
+                images = samples.to(device, non_blocking=True)
+                labels = targets.to(device, non_blocking=True)
                 
-                with torch.no_grad(): 
-                    with torch.cuda.amp.autocast():
-                        output = target_encoder.forward(images)
-                        loss = crossentropy(output, labels)
+                 
+                with torch.cuda.amp.autocast():
+                    output = target_encoder.forward(images)
+                    loss = crossentropy(output, labels)
                 
                 acc1, acc5 = accuracy(output, labels, topk=(1, 5))
 
@@ -504,6 +496,7 @@ def main(args, resume_preempt=False):
                 test_loss.update(loss)
         
         vtime = gpu_timer(evaluate)
+        
         logger.info('* Acc@1 {top1.avg:.3f} Acc@5 {top5.avg:.3f} Test loss {losses.avg:.3f}'.format(top1=testAcc1, top5=testAcc5, losses=test_loss))
         
         # -- Logging

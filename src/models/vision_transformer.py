@@ -422,7 +422,7 @@ class VisionTransformer(nn.Module):
 
         '''
 
-        pos_embed = self.interpolate_pos_encoding(x, self.pos_embed) # TODO: check error here when batching 
+        pos_embed = self.interpolate_pos_encoding(x, self.pos_embed)
         x = x + pos_embed
 
         # -- mask x

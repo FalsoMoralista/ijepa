@@ -19,6 +19,10 @@ import torch.nn  as nn
 import torch.nn.functional as F
 from torch import inf 
 
+# from timm.models.layers import trunc_normal_ 
+import util.lr_decay as lrd
+
+
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 logger = logging.getLogger()
 
@@ -106,30 +110,44 @@ class FinetuningModel(nn.Module):
         
         self.drop_path = drop_path
         self.nb_classes = nb_classes
-
-        self.pretrained_model.layer_dropout = self.drop_path 
+        
+        self.pretrained_model.drop_path = 0.2  # Does it change anything after the model has been loaded? TODO: REMEMBER THIS WAS ADDED
+        self.pretrained_model.drop_rate = 0.25
+        
+        #self.pretrained_model.layer_dropout = self.drop_path 
 
         self.average_pool = nn.AvgPool1d((self.pretrained_model.patch_embed.num_patches), stride=1)
-        self.head_drop = nn.Dropout(drop_path)
 
         # TODO: 
         # (1) - Verify if layer norm still necessary, considering that it is already performed in the ouput of the target encoder's features[]
-        self.mlp_head = nn.Sequential(
-            nn.LayerNorm(self.pretrained_model.embed_dim),
-            nn.Linear(self.pretrained_model.embed_dim, self.nb_classes)
-        )
-    
+        self.norm = nn.LayerNorm(self.pretrained_model.embed_dim)
+        self.head_drop = nn.Dropout(drop_path)
+
+        self.mlp_head = nn.Linear(self.pretrained_model.embed_dim, self.nb_classes)
+
     def forward(self, x):
         x = self.pretrained_model(x)
-        x = F.layer_norm(x, (x.size(-1),))  # normalize over feature-dim - This was added to match the implementation at the "forward target" function but i don't see very much the point as the model has one layer as this in its output. 
+        # x = self.pretrained_model.norm(x) TODO: evaluate this possibility ...
+
+        #x = F.layer_norm(x, (x.size(-1),))  # normalize over feature-dim - This was added to match the implementation at the "forward target" function but i don't see very much the point as the model has one layer as this in its output. 
         x = self.average_pool(x.transpose(1, 2)).transpose(1, 2) # conduct average pool like in paper
+
         x = x.squeeze(1)
-        x = self.head_drop(x) # This is applied in timm models.
-        x = self.mlp_head(x) #pass through mlp head.
+
+        x = F.layer_norm(x, (x.size(-1),))  # normalize over feature-dim - This was added to match the implementation at the "forward target" function but i don't see very much the point as the model has one layer as this in its output.        
+        
+        x = self.head_drop(x) # This is how is done in timm.models
+        
+        #x = self.norm(x)
+        x = self.mlp_head(x)
         return x
     
 def add_classification_head(pretrained_model, drop_path, nb_classes, device):
     model = FinetuningModel(pretrained_model, drop_path, nb_classes)
+    
+    # manually initialize fc layer (borrowed from MAE)
+    trunc_normal_(model.mlp_head.weight, std=2e-5) 
+    
     model.to(device)
     return model         
         
@@ -214,7 +232,7 @@ def init_model(
 
     encoder.to(device)
     predictor.to(device)
-    logger.info(encoder)
+    # logger.info(encoder)
     return encoder, predictor
 
 def init_opt(
@@ -251,12 +269,6 @@ def init_opt(
         }
     ]
 
-    # -- TODO [] : Verify whether param_groups is equivalent to the code below:
-    # From utils.lr_decay
-    #lrd.param_groups_lrd(model_without_ddp, 0.05,
-    #    no_weight_decay_list=model_without_ddp.no_weight_decay(),
-    #    layer_decay=0.75)
-
     logger.info('Using AdamW')
     optimizer = torch.optim.AdamW(param_groups)
     scheduler = WarmupCosineSchedule(
@@ -277,7 +289,6 @@ def init_opt(
 
 def init_FT_opt(
     encoder,
-    predictor,
     iterations_per_epoch,
     start_lr,
     ref_lr,
@@ -294,27 +305,19 @@ def init_FT_opt(
             'params': (p for n, p in encoder.named_parameters()
                        if ('bias' not in n) and (len(p.shape) != 1))
         }, {
-            'params': (p for n, p in predictor.named_parameters()
-                       if ('bias' not in n) and (len(p.shape) != 1))
-        }, {
             'params': (p for n, p in encoder.named_parameters()
                        if ('bias' in n) or (len(p.shape) == 1)),
             'WD_exclude': True,
             'weight_decay': 0 
-        }, {
-            'params': (p for n, p in predictor.named_parameters()
-                       if ('bias' in n) or (len(p.shape) == 1)),
-            'WD_exclude': True,
-            'weight_decay': 0
         }
     ]
 
-    # -- TODO [] : Verify whether param_groups is equivalent to the code below:
-    # From utils.lr_decay
-    #lrd.param_groups_lrd(model_without_ddp, 0.05,
-    #    no_weight_decay_list=model_without_ddp.no_weight_decay(),
-    #    layer_decay=0.75)
-
+    # build optimizer with layer-wise lr decay (lrd)
+    #param_groups = lrd.param_groups_lrd(encoder.pretrained_model, wd,
+    #    no_weight_decay_list={'pos_embed', 'cls_token', 'dist_token'}, # gathered here https://github.com/huggingface/pytorch-image-models/blob/main/timm/models/vision_transformer.py#L573
+    #    layer_decay=0.75
+    #)
+    
     logger.info('Using AdamW')
     optimizer = torch.optim.AdamW(param_groups)
     scheduler = WarmupCosineSchedule(
@@ -330,4 +333,4 @@ def init_FT_opt(
         final_wd=final_wd,
         T_max=int(ipe_scale*num_epochs*iterations_per_epoch))
     scaler = NativeScalerWithGradNormCount() if use_bfloat16 else None
-    return optimizer, scaler, scheduler, wd_scheduler
+    return optimizer, scaler, scheduler, wd_scheduler 

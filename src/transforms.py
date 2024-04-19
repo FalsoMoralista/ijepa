@@ -26,15 +26,12 @@ logger = getLogger()
      "Our MAE works well using cropping-only augmentation, 
      either fixed-size or random-size (both having random horizontal flipping). 
      Adding color jittering degrades the results and so we do not use it in other experiments."
-     - Finetuning or PRE-TRAIN?
     
     I-JEPA (Finetuning):
      "The base learning rate is set to 10−4 and the batch size to 528. 
      We train using mixup [76] set to 0.8, cutmix [73] set to 1.0, a drop path probability of 0.25 and a weight decay set to 0.04. 
      We also use a layer decay of 0.75. Finally, we use the same rand-augment data-augmentations as MAE"
 
-     TODO: 
-     Pre-train with and without (i.e., crop only) augmentation therefore, check on file util/datasets.py.
 '''
 
 def make_transforms(

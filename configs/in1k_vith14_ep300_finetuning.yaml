@@ -49,11 +49,13 @@ optimization:
   - 0.9
   - 0.999
   epochs: 50
-  final_lr: 1.0e-06 # Default: 1e-6
+  final_lr: 5.0e-05 # Default: 1e-6
   final_weight_decay: 0.4 
   ipe_scale: 1.0
-  lr: 1.0e-04 #0.0007 # Default 0.0015 -> lr = base lr × batchsize / 256. (learning rate formula). /0.0007
-  start_lr: 2.5e-05 #0.00001 # Default: 0.0002 
+  lr: 2.5e-03 #0.0007 # Default 0.0015 -> lr = base lr × batchsize / 256. (learning rate formula). /0.0007
+  start_lr: 1.0e-03 #0.00001 # Default: 0.0002 
   warmup: 5
   weight_decay: 0.05
   label_smoothing: 0.1
+
+# mae lr: 0.0026. 6.5e-4 (blr)
