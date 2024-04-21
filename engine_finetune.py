@@ -294,8 +294,6 @@ def main(args, resume_preempt=False):
     else:
         criterion = torch.nn.CrossEntropyLoss()
 
-    # lr = base lr × batchsize / 256. (learning rate formula).
-
     # -- # -- # -- #
     encoder = DistributedDataParallel(encoder, static_graph=True)
     predictor = DistributedDataParallel(predictor, static_graph=True)
@@ -370,12 +368,10 @@ def main(args, resume_preempt=False):
     accum_iter = 4
     start_epoch = resume_epoch
 
-    _new_lr = scheduler.step()
-    _new_wd = wd_scheduler.step()
+    #_new_lr = scheduler.step()
+    #_new_wd = wd_scheduler.step()
 
     # -- TRAINING LOOP
-    # TODO: 
-    # Add layerwise lr decay[]    
     for epoch in range(start_epoch, num_epochs):
         
         logger.info('Epoch %d' % (epoch + 1))
@@ -400,6 +396,8 @@ def main(args, resume_preempt=False):
             imgs, targets = load_imgs()
 
             def train_step():    
+                _new_lr = scheduler.step() # adjusting this back here to see what happens.
+                _new_wd = wd_scheduler.step()
                          
                 def loss_fn(h, targets):
                     loss = criterion(h, targets)
@@ -430,13 +428,9 @@ def main(args, resume_preempt=False):
                 if (itr + 1) % accum_iter == 0:
                     optimizer.zero_grad()
 
-                return (float(loss), grad_stats)
-            
-            if (itr + 1)  % accum_iter == 0:
-                _new_lr = scheduler.step()
-                _new_wd = wd_scheduler.step()
+                return (float(loss), _new_lr, _new_wd, grad_stats)
 
-            (loss, grad_stats), etime = gpu_timer(train_step)
+            (loss, _new_lr, _new_wd, grad_stats), etime = gpu_timer(train_step)
             
             loss_meter.update(loss)
             time_meter.update(etime)
