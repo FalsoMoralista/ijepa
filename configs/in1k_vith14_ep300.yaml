@@ -13,7 +13,7 @@ data:
   use_gaussian_blur: false
   use_horizontal_flip: false
 logging:
-  folder: /home/rtcalumby/adam/luciano/LifeCLEFPlant2022/logs/feature_extraction
+  folder: /home/rtcalumby/adam/luciano/LifeCLEFPlant2022/logs/pretraining
   write_tag: jepa
 mask:
   allow_overlap: false
@@ -42,7 +42,7 @@ optimization:
   ema:
   - 0.996
   - 1.0
-  epochs: 350
+  epochs: 300
   final_lr: 1.0e-06
   final_weight_decay: 0.4
   ipe_scale: 1.0

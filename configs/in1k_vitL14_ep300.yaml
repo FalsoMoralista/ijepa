@@ -1,15 +1,10 @@
 data:
-  batch_size: 96
+  batch_size: 192
   color_jitter_strength: 0.0
   crop_scale:
   - 0.3
   - 1.0
   crop_size: 224
-  drop_path: 0.25
-  mixup: 0.8
-  nb_classes: 80000
-  cutmix: 1.0
-  reprob: 0.25
   image_folder: LifeCLEFPlant2022/
   num_workers: 32
   pin_mem: true
@@ -17,9 +12,8 @@ data:
   use_color_distortion: false
   use_gaussian_blur: false
   use_horizontal_flip: false
-  resume_epoch: 0
 logging:
-  folder: /home/rtcalumby/adam/luciano/LifeCLEFPlant2022/logs/inet_feature_extraction
+  folder: /home/rtcalumby/adam/luciano/LifeCLEFPlant2022/logs/pretraining
   write_tag: jepa
 mask:
   allow_overlap: false
@@ -39,23 +33,20 @@ mask:
 meta:
   copy_data: false
   load_checkpoint: true
-  model_name: vit_huge
+  model_name: vit_large
   pred_depth: 12
   pred_emb_dim: 384
   read_checkpoint: null
   use_bfloat16: true
 optimization:
   ema:
-  - 0.9
-  - 0.999
-  epochs: 50
-  final_lr: 1.0e-04 # Default: 1e-6
-  final_weight_decay: 0.4 
+  - 0.996
+  - 1.0
+  epochs: 300
+  final_lr: 1.0e-06
+  final_weight_decay: 0.4
   ipe_scale: 1.0
-  lr: 1.0e-03 #0.0007 # Default 0.0015 -> lr = base lr × batchsize / 256. (learning rate formula). /0.0007
-  start_lr: 5.5e-04 #0.00001 # Default: 0.0002 
-  warmup: 5
-  weight_decay: 0.05
-  label_smoothing: 0.1
-
-# mae lr: 0.0026. 6.5e-4 (blr)
+  lr: 0.001
+  start_lr: 0.0002
+  warmup: 40
+  weight_decay: 0.04

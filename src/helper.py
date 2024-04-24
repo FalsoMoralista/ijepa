@@ -124,7 +124,10 @@ class FinetuningModel(nn.Module):
 
         self.head_drop = nn.Dropout(drop_path)
 
-        self.mlp_head = nn.Linear(self.n_intermediate_outputs * self.pretrained_model.embed_dim,
+        #self.mlp_head = nn.Linear(self.n_intermediate_outputs * self.pretrained_model.embed_dim,
+        #                            self.nb_classes)
+           
+        self.mlp_head = nn.Linear(self.pretrained_model.embed_dim,
                                     self.nb_classes)   
 
     '''
@@ -164,7 +167,7 @@ class FinetuningModel(nn.Module):
         output = torch.cat(outputs, dim=-1)
         return output
 
-    def forward(self, x):
+    def forward_with_intermediate_outputs(self, x):
 
         x = self.get_n_intermediate_outputs(self.n_intermediate_outputs, x)
         
@@ -174,24 +177,20 @@ class FinetuningModel(nn.Module):
         return x
 
 
-    def forward_v2(self, x):
-
-        self.get_n_intermediate_outputs(4, x)
+    def forward(self, x):
 
         x = self.pretrained_model(x)
-        # x = self.pretrained_model.norm(x) TODO: evaluate this possibility ...
 
-        #x = F.layer_norm(x, (x.size(-1),))  # normalize over feature-dim - This was added to match the implementation at the "forward target" function but i don't see very much the point as the model has one layer as this in its output. 
         x = self.average_pool(x.transpose(1, 2)).transpose(1, 2) # conduct average pool like in paper
 
         x = x.squeeze(1)
 
-        x = F.layer_norm(x, (x.size(-1),))  # normalize over feature-dim - This was added to match the implementation at the "forward target" function but i don't see very much the point as the model has one layer as this in its output.        
+        x = F.layer_norm(x, (x.size(-1),))  # normalize over feature-dim 
         
-        x = self.head_drop(x) # This is how is done in timm.models
+        x = self.head_drop(x) # As in in timm.models
         
-        #x = self.norm(x)
         x = self.mlp_head(x)
+        
         return x
 
     

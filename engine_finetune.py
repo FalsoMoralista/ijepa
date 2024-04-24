@@ -62,7 +62,7 @@ from timm.utils import accuracy
 
 # --
 log_timings = True
-log_freq = 100
+log_freq = 200
 checkpoint_freq = 5
 # --
 
@@ -172,7 +172,7 @@ def main(args, resume_preempt=False):
     load_path = None
     
     if load_model:
-        load_path = '/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/' + 'IN1K-vit.h.14-300e.pth.tar' #os.path.join(folder, r_file) if r_file is not None else latest_path
+        load_path = '/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/' + 'IN1K-vit.h.14-900e.pth.tar'  #os.path.join(folder, r_file) if r_file is not None else latest_path
     
     if resume_epoch > 0:
         r_file = 'jepa-ep{}.pth.tar'.format(resume_epoch + 1)
@@ -326,12 +326,12 @@ def main(args, resume_preempt=False):
             if (epoch + 1) % checkpoint_freq == 0:
                 torch.save(save_dict, save_path.format(epoch=f'{epoch + 1}'))
 
-    target_encoder = target_encoder.module # Unwrap from DDP
+    target_encoder = target_encoder.module # Unwrap from DDP    
     for p in target_encoder.parameters():
         p.requires_grad = True
 
     target_encoder = add_classification_head(target_encoder, nb_classes=nb_classes, drop_path=drop_path, device=device)
-    
+
     # -- Override previously loaded optimization configs.
     optimizer, scaler, scheduler, wd_scheduler = init_FT_opt(
         encoder=target_encoder,
@@ -368,9 +368,6 @@ def main(args, resume_preempt=False):
     accum_iter = 4
     start_epoch = resume_epoch
 
-    #_new_lr = scheduler.step()
-    #_new_wd = wd_scheduler.step()
-
     # -- TRAINING LOOP
     for epoch in range(start_epoch, num_epochs):
         
@@ -396,7 +393,7 @@ def main(args, resume_preempt=False):
             imgs, targets = load_imgs()
 
             def train_step():    
-                _new_lr = scheduler.step() # adjusting this back here to see what happens.
+                _new_lr = scheduler.step() 
                 _new_wd = wd_scheduler.step()
                          
                 def loss_fn(h, targets):
@@ -410,7 +407,7 @@ def main(args, resume_preempt=False):
                             
                 # Step 1. Forward
                 with torch.cuda.amp.autocast(dtype=torch.bfloat16, enabled=use_bfloat16):
-                    h = target_encoder.forward(imgs)
+                    h = target_encoder(imgs)
                     loss = loss_fn(h, targets)
 
                 #  Step 2. Backward & step
@@ -423,7 +420,6 @@ def main(args, resume_preempt=False):
                     loss.backward()
                     optimizer.step()
 
-                #loss = AllReduce.apply(loss)
                 grad_stats = grad_logger(target_encoder.named_parameters())
                 if (itr + 1) % accum_iter == 0:
                     optimizer.zero_grad()
@@ -477,8 +473,7 @@ def main(args, resume_preempt=False):
             for cnt, (samples, targets) in enumerate(supervised_loader_val):
                 images = samples.to(device, non_blocking=True)
                 labels = targets.to(device, non_blocking=True)
-                
-                 
+                                 
                 with torch.cuda.amp.autocast():
                     output = target_encoder.forward(images)
                     loss = crossentropy(output, labels)
@@ -491,7 +486,7 @@ def main(args, resume_preempt=False):
         
         vtime = gpu_timer(evaluate)
         
-        logger.info('* Acc@1 {top1.avg:.3f} Acc@5 {top5.avg:.3f} Test loss {losses.avg:.3f}'.format(top1=testAcc1, top5=testAcc5, losses=test_loss))
+        #logger.info('* Acc@1 {top1.avg:.3f} Acc@5 {top5.avg:.3f} Test loss {losses.avg:.3f}'.format(top1=testAcc1, top5=testAcc5, losses=test_loss))
         
         # -- Logging
         def log_test():

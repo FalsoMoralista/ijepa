@@ -94,7 +94,7 @@ def make_PlantCLEF2022(
         index_targets=index_targets)
     '''
 
-    dataset = build_dataset(is_train=training)
+    dataset = build_dataset(is_train=training) 
 
     logger.info('PlantCLEF dataset created')
 
@@ -105,7 +105,7 @@ def make_PlantCLEF2022(
     
     data_loader = torch.utils.data.DataLoader(
         dataset,
-        #collate_fn=collator,
+        collate_fn=collator,
         sampler=dist_sampler,
         batch_size=batch_size,
         drop_last=drop_last,
