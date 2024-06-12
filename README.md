@@ -27,7 +27,7 @@ Some of those settings were set for a ViT-H model, and should be changed accordi
 
 Randaugment, gradient accumulation and other settings that couldn't be found on the .yaml file can be set directly on the _engine_finetune.py_ file.
 
-If one chooses to use the concatenation of the last 4 layers of the average-pooled patch representations as input to a classifier it has to modify the default forward function at _src/helper.py_. Note that this function has been implemented but an small fix has to be performed in order to verify if the layer that has been chosen is an mlp block instead of something else (e.g., Dropout, Identity, LayerNormalization, etc).
+If one chooses to use the concatenation of the last 4 layers of the average-pooled patch representations as input to a classifier it has to modify the default forward function at _src/helper.py_. Note that this function has been implemented but an small fix has to be performed in order to verify if the layer that has been chosen is a block instead of something else (e.g., Dropout, Identity, LayerNormalization, etc).
 
 Other changes to the classification pipeline can be performed at the classification model class at _src/helper.py_ as well.
 
