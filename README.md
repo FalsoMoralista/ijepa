@@ -23,7 +23,7 @@ python main_finetuning.py \
 ```
 
 ### Disclaimer
-Some of those settings were set for a ViT-H model, and should be changed accordingly, see the paper appendix (https://arxiv.org/pdf/2111.06377) at page 11.  
+Some of those settings were set for a ViT-H model, and should be changed accordingly, see the paper appendix (https://arxiv.org/pdf/2111.06377) and the recommended configurations for finetuning at page 11.  
 
 If one chooses to use the concatenation of the last 4 layers of the average-pooled patch representations as input to a classifier it has to modify the default forward function at _src/helper.py_. Note that this function has been implemented but an small fix has to be performed in order to verify if the layer that has been chosen is an mlp block instead of something else (e.g., Dropout, Identity, LayerNormalization, etc).
 
