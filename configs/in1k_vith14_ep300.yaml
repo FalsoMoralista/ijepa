@@ -13,7 +13,7 @@ data:
   use_gaussian_blur: false
   use_horizontal_flip: false
 logging:
-  folder: /home/rtcalumby/adam/luciano/LifeCLEFPlant2022/logs/pretraining
+  folder: /home/rtcalumby/adam/luciano/LifeCLEFPlant2022/logs/non_scratch_pretraining
   write_tag: jepa
 mask:
   allow_overlap: false
@@ -33,6 +33,7 @@ mask:
 meta:
   copy_data: false
   load_checkpoint: true
+  checkpoint_file: # '../../IN1K-vit.h.14-300e.pth.tar' # TODO: REMOVE after first epoch
   model_name: vit_huge
   pred_depth: 12
   pred_emb_dim: 384
@@ -48,5 +49,5 @@ optimization:
   ipe_scale: 1.0
   lr: 0.001
   start_lr: 0.0002
-  warmup: 40
+  warmup: 10
   weight_decay: 0.04

@@ -23,15 +23,20 @@ from timm.data import create_transform
 
 def build_dataset(is_train, args=None):
     transform = build_transform(is_train, args)
-    image_folder='/home/rtcalumby/adam/luciano/LifeCLEFPlant2022'
+    image_folder='/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/data'
     root = os.path.join(image_folder, 'train' if is_train else 'val')
     dataset = datasets.ImageFolder(root, transform=transform)
 
     return dataset
 
 def build_transform(is_train, args):
-    mean = (0.436, 0.444, 0.330) # PlantCLEF2022 stats
-    std = (0.203, 0.199, 0.195)
+
+    #mean = (0.436, 0.444, 0.330) # PlantCLEF2022 stats
+    #std = (0.203, 0.199, 0.195)
+
+    # Testing imagenet stats
+    mean = (0.485, 0.456, 0.406)
+    std = (0.229, 0.224, 0.225)
 
     input_size=224
     # train transform
@@ -85,14 +90,14 @@ def make_PlantCLEF2022(
     
     index_targets = False 
     
-    '''dataset = PC2022(
-        root=root_path,
-        image_folder=image_folder,
-        transform=transform,
-        train=training,
-        copy_data=copy_data,
-        index_targets=index_targets)
-    '''
+    #dataset = PC2022(
+    #    root=root_path,
+    #    image_folder=image_folder,
+    #    transform=transform,
+    #    train=training,
+    #    copy_data=copy_data,
+    #    index_targets=index_targets)
+    
 
     dataset = build_dataset(is_train=training) 
 

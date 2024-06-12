@@ -111,26 +111,21 @@ class FinetuningModel(nn.Module):
         self.drop_path = drop_path
         self.nb_classes = nb_classes
         
-        self.pretrained_model.drop_path = 0.2  # Does it change anything after the model has been loaded? TODO: REMEMBER THIS WAS ADDED
+        self.pretrained_model.drop_path = 0.2  # Does it change anything after the model has been loaded?
         self.pretrained_model.drop_rate = 0.25
         
-        self.n_intermediate_outputs = 4
-        
-        #self.pretrained_model.layer_dropout = self.drop_path 
-
-        self.average_pool = nn.AvgPool1d((self.pretrained_model.patch_embed.num_patches), stride=1)
-
-        self.norm = nn.LayerNorm(self.pretrained_model.embed_dim) # TODO: REMOVE
+        self.n_intermediate_outputs = 4       
 
         self.head_drop = nn.Dropout(drop_path)
 
-        #self.mlp_head = nn.Linear(self.n_intermediate_outputs * self.pretrained_model.embed_dim,
-        #                            self.nb_classes)
-           
         self.mlp_head = nn.Linear(self.pretrained_model.embed_dim,
-                                    self.nb_classes)   
+                                  self.nb_classes)
 
     '''
+        FIXME: This function allows to get the output representation of the last n layers, although
+        it is currently accounting normalization, dropout, identities as layers which it isn't correct,
+        this should be fixed so that only mlp head outputs are concatenated.   
+
         " Because our I-JEPA implementation uses Vision Transformer architectures without a [cls] token, 
         we adapt the default VISSL evaluation recipe to utilize the average-pooled patch representation
         instead of the [cls] token. 
@@ -158,16 +153,18 @@ class FinetuningModel(nn.Module):
             x = blk(x)
             # -- 2. Patch-wise averaging and normalization.
             if b in layers:
+                print('Block:', blk) # TODO: Finish debug
                 h = self.average_pool(x.transpose(1, 2)).transpose(1, 2)
                 h = h.squeeze(1) # adjust
                 h = F.layer_norm(h, (h.size(-1),)) # Normalize over feature-dim    
                 outputs.append(h)
-                        
+
         # -- 3. Concatenation
         output = torch.cat(outputs, dim=-1)
+        exit(0) # TODO: REMOVE THIS
         return output
 
-    def forward_with_intermediate_outputs(self, x):
+    def forward_intermediate_outputs(self, x):
 
         x = self.get_n_intermediate_outputs(self.n_intermediate_outputs, x)
         
@@ -176,13 +173,12 @@ class FinetuningModel(nn.Module):
         x = self.mlp_head(x)
         return x
 
-
     def forward(self, x):
 
         x = self.pretrained_model(x)
 
-        x = self.average_pool(x.transpose(1, 2)).transpose(1, 2) # conduct average pool like in paper
-
+        x = torch.mean(x, dim=1) # alternative
+        
         x = x.squeeze(1)
 
         x = F.layer_norm(x, (x.size(-1),))  # normalize over feature-dim 
@@ -190,7 +186,6 @@ class FinetuningModel(nn.Module):
         x = self.head_drop(x) # As in in timm.models
         
         x = self.mlp_head(x)
-        
         return x
 
     
@@ -366,12 +361,13 @@ def init_FT_opt(
 
     # build optimizer with layer-wise lr decay (lrd)
     #param_groups = lrd.param_groups_lrd(encoder.pretrained_model, wd,
-    #    no_weight_decay_list={'pos_embed', 'cls_token', 'dist_token'}, # gathered here https://github.com/huggingface/pytorch-image-models/blob/main/timm/models/vision_transformer.py#L573
+    #    no_weight_decay_list={'pos_embed', 'cls_token', 'dist_token'}, # decay list gathered here https://github.com/huggingface/pytorch-image-models/blob/main/timm/models/vision_transformer.py#L573
     #    layer_decay=0.75
     #)
-    
+
     logger.info('Using AdamW')
-    optimizer = torch.optim.AdamW(param_groups)
+    optimizer = torch.optim.AdamW(encoder.parameters())
+    #optimizer = torch.optim.AdamW(param_groups)
     scheduler = WarmupCosineSchedule(
         optimizer,
         warmup_steps=int(warmup*iterations_per_epoch),

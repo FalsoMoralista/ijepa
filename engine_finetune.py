@@ -172,7 +172,8 @@ def main(args, resume_preempt=False):
     load_path = None
     
     if load_model:
-        load_path = '/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/' + 'IN1K-vit.h.14-900e.pth.tar'  #os.path.join(folder, r_file) if r_file is not None else latest_path
+        #load_path = '/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/logs/non_scratch_pretraining/jepa-ep50.pth.tar'
+        load_path = '/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/' + 'IN1K-vit.h.14-300e.pth.tar'  #os.path.join(folder, r_file) if r_file is not None else latest_path
     
     if resume_epoch > 0:
         r_file = 'jepa-ep{}.pth.tar'.format(resume_epoch + 1)
@@ -227,7 +228,7 @@ def main(args, resume_preempt=False):
     _, supervised_loader_train, supervised_sampler_train = make_PlantCLEF2022(
             transform=training_transform,
             batch_size=batch_size,
-            collator= None,
+            collator=None,
             pin_mem=pin_mem,
             training=True,
             num_workers=num_workers,
@@ -280,7 +281,7 @@ def main(args, resume_preempt=False):
         use_bfloat16=use_bfloat16)
     
     mixup_fn = None
-    mixup_active = mixup > 0 or cutmix > 0. # or args.cutmix_minmax is not None
+    mixup_active = mixup > 0 or cutmix > 0.
     
     if mixup_active:
         print("Mixup is activated!")
@@ -297,7 +298,7 @@ def main(args, resume_preempt=False):
     # -- # -- # -- #
     encoder = DistributedDataParallel(encoder, static_graph=True)
     predictor = DistributedDataParallel(predictor, static_graph=True)
-    target_encoder = DistributedDataParallel(target_encoder)
+    target_encoder = DistributedDataParallel(target_encoder, static_graph=True)
 
     # -- Load ImageNet weights
     if resume_epoch == 0:    
@@ -382,20 +383,25 @@ def main(args, resume_preempt=False):
         time_meter = AverageMeter()
 
         target_encoder.train(True)
+
+        #optimizer.zero_grad()
+
         for itr, (sample, target) in enumerate(supervised_loader_train):
+            
             def load_imgs():
                 samples = sample.to(device, non_blocking=True)
                 targets = target.to(device, non_blocking=True)
 
                 if mixup_fn is not None:
                     samples, targets = mixup_fn(samples, targets)
+
                 return (samples, targets)
             imgs, targets = load_imgs()
 
             def train_step():    
                 _new_lr = scheduler.step() 
                 _new_wd = wd_scheduler.step()
-                         
+
                 def loss_fn(h, targets):
                     loss = criterion(h, targets)
                     loss = AllReduce.apply(loss)
@@ -410,12 +416,13 @@ def main(args, resume_preempt=False):
                     h = target_encoder(imgs)
                     loss = loss_fn(h, targets)
 
+                loss_value = loss.item()
+                loss /= accum_iter
                 #  Step 2. Backward & step
                 if use_bfloat16:
-                    loss /= accum_iter
-                    scaler(loss, optimizer, clip_grad=None,
+                    scaler(loss, optimizer, clip_grad=1.0,
                                 parameters=target_encoder.parameters(), create_graph=False,
-                                update_grad=(itr + 1) % accum_iter == 0)
+                                update_grad=(itr + 1) % accum_iter == 0) # Scaling is only necessary when using bfloat16.
                 else:
                     loss.backward()
                     optimizer.step()
@@ -424,7 +431,7 @@ def main(args, resume_preempt=False):
                 if (itr + 1) % accum_iter == 0:
                     optimizer.zero_grad()
 
-                return (float(loss), _new_lr, _new_wd, grad_stats)
+                return (float(loss_value), _new_lr, _new_wd, grad_stats)
 
             (loss, _new_lr, _new_wd, grad_stats), etime = gpu_timer(train_step)
             
@@ -433,6 +440,7 @@ def main(args, resume_preempt=False):
 
             # -- Logging
             def log_stats():
+
                 csv_logger.log(epoch + 1, itr, loss, etime)
                 if (itr % log_freq == 0) or np.isnan(loss) or np.isinf(loss):
                     logger.info('[%d, %5d/%5d] train_loss: %.3f '
@@ -446,7 +454,7 @@ def main(args, resume_preempt=False):
                                     _new_lr,
                                     torch.cuda.max_memory_allocated() / 1024.**2,
                                     time_meter.avg))
-
+                    
                     if grad_stats is not None:
                         logger.info('[%d, %5d] grad_stats: [%.2e %.2e] (%.2e, %.2e)'
                                     % (epoch + 1, itr,
@@ -475,7 +483,7 @@ def main(args, resume_preempt=False):
                 labels = targets.to(device, non_blocking=True)
                                  
                 with torch.cuda.amp.autocast():
-                    output = target_encoder.forward(images)
+                    output = target_encoder(images)
                     loss = crossentropy(output, labels)
                 
                 acc1, acc5 = accuracy(output, labels, topk=(1, 5))

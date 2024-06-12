@@ -79,6 +79,9 @@ def main(args, resume_preempt=False):
     copy_data = args['meta']['copy_data']
     pred_depth = args['meta']['pred_depth']
     pred_emb_dim = args['meta']['pred_emb_dim']
+
+    checkpoint_file = args['meta']['checkpoint_file']
+
     if not torch.cuda.is_available():
         device = torch.device('cpu')
     else:
@@ -149,6 +152,8 @@ def main(args, resume_preempt=False):
     load_path = None
     if load_model:
         load_path = os.path.join(folder, r_file) if r_file is not None else latest_path
+        if checkpoint_file is not None:
+            load_path = checkpoint_file
 
     # -- make csv_logger
     csv_logger = CSVLogger(log_file,
@@ -247,6 +252,24 @@ def main(args, resume_preempt=False):
             wd_scheduler.step()
             next(momentum_scheduler)
             mask_collator.step()
+
+    # TODO: Remove
+    if checkpoint_file is not None:
+        # -- Reset optimizer and scheduler.
+        start_epoch = 0 
+        optimizer, scaler, scheduler, wd_scheduler = init_opt(
+            encoder=encoder,
+            predictor=predictor,
+            wd=wd,
+            final_wd=final_wd,
+            start_lr=start_lr,
+            ref_lr=lr,
+            final_lr=final_lr,
+            iterations_per_epoch=ipe,
+            warmup=warmup,
+            num_epochs=num_epochs,
+            ipe_scale=ipe_scale,
+            use_bfloat16=use_bfloat16)        
 
     def save_checkpoint(epoch):
         save_dict = {
