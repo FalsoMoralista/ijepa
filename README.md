@@ -1,7 +1,28 @@
-# I-JEPA
+# I-JEPA Finetuning
 
-Official PyTorch codebase for I-JEPA (the **Image-based Joint-Embedding Predictive Architecture**) published @ CVPR-23.
-[\[arXiv\]](https://arxiv.org/pdf/2301.08243.pdf) [\[JEPAs\]](https://ai.facebook.com/blog/yann-lecun-advances-in-ai-research/) [\[blogpost\]](https://ai.facebook.com/blog/yann-lecun-ai-model-i-jepa/)
+PyTorch codebase for finetuning I-JEPA based on the Masked Autoencoders ([MAE](https://github.com/facebookresearch/mae)) finetuning recipe.
+
+## Features
+- [x] - Randaugment
+- [x] - Cutmix
+- [x] - Mixup
+- [x] - Gradient Accumulation
+- [x] - Label smoothing
+- [x] - Drop path
+- [ ] - Layer wise decay (help appreciated)
+
+## Launching I-JEPA finetuning
+In order to launch finetuning you can either run the ```finetune.sh``` script or launch the command below. The default settings for the features above can be found at _configs/in1k_vith14_ep300_finetuning.yaml_. Randaugment, gradient accumulation and other settings that couldn't be found on the .yaml file can be set directly on the _engine_finetune.py_ file.  
+
+```
+python main.py \
+  --fname configs/in1k_vith14_ep300_finetuning.yaml \
+  --devices cuda:0 cuda:1 cuda:2
+```
+
+Some of those settings were set for a ViT-H model, and should be changed accordingly, see the paper appendix (https://arxiv.org/pdf/2111.06377) at page 11.  
+
+
 
 ## Method
 I-JEPA is a method for self-supervised learning. At a high level, I-JEPA predicts the representations of part of an image from the representations of other parts of the same image. Notably, this approach learns semantic image features:
@@ -10,19 +31,6 @@ I-JEPA is a method for self-supervised learning. At a high level, I-JEPA predict
 
 ![ijepa](https://github.com/facebookresearch/ijepa/assets/7530871/dbad94ab-ac35-433b-8b4c-ca227886d311)
 
-## Visualizations
-
-As opposed to generative methods that have a pixel decoder, I-JEPA has a predictor that makes predictions in latent space.
-The predictor in I-JEPA can be seen as a primitive (and restricted) world-model that is able to model spatial uncertainty in a static image from a partially observable context.
-This world model is semantic in the sense that it predicts high level information about unseen regions in the image, rather than pixel-level details.
-
-We trained a stochastic decoder that maps the I-JEPA predicted representations back in pixel space as sketches.
-The model correctly captures positional uncertainty and produces high-level object parts with the correct pose (e.g., dog’s head, wolf’s front legs).
-
-![ijepa-predictor-sketch](https://github.com/facebookresearch/ijepa/assets/7530871/9b66e461-fc8b-4b12-9f06-63ec4dfc1452)
-<sub>
-Caption: Illustrating how the predictor learns to model the semantics of the world. For each image, the portion outside of the blue box is encoded and given to the predictor as context. The predictor outputs a representation for what it expects to be in the region within the blue box. To visualize the prediction, we train a generative model that produces a sketch of the contents represented by the predictor output, and we show a sample output within the blue box. The predictor recognizes the semantics of what parts should be filled in (the top of the dog’s head, the bird’s leg, the wolf’s legs, the other side of the building).
-</sub>
 
 ## Evaluations
 
