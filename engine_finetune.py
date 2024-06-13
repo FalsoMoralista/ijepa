@@ -42,7 +42,7 @@ from src.utils.logging import (
     AverageMeter)
 from src.utils.tensors import repeat_interleave_batch
 from src.datasets.imagenet1k import make_imagenet1k
-from src.datasets.PlantCLEF2022 import make_PlantCLEF2022
+from src.datasets.generic_dataset import make_generic_dataset
 
 from src.helper import (
     add_classification_head,
@@ -173,7 +173,7 @@ def main(args, resume_preempt=False):
     
     if load_model:
         #load_path = '/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/logs/non_scratch_pretraining/jepa-ep50.pth.tar'
-        load_path = '/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/' + 'IN1K-vit.h.14-300e.pth.tar'  #os.path.join(folder, r_file) if r_file is not None else latest_path
+        load_path = '/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/' + 'IN22K-vit.h.14-900e.pth.tar'  #os.path.join(folder, r_file) if r_file is not None else latest_path
     
     if resume_epoch > 0:
         r_file = 'jepa-ep{}.pth.tar'.format(resume_epoch + 1)
@@ -225,7 +225,7 @@ def main(args, resume_preempt=False):
         color_jitter=color_jitter)
 
     # -- init data-loaders/samplers
-    _, supervised_loader_train, supervised_sampler_train = make_PlantCLEF2022(
+    _, supervised_loader_train, supervised_sampler_train = make_generic_dataset(
             transform=training_transform,
             batch_size=batch_size,
             collator=None,
@@ -244,7 +244,7 @@ def main(args, resume_preempt=False):
     # Warning: Enabling distributed evaluation with an eval dataset not divisible by process number. 
     # This will slightly alter validation results as extra duplicate entries are added to achieve
     # equal num of samples per-process.'
-    _, supervised_loader_val, supervised_sampler_val = make_PlantCLEF2022(
+    _, supervised_loader_val, supervised_sampler_val = make_generic_dataset(
             transform=val_transform,
             batch_size=batch_size,
             collator= None,
@@ -366,7 +366,7 @@ def main(args, resume_preempt=False):
     del encoder
     del predictor
     
-    accum_iter = 4
+    accum_iter = 1
     start_epoch = resume_epoch
 
     # -- TRAINING LOOP

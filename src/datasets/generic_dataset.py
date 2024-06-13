@@ -21,15 +21,14 @@ from torchvision import datasets, transforms
 
 from timm.data import create_transform
 
-def build_dataset(is_train, args=None):
-    transform = build_transform(is_train, args)
-    image_folder='/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/data'
+def build_dataset(is_train, image_folder, args=None):
+    transform = build_transform(is_train)
     root = os.path.join(image_folder, 'train' if is_train else 'val')
     dataset = datasets.ImageFolder(root, transform=transform)
 
     return dataset
 
-def build_transform(is_train, args):
+def build_transform(is_train):
 
     #mean = (0.436, 0.444, 0.330) # PlantCLEF2022 stats
     #std = (0.203, 0.199, 0.195)
@@ -71,7 +70,7 @@ def build_transform(is_train, args):
     t.append(transforms.Normalize(mean, std))
     return transforms.Compose(t)
 
-def make_PlantCLEF2022(
+def make_generic_dataset(
     transform,
     batch_size,
     collator=None,
@@ -83,7 +82,7 @@ def make_PlantCLEF2022(
     image_folder=None,
     training=True,
     copy_data=False,
-    drop_last=True, # TODO: REMEMBER TO SET TO FALSE IF VALIDATION DATASET
+    drop_last=True,
     feature_extraction=False,
     subset_file=None
 ):
@@ -98,10 +97,9 @@ def make_PlantCLEF2022(
     #    copy_data=copy_data,
     #    index_targets=index_targets)
     
+    dataset = build_dataset(is_train=training, image_folder=image_folder) 
 
-    dataset = build_dataset(is_train=training) 
-
-    logger.info('PlantCLEF dataset created')
+    logger.info('Finetuning dataset created')
 
     dist_sampler = torch.utils.data.distributed.DistributedSampler(
         dataset=dataset,
