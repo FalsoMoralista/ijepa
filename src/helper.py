@@ -193,8 +193,10 @@ def add_classification_head(pretrained_model, drop_path, nb_classes, device):
     model = FinetuningModel(pretrained_model, drop_path, nb_classes)
     
     # manually initialize fc layer (borrowed from MAE)
-    trunc_normal_(model.mlp_head.weight, std=2e-5) 
-    
+    trunc_normal_(model.mlp_head.weight, std=2e-5)
+     
+    torch.nn.init.constant_(model.mlp_head.bias, 0)
+
     model.to(device)
     return model         
         

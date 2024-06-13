@@ -10,7 +10,7 @@ data:
   nb_classes: 6
   cutmix: 1.0
   reprob: 0.25
-  image_folder:  Intel/
+  image_folder:  /home/rtcalumby/adam/luciano/Intel/
   num_workers: 32
   pin_mem: true
   root_path: /home/rtcalumby/adam/luciano/

@@ -62,7 +62,7 @@ from timm.utils import accuracy
 
 # --
 log_timings = True
-log_freq = 200
+log_freq = 50
 checkpoint_freq = 5
 # --
 
@@ -329,7 +329,7 @@ def main(args, resume_preempt=False):
 
     target_encoder = target_encoder.module # Unwrap from DDP    
     for p in target_encoder.parameters():
-        p.requires_grad = True
+        p.requires_grad = False
 
     target_encoder = add_classification_head(target_encoder, nb_classes=nb_classes, drop_path=drop_path, device=device)
 
@@ -383,8 +383,6 @@ def main(args, resume_preempt=False):
         time_meter = AverageMeter()
 
         target_encoder.train(True)
-
-        #optimizer.zero_grad()
 
         for itr, (sample, target) in enumerate(supervised_loader_train):
             

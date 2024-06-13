@@ -6,7 +6,7 @@ INFO:root:loaded params...
                 'crop_size': 224,
                 'cutmix': 1.0,
                 'drop_path': 0.25,
-                'image_folder': 'Intel/',
+                'image_folder': '/home/rtcalumby/adam/luciano/Intel/',
                 'mixup': 0.8,
                 'nb_classes': 6,
                 'num_workers': 32,
@@ -46,3 +46,275 @@ INFO:root:loaded params...
                         'weight_decay': 0.05}}
 INFO:root:Running... (rank: 0/4)
 INFO:root:Initialized (rank/world-size) 0/4
+INFO:root:making imagenet data transforms
+INFO:root:making imagenet data transforms
+INFO:root:Finetuning dataset created
+Training dataset, length: 3504
+INFO:root:Finetuning dataset created
+Val dataset, length: 736
+INFO:root:Using AdamW
+Mixup is activated!
+INFO:root:loaded pretrained encoder from epoch 66 with msg: <All keys matched successfully>
+INFO:root:loaded pretrained encoder from epoch 66 with msg: <All keys matched successfully>
+['encoder', 'predictor', 'opt', 'scaler', 'target_encoder', 'epoch', 'loss', 'batch_size', 'world_size', 'lr']
+INFO:root:loaded pretrained encoder from epoch 66 with msg: <All keys matched successfully>
+INFO:root:loaded optimizers from epoch 66
+INFO:root:read-path: /home/rtcalumby/adam/luciano/LifeCLEFPlant2022/IN22K-vit.h.14-900e.pth.tar
+INFO:root:Using AdamW
+INFO:root:DistributedDataParallel(
+  (module): FinetuningModel(
+    (pretrained_model): VisionTransformer(
+      (patch_embed): PatchEmbed(
+        (proj): Conv2d(3, 1280, kernel_size=(14, 14), stride=(14, 14))
+      )
+      (blocks): ModuleList(
+        (0-31): 32 x Block(
+          (norm1): LayerNorm((1280,), eps=1e-06, elementwise_affine=True)
+          (attn): Attention(
+            (qkv): Linear(in_features=1280, out_features=3840, bias=True)
+            (attn_drop): Dropout(p=0.0, inplace=False)
+            (proj): Linear(in_features=1280, out_features=1280, bias=True)
+            (proj_drop): Dropout(p=0.0, inplace=False)
+          )
+          (drop_path): Identity()
+          (norm2): LayerNorm((1280,), eps=1e-06, elementwise_affine=True)
+          (mlp): MLP(
+            (fc1): Linear(in_features=1280, out_features=5120, bias=True)
+            (act): GELU(approximate='none')
+            (fc2): Linear(in_features=5120, out_features=1280, bias=True)
+            (drop): Dropout(p=0.0, inplace=False)
+          )
+        )
+      )
+      (norm): LayerNorm((1280,), eps=1e-06, elementwise_affine=True)
+    )
+    (head_drop): Dropout(p=0.25, inplace=False)
+    (mlp_head): Linear(in_features=1280, out_features=6, bias=True)
+  )
+)
+INFO:root:Epoch 1
+{   'data': {   'batch_size': 16,
+                'color_jitter_strength': 0.0,
+                'crop_scale': [0.3, 1.0],
+                'crop_size': 224,
+                'cutmix': 1.0,
+                'drop_path': 0.25,
+                'image_folder': '/home/rtcalumby/adam/luciano/Intel/',
+                'mixup': 0.8,
+                'nb_classes': 6,
+                'num_workers': 32,
+                'pin_mem': True,
+                'reprob': 0.25,
+                'resume_epoch': 0,
+                'root_path': '/home/rtcalumby/adam/luciano/',
+                'use_color_distortion': False,
+                'use_gaussian_blur': False,
+                'use_horizontal_flip': False},
+    'logging': {   'folder': '/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/logs/intel_dataset',
+                   'write_tag': 'jepa'},
+    'mask': {   'allow_overlap': False,
+                'aspect_ratio': [0.75, 1.5],
+                'enc_mask_scale': [0.85, 1.0],
+                'min_keep': 10,
+                'num_enc_masks': 1,
+                'num_pred_masks': 4,
+                'patch_size': 14,
+                'pred_mask_scale': [0.15, 0.2]},
+    'meta': {   'copy_data': False,
+                'load_checkpoint': True,
+                'model_name': 'vit_huge',
+                'pred_depth': 12,
+                'pred_emb_dim': 384,
+                'read_checkpoint': None,
+                'use_bfloat16': False},
+    'optimization': {   'ema': [0.9, 0.999],
+                        'epochs': 50,
+                        'final_lr': 1e-07,
+                        'final_weight_decay': 0.4,
+                        'ipe_scale': 1.0,
+                        'label_smoothing': 0.1,
+                        'lr': 0.00025,
+                        'start_lr': 0.00025,
+                        'warmup': 10,
+                        'weight_decay': 0.05}}
+Training dataset, length: 3504
+Val dataset, length: 736
+Mixup is activated!
+['encoder', 'predictor', 'opt', 'scaler', 'target_encoder', 'epoch', 'loss', 'batch_size', 'world_size', 'lr']
+{   'data': {   'batch_size': 16,
+                'color_jitter_strength': 0.0,
+                'crop_scale': [0.3, 1.0],
+                'crop_size': 224,
+                'cutmix': 1.0,
+                'drop_path': 0.25,
+                'image_folder': '/home/rtcalumby/adam/luciano/Intel/',
+                'mixup': 0.8,
+                'nb_classes': 6,
+                'num_workers': 32,
+                'pin_mem': True,
+                'reprob': 0.25,
+                'resume_epoch': 0,
+                'root_path': '/home/rtcalumby/adam/luciano/',
+                'use_color_distortion': False,
+                'use_gaussian_blur': False,
+                'use_horizontal_flip': False},
+    'logging': {   'folder': '/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/logs/intel_dataset',
+                   'write_tag': 'jepa'},
+    'mask': {   'allow_overlap': False,
+                'aspect_ratio': [0.75, 1.5],
+                'enc_mask_scale': [0.85, 1.0],
+                'min_keep': 10,
+                'num_enc_masks': 1,
+                'num_pred_masks': 4,
+                'patch_size': 14,
+                'pred_mask_scale': [0.15, 0.2]},
+    'meta': {   'copy_data': False,
+                'load_checkpoint': True,
+                'model_name': 'vit_huge',
+                'pred_depth': 12,
+                'pred_emb_dim': 384,
+                'read_checkpoint': None,
+                'use_bfloat16': False},
+    'optimization': {   'ema': [0.9, 0.999],
+                        'epochs': 50,
+                        'final_lr': 1e-07,
+                        'final_weight_decay': 0.4,
+                        'ipe_scale': 1.0,
+                        'label_smoothing': 0.1,
+                        'lr': 0.00025,
+                        'start_lr': 0.00025,
+                        'warmup': 10,
+                        'weight_decay': 0.05}}
+Training dataset, length: 3504
+Val dataset, length: 736
+Mixup is activated!
+['encoder', 'predictor', 'opt', 'scaler', 'target_encoder', 'epoch', 'loss', 'batch_size', 'world_size', 'lr']
+{   'data': {   'batch_size': 16,
+                'color_jitter_strength': 0.0,
+                'crop_scale': [0.3, 1.0],
+                'crop_size': 224,
+                'cutmix': 1.0,
+                'drop_path': 0.25,
+                'image_folder': '/home/rtcalumby/adam/luciano/Intel/',
+                'mixup': 0.8,
+                'nb_classes': 6,
+                'num_workers': 32,
+                'pin_mem': True,
+                'reprob': 0.25,
+                'resume_epoch': 0,
+                'root_path': '/home/rtcalumby/adam/luciano/',
+                'use_color_distortion': False,
+                'use_gaussian_blur': False,
+                'use_horizontal_flip': False},
+    'logging': {   'folder': '/home/rtcalumby/adam/luciano/LifeCLEFPlant2022/logs/intel_dataset',
+                   'write_tag': 'jepa'},
+    'mask': {   'allow_overlap': False,
+                'aspect_ratio': [0.75, 1.5],
+                'enc_mask_scale': [0.85, 1.0],
+                'min_keep': 10,
+                'num_enc_masks': 1,
+                'num_pred_masks': 4,
+                'patch_size': 14,
+                'pred_mask_scale': [0.15, 0.2]},
+    'meta': {   'copy_data': False,
+                'load_checkpoint': True,
+                'model_name': 'vit_huge',
+                'pred_depth': 12,
+                'pred_emb_dim': 384,
+                'read_checkpoint': None,
+                'use_bfloat16': False},
+    'optimization': {   'ema': [0.9, 0.999],
+                        'epochs': 50,
+                        'final_lr': 1e-07,
+                        'final_weight_decay': 0.4,
+                        'ipe_scale': 1.0,
+                        'label_smoothing': 0.1,
+                        'lr': 0.00025,
+                        'start_lr': 0.00025,
+                        'warmup': 10,
+                        'weight_decay': 0.05}}
+Training dataset, length: 3504
+Val dataset, length: 736
+Mixup is activated!
+['encoder', 'predictor', 'opt', 'scaler', 'target_encoder', 'epoch', 'loss', 'batch_size', 'world_size', 'lr']
+INFO:root:[1,     0/  219] train_loss: 1.792 [wd: 5.00e-02] [lr: 2.50e-04] [mem: 1.50e+04] (2346.2 ms)
+INFO:root:[1,     0] grad_stats: [0.00e+00 0.00e+00] (4.25e+00, 4.25e+00)
+INFO:root:[1,    50/  219] train_loss: 1.624 [wd: 5.00e-02] [lr: 2.50e-04] [mem: 1.50e+04] (358.2 ms)
+INFO:root:[1,    50] grad_stats: [0.00e+00 0.00e+00] (3.53e+00, 3.53e+00)
+INFO:root:[1,   100/  219] train_loss: 1.527 [wd: 5.01e-02] [lr: 2.50e-04] [mem: 1.50e+04] (338.5 ms)
+INFO:root:[1,   100] grad_stats: [0.00e+00 0.00e+00] (3.14e+00, 3.14e+00)
+INFO:root:[1,   150/  219] train_loss: 1.473 [wd: 5.02e-02] [lr: 2.50e-04] [mem: 1.50e+04] (331.8 ms)
+INFO:root:[1,   150] grad_stats: [0.00e+00 0.00e+00] (2.94e+00, 2.94e+00)
+INFO:root:[1,   200/  219] train_loss: 1.435 [wd: 5.03e-02] [lr: 2.50e-04] [mem: 1.50e+04] (328.2 ms)
+INFO:root:[1,   200] grad_stats: [0.00e+00 0.00e+00] (3.28e+00, 3.28e+00)
+Loss: 1.4834825992584229
+INFO:root:avg. train_loss 1.421
+INFO:root:avg. test_loss 0.490 avg. Accuracy@1 90.353 - avg. Accuracy@5 99.728
+Loss: 1.4834825992584229
+Loss: 1.4834825992584229
+Loss: 1.4834825992584229
+INFO:root:Epoch 2
+INFO:root:[2,     0/  219] train_loss: 1.267 [wd: 5.03e-02] [lr: 2.50e-04] [mem: 1.50e+04] (364.0 ms)
+INFO:root:[2,     0] grad_stats: [0.00e+00 0.00e+00] (3.36e+00, 3.36e+00)
+INFO:root:[2,    50/  219] train_loss: 1.267 [wd: 5.05e-02] [lr: 2.50e-04] [mem: 1.50e+04] (319.2 ms)
+INFO:root:[2,    50] grad_stats: [0.00e+00 0.00e+00] (5.32e+00, 5.32e+00)
+INFO:root:[2,   100/  219] train_loss: 1.291 [wd: 5.07e-02] [lr: 2.50e-04] [mem: 1.50e+04] (318.8 ms)
+INFO:root:[2,   100] grad_stats: [0.00e+00 0.00e+00] (3.29e+00, 3.29e+00)
+INFO:root:[2,   150/  219] train_loss: 1.300 [wd: 5.10e-02] [lr: 2.50e-04] [mem: 1.50e+04] (318.6 ms)
+INFO:root:[2,   150] grad_stats: [0.00e+00 0.00e+00] (2.60e+00, 2.60e+00)
+INFO:root:[2,   200/  219] train_loss: 1.299 [wd: 5.13e-02] [lr: 2.50e-04] [mem: 1.50e+04] (318.3 ms)
+INFO:root:[2,   200] grad_stats: [0.00e+00 0.00e+00] (3.02e+00, 3.02e+00)
+Loss: 1.3189513683319092
+INFO:root:avg. train_loss 1.306
+INFO:root:avg. test_loss 0.458 avg. Accuracy@1 89.810 - avg. Accuracy@5 99.864
+Loss: 1.3189513683319092
+Loss: 1.3189513683319092
+Loss: 1.3189513683319092
+INFO:root:Epoch 3
+INFO:root:[3,     0/  219] train_loss: 1.319 [wd: 5.14e-02] [lr: 2.50e-04] [mem: 1.50e+04] (342.7 ms)
+INFO:root:[3,     0] grad_stats: [0.00e+00 0.00e+00] (2.50e+00, 2.50e+00)
+INFO:root:[3,    50/  219] train_loss: 1.265 [wd: 5.17e-02] [lr: 2.50e-04] [mem: 1.50e+04] (318.8 ms)
+INFO:root:[3,    50] grad_stats: [0.00e+00 0.00e+00] (2.52e+00, 2.52e+00)
+INFO:root:[3,   100/  219] train_loss: 1.281 [wd: 5.21e-02] [lr: 2.50e-04] [mem: 1.50e+04] (318.5 ms)
+INFO:root:[3,   100] grad_stats: [0.00e+00 0.00e+00] (2.81e+00, 2.81e+00)
+INFO:root:[3,   150/  219] train_loss: 1.297 [wd: 5.25e-02] [lr: 2.50e-04] [mem: 1.50e+04] (318.5 ms)
+INFO:root:[3,   150] grad_stats: [0.00e+00 0.00e+00] (2.69e+00, 2.69e+00)
+INFO:root:[3,   200/  219] train_loss: 1.302 [wd: 5.29e-02] [lr: 2.50e-04] [mem: 1.50e+04] (318.2 ms)
+INFO:root:[3,   200] grad_stats: [0.00e+00 0.00e+00] (2.89e+00, 2.89e+00)
+Loss: 0.9000904560089111
+Loss: 0.9000904560089111
+INFO:root:avg. train_loss 1.293
+INFO:root:avg. test_loss 0.456 avg. Accuracy@1 89.674 - avg. Accuracy@5 100.000
+Loss: 0.9000904560089111
+Loss: 0.9000904560089111
+INFO:root:Epoch 4
+INFO:root:[4,     0/  219] train_loss: 1.013 [wd: 5.31e-02] [lr: 2.50e-04] [mem: 1.50e+04] (363.0 ms)
+INFO:root:[4,     0] grad_stats: [0.00e+00 0.00e+00] (2.35e+00, 2.35e+00)
+INFO:root:[4,    50/  219] train_loss: 1.273 [wd: 5.36e-02] [lr: 2.50e-04] [mem: 1.50e+04] (319.2 ms)
+INFO:root:[4,    50] grad_stats: [0.00e+00 0.00e+00] (2.61e+00, 2.61e+00)
+INFO:root:[4,   100/  219] train_loss: 1.275 [wd: 5.41e-02] [lr: 2.50e-04] [mem: 1.50e+04] (318.8 ms)
+INFO:root:[4,   100] grad_stats: [0.00e+00 0.00e+00] (3.54e+00, 3.54e+00)
+INFO:root:[4,   150/  219] train_loss: 1.276 [wd: 5.47e-02] [lr: 2.50e-04] [mem: 1.50e+04] (318.7 ms)
+INFO:root:[4,   150] grad_stats: [0.00e+00 0.00e+00] (2.53e+00, 2.53e+00)
+INFO:root:[4,   200/  219] train_loss: 1.267 [wd: 5.53e-02] [lr: 2.50e-04] [mem: 1.50e+04] (318.4 ms)
+INFO:root:[4,   200] grad_stats: [0.00e+00 0.00e+00] (2.27e+00, 2.27e+00)
+Loss: 1.2960116863250732
+Loss: 1.2960116863250732
+INFO:root:avg. train_loss 1.267
+INFO:root:avg. test_loss 0.449 avg. Accuracy@1 89.130 - avg. Accuracy@5 99.728
+Loss: 1.2960116863250732
+Loss: 1.2960116863250732
+INFO:root:Epoch 5
+INFO:root:[5,     0/  219] train_loss: 0.857 [wd: 5.55e-02] [lr: 2.50e-04] [mem: 1.50e+04] (344.5 ms)
+INFO:root:[5,     0] grad_stats: [0.00e+00 0.00e+00] (2.44e+00, 2.44e+00)
+INFO:root:[5,    50/  219] train_loss: 1.299 [wd: 5.62e-02] [lr: 2.50e-04] [mem: 1.50e+04] (318.8 ms)
+INFO:root:[5,    50] grad_stats: [0.00e+00 0.00e+00] (2.97e+00, 2.97e+00)
+INFO:root:[5,   100/  219] train_loss: 1.285 [wd: 5.68e-02] [lr: 2.50e-04] [mem: 1.50e+04] (318.5 ms)
+INFO:root:[5,   100] grad_stats: [0.00e+00 0.00e+00] (2.80e+00, 2.80e+00)
+INFO:root:[5,   150/  219] train_loss: 1.278 [wd: 5.75e-02] [lr: 2.50e-04] [mem: 1.50e+04] (318.4 ms)
+INFO:root:[5,   150] grad_stats: [0.00e+00 0.00e+00] (3.21e+00, 3.21e+00)
+INFO:root:[5,   200/  219] train_loss: 1.284 [wd: 5.83e-02] [lr: 2.50e-04] [mem: 1.50e+04] (318.1 ms)
+INFO:root:[5,   200] grad_stats: [0.00e+00 0.00e+00] (2.37e+00, 2.37e+00)
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+slurmstepd: error: *** STEP 2168.0 ON hgx CANCELLED AT 2024-06-13T14:49:49 ***
+srun: error: hgx: task 0: Terminated
