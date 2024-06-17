@@ -1,5 +1,5 @@
 data:
-  batch_size: 16
+  batch_size: 64
   color_jitter_strength: 0.0
   crop_scale:
   - 0.3
@@ -7,11 +7,11 @@ data:
   crop_size: 224
   drop_path: 0.25
   mixup: 0.8
-  nb_classes: 6
+  nb_classes: 1081
   cutmix: 1.0
   reprob: 0.25
-  image_folder:  /home/rtcalumby/adam/luciano/Intel/
-  num_workers: 32
+  image_folder:  /home/rtcalumby/adam/luciano/PlantNet300k/plantnet_300K/
+  num_workers: 64
   pin_mem: true
   root_path: /home/rtcalumby/adam/luciano/
   use_color_distortion: false
@@ -19,7 +19,7 @@ data:
   use_horizontal_flip: false
   resume_epoch: 0
 logging:
-  folder: /home/rtcalumby/adam/luciano/LifeCLEFPlant2022/logs/intel_dataset
+  folder: /home/rtcalumby/adam/luciano/LifeCLEFPlant2022/logs/PlantNet300k2
   write_tag: jepa
 mask:
   allow_overlap: false

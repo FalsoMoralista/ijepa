@@ -42,7 +42,6 @@ from src.utils.logging import (
     AverageMeter)
 from src.utils.tensors import repeat_interleave_batch
 from src.datasets.imagenet1k import make_imagenet1k
-from src.datasets.PlantCLEF2022 import make_PlantCLEF2022
 
 from src.helper import (
     load_checkpoint,
@@ -192,12 +191,12 @@ def main(args, resume_preempt=False):
         gaussian_blur=use_gaussian_blur,
         horizontal_flip=use_horizontal_flip,
         color_distortion=use_color_distortion,
-        normalization=((0.436, 0.444, 0.330),
-                (0.203, 0.199, 0.195)), # PlantCLEF normalization
+        normalization=((0.485, 0.456, 0.406),
+                (0.229, 0.224, 0.225)),
         color_jitter=color_jitter)
 
     # -- init data-loaders/samplers
-    _, unsupervised_loader, unsupervised_sampler = make_PlantCLEF2022(
+    _, unsupervised_loader, unsupervised_sampler = make_imagenet1k(
             transform=transform,
             batch_size=batch_size,
             collator=mask_collator,
@@ -289,6 +288,7 @@ def main(args, resume_preempt=False):
             if (epoch + 1) % checkpoint_freq == 0:
                 torch.save(save_dict, save_path.format(epoch=f'{epoch + 1}'))
 
+    accum_iter = 3
     # -- TRAINING LOOP
     for epoch in range(start_epoch, num_epochs):
         logger.info('Epoch %d' % (epoch + 1))
@@ -344,24 +344,32 @@ def main(args, resume_preempt=False):
                     z = forward_context()
                     loss = loss_fn(z, h)
 
+                # Gradient accumulation
+                loss_value = loss.item()
+                loss /= accum_iter
+
                 #  Step 2. Backward & step
                 if use_bfloat16:
-                    scaler.scale(loss).backward()
-                    scaler.step(optimizer)
-                    scaler.update()
+                    # Gradient accumulation
+                    if (itr + 1) % accum_iter == 0:
+                        scaler.scale(loss).backward()
+                        scaler.step(optimizer)
+                        scaler.update()
                 else:
-                    loss.backward()
-                    optimizer.step()
-                grad_stats = grad_logger(encoder.named_parameters())
-                optimizer.zero_grad()
+                    if (itr + 1) % accum_iter == 0:
+                        loss.backward()
+                        optimizer.step()
+                grad_stats = grad_logger(encoder.named_parameters()) # FIXME: this goes inside the if as well
 
-                # Step 3. momentum update of target encoder
-                with torch.no_grad():
-                    m = next(momentum_scheduler)
-                    for param_q, param_k in zip(encoder.parameters(), target_encoder.parameters()):
-                        param_k.data.mul_(m).add_((1.-m) * param_q.detach().data)
+                if (itr + 1) % accum_iter == 0:
+                    optimizer.zero_grad()
+                    # Step 3. momentum update of target encoder
+                    with torch.no_grad():
+                        m = next(momentum_scheduler)
+                        for param_q, param_k in zip(encoder.parameters(), target_encoder.parameters()):
+                            param_k.data.mul_(m).add_((1.-m) * param_q.detach().data)
 
-                return (float(loss), _new_lr, _new_wd, grad_stats)
+                return (float(loss_value), _new_lr, _new_wd, grad_stats)
             (loss, _new_lr, _new_wd, grad_stats), etime = gpu_timer(train_step)
             loss_meter.update(loss)
             time_meter.update(etime)
