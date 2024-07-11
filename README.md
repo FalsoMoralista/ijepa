@@ -13,6 +13,8 @@ PyTorch codebase for finetuning I-JEPA based on the Masked Autoencoders ([MAE](h
 - [x] - Concatenation of the last 4 layers of the average-pooled patch representations
 - [ ] - Layer wise decay (help appreciated)
 
+### In addition to this we also provide pre-trained ViT-L weights over ImageNet-1k.  
+
 ## Launching I-JEPA finetuning
 In order to launch finetuning you can either run the ```finetune.sh``` script or launch the command below. The default settings for the features above can be found at _configs/in1k_vith14_ep300_finetuning.yaml_.  
 
@@ -51,7 +53,6 @@ Empirically, I-JEPA learns strong off-the-shelf semantic representations without
 
 
 ## Pretrained models
-
 <table>
   <tr>
     <th colspan="1">arch.</th>
@@ -61,6 +62,17 @@ Empirically, I-JEPA learns strong off-the-shelf semantic representations without
     <th colspan="1">data</th>
     <th colspan="3">download</th>
   </tr>
+  <tr>
+    <td>ViT-L</td>
+    <td>14x14</td>
+    <td>224x224</td>
+    <td>150</td>
+    <td>ImageNet-1K</td>
+    <td><a href="https://drive.google.com/file/d/1q5moCP5NOToLVCDfNiA36e6yL-t8HJlJ/view?usp=sharing">full checkpoint</a></td>
+    <td><a href="https://drive.google.com/file/d/13JXKjmd0nMT_4BbdA56kQNZvjxb18DtJ/view?usp=sharing">logs</a></td>
+    <td><a href="https://github.com/facebookresearch/ijepa/blob/main/configs/in1k_vitL14_ep300.yaml">configs</a></td>
+  </tr>
+
   <tr>
     <td>ViT-H</td>
     <td>14x14</td>
