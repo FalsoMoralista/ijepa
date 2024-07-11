@@ -13,7 +13,7 @@ PyTorch codebase for finetuning I-JEPA based on the Masked Autoencoders ([MAE](h
 - [x] - Concatenation of the last 4 layers of the average-pooled patch representations
 - [ ] - Layer wise decay (help appreciated)
 
-### In addition to this we also provide pre-trained ViT-L weights over ImageNet-1k.  
+### In addition to this we also provide pre-trained ViT-L weights over ImageNet-1k [here](https://github.com/FalsoMoralista/ijepa/blob/main/README.md#pretrained-models).  
 
 ## Launching I-JEPA finetuning
 In order to launch finetuning you can either run the ```finetune.sh``` script or launch the command below. The default settings for the features above can be found at _configs/in1k_vith14_ep300_finetuning.yaml_.  
