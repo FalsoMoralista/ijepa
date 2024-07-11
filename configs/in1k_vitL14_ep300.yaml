@@ -1,5 +1,5 @@
 data:
-  batch_size: 192
+  batch_size: 128
   color_jitter_strength: 0.0
   crop_scale:
   - 0.3
@@ -43,7 +43,7 @@ optimization:
   ema:
   - 0.996
   - 1.0
-  epochs: 500
+  epochs: 300
   final_lr: 1.0e-06
   final_weight_decay: 0.4
   ipe_scale: 1.0

@@ -1,3 +1,4 @@
+#!/bin/sh
 python main.py \
   --fname configs/in1k_vitL14_ep300.yaml \
-  --devices cuda:0 cuda:1 cuda:2 cuda:3
+  --devices cuda:0 cuda:1 cuda:2 cuda:3 #cuda:4 cuda:5 cuda:6 cuda:7

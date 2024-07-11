@@ -288,7 +288,7 @@ def main(args, resume_preempt=False):
             if (epoch + 1) % checkpoint_freq == 0:
                 torch.save(save_dict, save_path.format(epoch=f'{epoch + 1}'))
 
-    accum_iter = 3
+    accum_iter = 4
     # -- TRAINING LOOP
     for epoch in range(start_epoch, num_epochs):
         logger.info('Epoch %d' % (epoch + 1))
@@ -359,7 +359,7 @@ def main(args, resume_preempt=False):
                     if (itr + 1) % accum_iter == 0:
                         loss.backward()
                         optimizer.step()
-                grad_stats = grad_logger(encoder.named_parameters()) # FIXME: this goes inside the if as well
+                grad_stats = grad_logger(encoder.named_parameters())
 
                 if (itr + 1) % accum_iter == 0:
                     optimizer.zero_grad()
